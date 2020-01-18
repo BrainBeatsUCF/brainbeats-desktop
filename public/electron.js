@@ -1,6 +1,7 @@
 const electron = require("electron");
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
+const ipcMain = electron.ipcMain;
 const path = require("path");
 const isDev = require("electron-is-dev");
 
@@ -8,7 +9,11 @@ let mainWindow;
 function createWindow() {
   mainWindow = new BrowserWindow({ 
     width: 900, 
-    height: 680 
+    height: 680,
+    webPreferences: {
+      nodeIntegration: true,
+      preload: __dirname + '/preload.js'
+    }
   });
   
   mainWindow.loadURL(
@@ -18,7 +23,11 @@ function createWindow() {
   );
 
   mainWindow.on("closed", () => (mainWindow = null));
-  
+  console.log("THIS IS MY TESTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT");
+  ipcMain.on('channel' , (event, msg)=>{
+    console.log(msg)
+    mainWindow.webContents.send('response' , {title : 'mymessage'  , data : 1 }) ; 
+})
 }
 
 app.on("ready", createWindow);

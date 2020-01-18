@@ -1,5 +1,5 @@
 .Main-Background {
-  height: 100%;
-  width: 100%;
+  min-height: 100%;
+  min-width: 100%;
   background-image: linear-gradient(to right, #ff4276, #ff4d71, #fd576c, #fc6069, #fa6966, #fa7262, #fa7b5e, #f9845b, #f99055, #f79d51, #f3a94f, #eeb64f);
 }
