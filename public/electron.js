@@ -23,7 +23,6 @@ function createWindow() {
   );
 
   mainWindow.on("closed", () => (mainWindow = null));
-  console.log("THIS IS MY TESTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT");
   ipcMain.on('channel' , (event, msg)=>{
     console.log(msg)
     mainWindow.webContents.send('response' , {title : 'mymessage'  , data : 1 }) ; 
