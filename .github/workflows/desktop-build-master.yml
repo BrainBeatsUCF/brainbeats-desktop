@@ -16,9 +16,9 @@ jobs:
       with:
         node-version: 10.16
     - uses: actions/setup-python@v1
-        with:
-          python-version: '3.x'
-          architecture: 'x64' 
+      with:
+        python-version: '3.x'
+        architecture: 'x64' 
     - name: Build on Ubuntu
       run: pip3 install -r requirements.txt
       run: npm install -g yarn
@@ -36,9 +36,9 @@ jobs:
       with:
         node-version: 10.16
     - uses: actions/setup-python@v1
-        with:
-          python-version: '3.x'
-          architecture: 'x64' 
+      with:
+        python-version: '3.x'
+        architecture: 'x64' 
     - name: Build on MacOS
       run: pip3 install -r requirements.txt
       run: npm install -g yarn
@@ -46,9 +46,8 @@ jobs:
       run: npm run start
       run: npm run build
 
-
   build_on_win:
-    runs-on: windows-latest
+  runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
       with:
@@ -57,9 +56,9 @@ jobs:
       with:
         node-version: 10.16
     - uses: actions/setup-python@v1
-        with:
-          python-version: '3.x'
-          architecture: 'x64' 
+      with:
+        python-version: '3.x'
+        architecture: 'x64'
     - name: Build on Windows
       run: pip install -r requirements.txt
       run: npm install -g yarn
