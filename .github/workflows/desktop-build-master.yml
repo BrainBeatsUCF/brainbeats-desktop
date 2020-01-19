@@ -1,4 +1,4 @@
-name: electron-build-master
+name: desktop-build-master
 
 on:
   push:
@@ -19,12 +19,11 @@ jobs:
       with:
         python-version: '3.x'
         architecture: 'x64' 
-    - name: Build on Ubuntu
-      run: pip3 install -r requirements.txt
-      run: npm install -g yarn
-      run: npm install
-      run: npm run start
-      run: npm run build
+    - run: pip3 install -r requirements.txt
+    - run: npm install -g yarn
+    - run: npm install
+    - run: npm run start
+    - run: npm run build
 
   build_on_mac:
     runs-on: macOS-latest
@@ -39,12 +38,11 @@ jobs:
       with:
         python-version: '3.x'
         architecture: 'x64' 
-    - name: Build on MacOS
-      run: pip3 install -r requirements.txt
-      run: npm install -g yarn
-      run: npm install
-      run: npm run start
-      run: npm run build
+    - run: pip3 install -r requirements.txt
+    - run: npm install -g yarn
+    - run: npm install
+    - run: npm run start
+    - run: npm run build
 
   build_on_win:
     runs-on: windows-latest
@@ -59,9 +57,8 @@ jobs:
       with:
         python-version: '3.x'
         architecture: 'x64'
-    - name: Build on Windows
-      run: pip install -r requirements.txt
-      run: npm install -g yarn
-      run: npm install
-      run: npm run start
-      run: npm run build
+    - run: pip install -r requirements.txt
+    - run: npm install -g yarn
+    - run: npm install
+    - run: npm run start
+    - run: npm run build
