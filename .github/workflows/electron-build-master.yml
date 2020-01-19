@@ -24,7 +24,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        ref: oirgin/master       
+        ref: master       
     - uses: actions/setup-node@master
       with:
         node-version: 10.16
