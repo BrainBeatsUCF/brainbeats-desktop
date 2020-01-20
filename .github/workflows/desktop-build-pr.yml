@@ -1,4 +1,4 @@
-name: electron-build-pr
+name: desktop-build-pr
 
 on:
   pull_request:
@@ -6,64 +6,48 @@ on:
     - master
 
 jobs:
-  build_on_ubuntu:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        ref: electron
-    - uses: actions/setup-node@master
-      with:
-        node-version: 10.16
-    - uses: actions/setup-python@v1
-        with:
-          python-version: '3.x'
-          architecture: 'x64' 
-    - name: Build on Ubuntu
-      run: pip3 install -r requirements.txt
-      run: npm install -g yarn
-      run: npm install
-      run: npm run start
-      run: npm run build
-
   build_on_mac:
     runs-on: macOS-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@master
       with:
-        ref: electron
+        ref: master
     - uses: actions/setup-node@master
       with:
         node-version: 10.16
-    - uses: actions/setup-python@v1
-        with:
-          python-version: '3.x'
-          architecture: 'x64' 
-    - name: Build on MacOS
-      run: pip3 install -r requirements.txt
-      run: npm install -g yarn
-      run: npm install
-      run: npm run start
-      run: npm run build
+    - name: Build the app
+      run: |
+        npm install -g yarn
+        npm install
+        npm run build
 
-
-  build_on_win:
+  build_on_windows:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@master
       with:
-        ref: feature/github-actions        
+        ref: master
     - uses: actions/setup-node@master
       with:
         node-version: 10.16
-    - uses: actions/setup-python@v1
-        with:
-          python-version: '3.x'
-          architecture: 'x64' 
-    - name: Build on Windows
-      run: pip install -r requirements.txt
-      run: npm install -g yarn
-      run: npm install
-      run: npm run start
-      run: npm run build
+    - name: Build the app
+      run: |
+        npm install -g yarn
+        npm install
+        npm run build
+
+  build_on_ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+      with:
+        ref: master
+    - uses: actions/setup-node@master
+      with:
+        node-version: 10.16
+    - name: Build the app
+      run: |
+        npm install -g yarn
+        npm install
+        npm run build
 
