@@ -15,7 +15,37 @@ jobs:
     - uses: actions/setup-node@master
       with:
         node-version: 10.16
-    - name: Build the site
+    - name: Build the app
+      run: |
+        npm install -g yarn
+        npm install
+        npm run build
+
+  build_on_windows:
+    runs-on: window-latest
+    steps:
+    - uses: actions/checkout@master
+      with:
+        ref: master
+    - uses: actions/setup-node@master
+      with:
+        node-version: 10.16
+    - name: Build the app
+      run: |
+        npm install -g yarn
+        npm install
+        npm run build
+
+  build_on_ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+      with:
+        ref: master
+    - uses: actions/setup-node@master
+      with:
+        node-version: 10.16
+    - name: Build the app
       run: |
         npm install -g yarn
         npm install
