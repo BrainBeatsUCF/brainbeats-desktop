@@ -1,5 +1,6 @@
 import React from 'react';
 import HomeCards from './HomeCards';
+import { clip } from 'scribbletune';
 
 import BeatButton from '../../images/beatButton.png';
 import SampleButton from '../../images/sampleButton.png';
@@ -29,7 +30,8 @@ export default class Home extends HomeCards {
         dataIndex: 0,
         background: "https://www.positive.news/wp-content/uploads/2019/03/feat-1800x0-c-center.jpg",
         title: "Some Popular Beat",
-        owner: "Mr.beatsguy"
+        owner: "Mr.beatsguy",
+        audio: clip({ synth: 'Synth', notes: 'c4', pattern: 'xxx-x__-x_xx_-x__-' })
       },
       userData: {
         profileImage: "https://www.attractivepartners.co.uk/wp-content/uploads/2017/06/profile.jpg",
@@ -135,14 +137,26 @@ export default class Home extends HomeCards {
 
   handlePauseButton = () => {
     let currentAudio = this.state.currentAudio
+
+    if(currentAudio.isPlaying) {
+      Tone.Transport.cancel();
+    }
+
     currentAudio.isPlaying = false
     this.setState(currentAudio);
   }
 
   handleResumeButton = () => {
     let currentAudio = this.state.currentAudio
+
+    if(currentAudio.isPlaying) {
+      Tone.Transport.cancel();
+    }
+
     currentAudio.isPlaying = true
     this.setState(currentAudio);
+    Tone.Transport.start();
+    currentAudio.audio.start();
   }
 
   handlePublicBeatAudioClipSelected = (index) => {
