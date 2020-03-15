@@ -1,58 +1,42 @@
 {
   "name": "brainbeats",
-  "description": "brain beats desktop app",
-  "author": "Anthony H, Gabe, Lloyd D",
-  "build": {
-    "appId": "com.brainbeats"
-  },
-  "main": "public/electron.js",
-  "homepage": "./",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.4.0",
-    "@testing-library/user-event": "^7.2.1",
-    "@types/jest": "^24.9.0",
-    "@types/node": "^12.12.25",
-    "@types/react": "^16.9.17",
-    "@types/react-dom": "^16.9.4",
-    "concurrently": "^5.0.2",
-    "cross-env": "^6.0.3",
-    "electron-is-dev": "^1.1.0",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0",
-    "react-scripts": "3.3.0",
-    "typescript": "^3.7.5",
-    "wait-on": "^3.3.0"
-  },
-  "devDependencies": {
-    "electron": "^7.1.9",
-    "electron-builder": "^22.2.0"
+  "version": "2.1.0",
+  "description": "",
+  "main": "main.js",
+  "babel": {
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-react"
+    ],
+    "plugins": [
+      "@babel/plugin-proposal-class-properties"
+    ]
   },
   "scripts": {
-    "react-start": "react-scripts start",
-    "react-build": "react-scripts build",
-    "react-test": "react-scripts test --env=jsdom",
-    "react-eject": "react-scripts eject",
-    "electron-build": "electron-builder",
-    "release": "yarn react-build && electron-builder --publish=always",
-    "build": "yarn react-build && yarn electron-build",
-    "start": "concurrently \"cross-env BROWSER=none yarn react-start\" \"wait-on http://localhost:3000 && electron .\""
+    "create": "webpack",
+    "start": "concurrently \"webpack-dev-server --hot --port 3232\" \"sleep 1.5 && electron .\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "eslintConfig": {
-    "extends": "react-app"
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "concurrently": "^5.1.0",
+    "react": "^16.13.0",
+    "react-dom": "^16.13.0"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "devDependencies": {
+    "@babel/core": "^7.8.7",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/preset-env": "^7.8.7",
+    "@babel/preset-react": "^7.8.3",
+    "babel-loader": "^8.0.6",
+    "css-loader": "^3.4.2",
+    "electron": "^8.1.0",
+    "file-loader": "^5.1.0",
+    "html-webpack-plugin": "^3.2.0",
+    "style-loader": "^1.1.3",
+    "webpack": "^4.42.0",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
   }
 }
