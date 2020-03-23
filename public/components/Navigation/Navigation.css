@@ -1,0 +1,53 @@
+.NavigationBackground {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  padding-right: 10px;
+}
+
+.NavigationBackgroundLeft {
+  display: flex;
+  flex-direction: row;
+}
+
+.NavigationInput {
+  width: 130px;
+  height: 40px;
+  background-color: rgb(33, 36, 45);
+  border: solid #000 0px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 10px;
+  color: #fff;
+  cursor: pointer;
+  margin: 0px;
+  margin-left: 10px;
+}
+
+.NavigationLogoutInput {
+  background-color: rgb(37, 31, 33);
+}
+
+.NavigationInput:hover {
+  background-color: rgb(19, 56, 105);
+}
+
+.NavigationLogoutInput:hover {
+  background-color: rgb(150, 31, 31);
+}
+
+.NavigationInputActive {
+  background-color: rgb(19, 56, 105);
+}
+
+label {
+  font-size: 1.25em;
+}

@@ -1,0 +1,240 @@
+
+:root {
+  --side-bar-width: 300px;
+}
+
+.HomeBackground {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+/* Sidebar Content */
+.HomeSideBarBackground {
+  background-color: #28252B;
+  width: var(--side-bar-width);
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  cursor: default;
+  user-select: none;
+}
+
+.UserAccountSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.UserAccountSectionImage {
+  min-width: 120px;
+  min-height: 120px;
+  width: 120px;
+  height: 120px;
+  border-radius: 60px;
+}
+
+h3 {
+  color: #fff;
+  font-size: 0.9em;
+}
+
+.UserAccountSectionLabel {
+  margin-top: 10px;
+}
+
+.StatisticBackground {
+  display: flex;
+  flex-direction: row;
+  width: var(--side-bar-width);
+  box-sizing: border-box;
+  padding: 3px 16%;
+  align-items: center;
+}
+
+.StatisticImage {
+  height: 38px;
+  width: 38px;
+  padding-right: 10px;
+}
+
+.StatisticValues {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: calc(100% - 38px);
+}
+
+/* Audio Player */
+.AudioPlayerSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  padding-bottom: 30px;
+}
+
+.AudioPlayerImageContainer {
+  min-width: 130px;
+  min-height: 130px;
+  height: 130px;
+  width: 130px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: solid rgb(208, 53, 30) 1px;
+  border-radius: 65px;
+}
+
+.AudioPlayerImage {
+  min-width: 110px;
+  min-height: 110px;
+  height: 110px;
+  width: 110px;
+  border-radius: 55px;
+}
+
+.AudioLabelTitle {
+  font-size: 0.8em;
+  text-align: center;
+  color: white;
+}
+
+.AudioLabelTitle {
+  font-size: 0.8em;
+  text-align: center;
+  color: white;
+  margin: 1px;
+  padding: 1px;
+  margin-top: 10px;
+  width: 100%;
+  height: 15px;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.AudioLabelDesc {
+  font-size: 0.8em;
+  text-align: center;
+  color: rgb(88, 85, 89);
+  margin: 1px;
+  width: 100%;
+  height: 15px;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.AudioPlayerControls {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.AudioPlayerButton {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 4px;
+  cursor: pointer;
+}
+
+@keyframes glow {
+  to {
+    border-color: rgb(208, 53, 30);
+    box-shadow: 0 0 10px #eef5e5;
+  }
+}
+
+.GlowingBorder {
+  border: 1px solid transparent;
+  border-color: rgb(208, 53, 30, 0.3);
+  animation: glow 1.0s infinite alternate;
+  transition: border 1.0s linear, box-shadow 1.0s linear;
+}
+
+/* Home Background and Overlay */
+.HomeMainContentBackground {
+  width: calc(100% - var(--side-bar-width));
+  height: 100%;
+}
+
+.HomeMainContentOverlay {
+  position: absolute;
+  right: var(--side-bar-width);
+  height: calc(100% - 50px);
+  pointer-events: none;
+  width: 270px;
+  background: rgb(0,0,0);
+  z-index: 10;
+  background: linear-gradient(90deg, rgba(0,0,0,0) 0%,  rgba(40,37,43,0.9) 60%, rgba(40,37,43,1) 100%);
+}
+
+.HomeMainContent {
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scroll Section */
+.HomeHorizontalScrollSection {
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+}
+
+.HomeHorizontalScrollMenu {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 2px 0px;
+  padding-top: 25px;
+}
+
+.HomeHorizontalScrollMenuTitle {
+  margin: 0px 10px;
+  cursor: default;
+  user-select: none;
+}
+
+.HomeHorizontalScrollSearchButton {
+  padding: 9px;
+  margin: 0px;
+  border: solid 0px;
+  border-radius: 10px;
+  background-color: rgb(51, 48, 53);
+  font-size: 0.8em;
+}
+
+hr {
+  margin: 0px;
+  margin-bottom: 3px;
+  border: 1px solid rgb(250, 250, 250);
+  width: 100%;
+}
+
+.HomeHorizontalScrollCardContainer {
+  display: flex;
+  flex-direction: row;
+  box-sizing: border-box;
+  overflow-x: scroll;
+}
+
+.Spacer {
+  color: rgba(0,0,0,0);
+  cursor: default;
+  user-select: none;
+}
