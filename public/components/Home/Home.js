@@ -1,7 +1,5 @@
 import React from 'react';
 import HomeCards from './HomeCards';
-import { clip, progression, midi } from 'scribbletune';
-import MidiPlayer from 'midi-player-js';
 
 import BeatButton from '../../images/beatButton.png';
 import SampleButton from '../../images/sampleButton.png';
@@ -13,8 +11,8 @@ import PauseButton from '../../images/pauseButton.png';
 import ForwardButton from '../../images/forwardButton.png';
 import BackButton from '../../images/backButton.png';
 
+import HomeTestData from './HomeTestData.json';
 import './Home.css';
-import { link } from 'fs';
 
 const DataListKey = {
   PublicSample: "publicSamples",
@@ -29,90 +27,7 @@ let audioPlayer = null;
 export default class Home extends HomeCards {
   constructor(props) {
     super(props);
-    this.state = {
-      currentAudio: {
-        isPlaying: false,
-        dataListKey: DataListKey.PublicBeat,
-        dataIndex: 0,
-        background: "https://www.positive.news/wp-content/uploads/2019/03/feat-1800x0-c-center.jpg",
-        title: "Some Popular Beat",
-        owner: "Mr.beatsguy",
-        audio: "https://tribeofnoisestorage.blob.core.windows.net/music/30b3d365e7b15b0b6d2e6ba270dc2142.mp3"
-      },
-      userData: {
-        profileImage: "https://www.attractivepartners.co.uk/wp-content/uploads/2017/06/profile.jpg",
-        username: "Toph Beifong",
-        beatCount: 16,
-        sampleCount: 106,
-        shareCount: 213
-      },
-      publicSamples: [
-        {
-          owner: "Mr.beatsguy",
-          audio: "https://c5.recis.io/sl/5c52def40f/40dee0fecf15cb05010b89f3ba617324/gt.mp3",
-          backgroundImage: "https://previews.123rf.com/images/drawkman/drawkman1804/drawkman180400012/99517388-cartoon-vector-illustration-of-acoustic-guitar-or-ukulele-cartoon-clip-art-musical-instrument-icon-.jpg"
-        },
-        {
-          owner: "McFacington Long Namington",
-          audio: "https://c9.recis.io/sl/197da6fc22/ecf697f5b66e3d0fc2a05a81888c32aa/ba.mp3",
-          backgroundImage: "https://paintingvalley.com/drawings/sax-drawing-13.jpg"
-        },
-        {
-          owner: "Shorty",
-          audio: "https://c14.recis.io/sl/197da6fc22/c37db3704f9e5582590bef4b29d0132d/gt.mp3",
-          backgroundImage: "https://image.shutterstock.com/image-vector/electronic-musical-keyboard-cartoon-vector-260nw-243210448.jpg"
-        }
-      ],
-      publicBeats: [
-        {
-          backgroundImage: "https://www.positive.news/wp-content/uploads/2019/03/feat-1800x0-c-center.jpg",
-          profileImage: "https://image.shutterstock.com/image-photo/portrait-smiling-red-haired-millennial-260nw-1194497251.jpg",
-          title: "Some Popular Beat",
-          owner: "Mr.beatsguy",
-          isPlaying: false,
-          sampleCount: 11,
-          playTime: "1 min 22 secs",
-          audio: "https://tribeofnoisestorage.blob.core.windows.net/music/30b3d365e7b15b0b6d2e6ba270dc2142.mp3"
-        },
-        {
-          backgroundImage: "https://www.positive.news/wp-content/uploads/2019/03/feat-1800x0-c-center.jpg",
-          profileImage: "https://image.shutterstock.com/image-photo/portrait-smiling-red-haired-millennial-260nw-1194497251.jpg",
-          title: "Basic Beat",
-          owner: "Other Mr.beatsguy",
-          isPlaying: false,
-          sampleCount: 8,
-          playTime: "2 min 22 secs",
-          audio: "https://tribeofnoisestorage.blob.core.windows.net/music/736d17f0b30c8eb02eebbedf9c593443.mp3"
-        }
-      ],
-      myBeats: [
-        {
-          backgroundImage: "https://www.positive.news/wp-content/uploads/2019/03/feat-1800x0-c-center.jpg",
-          title: "First Mix",
-          audio: "https://tribeofnoisestorage.blob.core.windows.net/music/3224dee000f1a0cc6709b62f6988927e.mp3",
-          tags: ["Clap", "Saxophone", "Heavy Guitar", "Drums", "Snare"]
-        },
-        {
-          backgroundImage: "https://www.positive.news/wp-content/uploads/2019/03/feat-1800x0-c-center.jpg",
-          title: "Vibing, Not a Phone in Sight",
-          audio: "https://tribeofnoisestorage.blob.core.windows.net/music/6959213e1176d70c8a12f22f144abe15.mp3",
-          tags: ["Clap", "Saxophone", "Heavy Guitar", "Drums", "Snare", "Heavy Guitar", "Drums"]
-        },
-        {
-          backgroundImage: "https://www.positive.news/wp-content/uploads/2019/03/feat-1800x0-c-center.jpg",
-          title: "Phone in Sight",
-          audio: "https://tribeofnoisestorage.blob.core.windows.net/music/68ce110cdb9fffa99f52725c8aa0ce33.mp3",
-          tags: ["Clap", "Drums", "Snare"]
-        },
-        {
-          backgroundImage: "https://www.positive.news/wp-content/uploads/2019/03/feat-1800x0-c-center.jpg",
-          title: "Sight",
-          audio: "https://tribeofnoisestorage.blob.core.windows.net/music/ec01bf45137adc0adb10c8c1d4bc89be.mp3",
-          tags: ["Clap", "Saxophone", "Drums", "Snare"]
-        }
-      ]
-    }
-
+    this.state = HomeTestData;
     ctx = new AudioContext();
   }
 
@@ -285,7 +200,6 @@ export default class Home extends HomeCards {
   }
 
   renderHorizontalScrollSection(title, data, cardRenderer, playTarget, searchTarget) {
-
     const renderedCards = data.map((singleEntry, index) => {
       return cardRenderer(index, singleEntry, playTarget);
     })
@@ -331,7 +245,6 @@ export default class Home extends HomeCards {
   }
 
   renderSideBar = () => {
-
     const audioControls = this.state.currentAudio.isPlaying
       ? (
         <div>
