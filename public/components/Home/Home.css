@@ -152,7 +152,7 @@ h3 {
 @keyframes glow {
   to {
     border-color: rgb(208, 53, 30);
-    box-shadow: 0 0 6px #eef5e5;
+    box-shadow: 0 0 10px #eef5e5;
   }
 }
 
