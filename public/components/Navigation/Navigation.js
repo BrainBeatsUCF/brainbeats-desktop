@@ -1,17 +1,16 @@
-import React from 'react';
 import './Navigation.css';
 
+import React from 'react';
+
 import HomeImage from '../../images/HomeImage.png';
-import StudioImage from '../../images/StudioImage.png';
 import LogoutImage from '../../images/LogoutImage.png';
+import StudioImage from '../../images/StudioImage.png';
 
 export default class Navigation extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      isDisplayingHomePage: props.isDisplayingHomePage
-    }
+    this.state = { isDisplayingHomePage : props.isDisplayingHomePage }
   }
 
   renderButton(title, src, height, width, target, isActive, isLogout) {

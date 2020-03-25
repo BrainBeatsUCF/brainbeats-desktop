@@ -1,11 +1,12 @@
+import './Studio.css';
+
 import React from 'react';
 
 import redAddButton from '../../images/redAddButton.png';
 import whiteAddButton from '../../images/whiteAddButton.png';
 
-import './Studio.css';
-
-export const StudioSection = (isBeatSection, dataList, handleCreateButtonTapped, handleLoadButtonTapped) => {
+export const StudioSection = (isBeatSection, dataList, handleCreateButtonTapped,
+                              handleLoadButtonTapped) => {
 
   const style = {
     display: isBeatSection ? "none" : ""
