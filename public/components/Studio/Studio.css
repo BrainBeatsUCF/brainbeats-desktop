@@ -1,0 +1,22 @@
+
+:root {
+  --studio-section-width: 210px;
+}
+
+.StudioBackground {
+  display: flex;
+  flex-direction: row;
+  background-color: aliceblue;
+  height: 100%;
+  width: 100%;
+}
+
+.StudioSectionBackground {
+  background-color: aqua;
+
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+
+  width: var(--studio-section-width);
+}

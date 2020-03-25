@@ -15,7 +15,7 @@ class App extends React.Component{
 			password: '',
 
 			isAuthenticated: true,
-			isDisplayingHomePage: true
+			isDisplayingHomePage: false
 		};
 	}
 
