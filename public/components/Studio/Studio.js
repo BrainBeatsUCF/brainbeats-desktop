@@ -1,6 +1,41 @@
 import React from 'react';
 
+import PauseButton from '../../images/pauseButton.png';
+
 import './Studio.css';
+
+const StudioSection = (isBeatSection, dataList, handleCreateButtonTapped, handleAddButtonTapped) => {
+
+  const style = {
+    display: isBeatSection ? "none" : ""
+  }
+
+  const options = dataList.map(data => {
+    return (
+      <div key={data.title + data.subTitle} className="StudioSectionOptionBackground">
+        <div>
+          <h5 className="PublicBeatInfoLabel">{data.title}</h5>
+          <h5 className="PublicBeatInfoDesc">{data.subTitle}</h5>
+        </div>
+        <img src={PauseButton} style={style} className="StudioButton StudioButtonMedium"></img>
+      </div>
+    );
+  })
+
+  return (
+    <div className="StudioSectionBackground">
+      <div className="StudioSectionHeading">
+        <h4 className="HomeHorizontalScrollMenuTitle">{isBeatSection ? "Beats" : "Samples"}</h4>
+        <img src={PauseButton} className="StudioButton StudioButtonMedium"></img>
+      </div>
+      <input 
+        className="HomeHorizontalScrollSearchButton" type="text" 
+        placeholder="Search" name={isBeatSection ? "BeatSearchField" : "SampleSearchField"}
+      ></input>
+      {options}
+    </div>
+  );
+}
 
 export default class Studio extends React.Component {
   
@@ -10,14 +45,13 @@ export default class Studio extends React.Component {
       beats: [
         {
           title: "First Mix",
-          sampleCount: 11,
-          audioLength: "1 min, 20 secs"
+          subTitle: "11 samples, 1 min 20 secs"
         }
       ],
       samples: [
         {
-          instrument: "saxophone",
-          title: "Sassy Saxxy"
+          title: "Sassy Saxxy",
+          subTitle: "Saxophone"
         }
       ],
       workstation: null
@@ -27,12 +61,8 @@ export default class Studio extends React.Component {
   render() {
     return (
       <div className="StudioBackground">
-        <div className="StudioSectionBackground">
-
-        </div>
-        <div className="StudioSectionBackground">
-
-        </div>
+        {StudioSection(true, this.state.beats)}
+        {StudioSection(false, this.state.samples)}
         <div className="StudioWorkstationBackground">
 
         </div>
