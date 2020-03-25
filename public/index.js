@@ -1,21 +1,21 @@
-import './index.css';
+import "./index.css";
 
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React from "react";
+import ReactDOM from "react-dom";
 
-import Home from './components/Home/Home';
-import Navigation from './components/Navigation/Navigation';
-import Studio from './components/Studio/Studio';
+import Home from "./components/Home/Home";
+import Navigation from "./components/Navigation/Navigation";
+import Studio from "./components/Studio/Studio";
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      username : '',
-      password : '',
+      username: "",
+      password: "",
 
-      isAuthenticated : true,
-      isDisplayingHomePage : false
+      isAuthenticated: true,
+      isDisplayingHomePage: false
     };
   }
 
@@ -25,56 +25,65 @@ class App extends React.Component {
     const password = document.getElementById("password").value;
 
     const allowed = {
-      username : "test@test.com",
-      password : "1234"
-    }
+      username: "test@test.com",
+      password: "1234"
+    };
 
     // make auth request
     if (username === allowed.username && password === allowed.password) {
-      this.setState({isAuthenticated : true});
+      this.setState({ isAuthenticated: true });
     }
   }
 
   handleLogoutUser() {
     // clear user data
-    this.setState({isAuthenticated : false})
+    this.setState({ isAuthenticated: false });
   }
 
   renderLoginView() {
     return (
-        <div className = "LoginPage">
-        <form className =
-             "LoginForm" onSubmit = {() => this.handleAuthentication()}>
-        <input type = "email" placeholder = "username" id = "username">
-        </input>
-				<input type="password" placeholder="password" id="password"></input>
-        <input type = "submit" value = "Login"></input>
-				</form>
-        </div>
-		);
-	}
+      <div className="LoginPage">
+        <form
+          className="LoginForm"
+          onSubmit={() => this.handleAuthentication()}
+        >
+          <input type="email" placeholder="username" id="username"></input>
+          <input type="password" placeholder="password" id="password"></input>
+          <input type="submit" value="Login"></input>
+        </form>
+      </div>
+    );
+  }
 
-	renderLandingView() {
-		const displayedPage = this.state.isDisplayingHomePage ? <Home></Home>:
-            <Studio>
-        </Studio>
+  renderLandingView() {
+    const displayedPage = this.state.isDisplayingHomePage ? (
+      <Home></Home>
+    ) : (
+      <Studio></Studio>
+    );
 
-		return(
-			<div className="MainPage">
-				<Navigation
-					isDisplayingHomePage = {this.state.isDisplayingHomePage}
-					handleHomeButtonTapped={() => this.setState({isDisplayingHomePage: true})}
-					handleStudioButtonTapped={() => this.setState({isDisplayingHomePage: false})}
-					handleLogoutUser={() => this.handleLogoutUser()}
-				></Navigation>
-        <div className = "MainPageSection">{displayedPage}</div>
-			</div>);
+    return (
+      <div className="MainPage">
+        <Navigation
+          isDisplayingHomePage={this.state.isDisplayingHomePage}
+          handleHomeButtonTapped={() =>
+            this.setState({ isDisplayingHomePage: true })
+          }
+          handleStudioButtonTapped={() =>
+            this.setState({ isDisplayingHomePage: false })
+          }
+          handleLogoutUser={() => this.handleLogoutUser()}
+        ></Navigation>
+        <div className="MainPageSection">{displayedPage}</div>
+      </div>
+    );
   }
 
   render() {
-    return this.state.isAuthenticated ? this.renderLandingView()
-                                      : this.renderLoginView();
+    return this.state.isAuthenticated
+      ? this.renderLandingView()
+      : this.renderLoginView();
   }
 }
 
-ReactDOM.render(<App />, document.getElementById('app'))
+ReactDOM.render(<App />, document.getElementById("app"));
