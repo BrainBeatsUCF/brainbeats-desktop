@@ -58,6 +58,7 @@ class App extends React.Component{
 		return(
 			<div className="MainPage">
 				<Navigation
+					isDisplayingHomePage = {this.state.isDisplayingHomePage}
 					handleHomeButtonTapped={() => this.setState({isDisplayingHomePage: true})}
 					handleStudioButtonTapped={() => this.setState({isDisplayingHomePage: false})}
 					handleLogoutUser={() => this.handleLogoutUser()}
