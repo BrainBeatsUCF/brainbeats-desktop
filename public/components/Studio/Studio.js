@@ -4,20 +4,24 @@ import PauseButton from '../../images/pauseButton.png';
 
 import './Studio.css';
 
-const StudioSection = (isBeatSection, dataList, handleCreateButtonTapped, handleAddButtonTapped) => {
+const StudioSection = (isBeatSection, dataList, handleCreateButtonTapped, handleLoadButtonTapped) => {
 
   const style = {
     display: isBeatSection ? "none" : ""
-  }
+  };
 
-  const options = dataList.map(data => {
+  const options = dataList.map((data, index) => {
     return (
-      <div key={data.title + data.subTitle} className="StudioSectionOptionBackground">
+      <div 
+        key={data.title + data.subTitle + index} 
+        className="StudioSectionOptionBackground"
+        onClick={() => handleLoadButtonTapped(index)}
+      >
         <div>
           <h5 className="PublicBeatInfoLabel">{data.title}</h5>
           <h5 className="PublicBeatInfoDesc">{data.subTitle}</h5>
         </div>
-        <img src={PauseButton} style={style} className="StudioButton StudioButtonMedium"></img>
+        <img src={PauseButton} style={style} className="StudioButton StudioButtonSmall"></img>
       </div>
     );
   })
@@ -26,7 +30,11 @@ const StudioSection = (isBeatSection, dataList, handleCreateButtonTapped, handle
     <div className="StudioSectionBackground">
       <div className="StudioSectionHeading">
         <h4 className="HomeHorizontalScrollMenuTitle">{isBeatSection ? "Beats" : "Samples"}</h4>
-        <img src={PauseButton} className="StudioButton StudioButtonMedium"></img>
+        <img 
+          src={PauseButton} 
+          className="StudioButton StudioButtonMedium"
+          onClick={() => handleCreateButtonTapped()}
+        ></img>
       </div>
       <input 
         className="HomeHorizontalScrollSearchButton" type="text" 
@@ -46,6 +54,14 @@ export default class Studio extends React.Component {
         {
           title: "First Mix",
           subTitle: "11 samples, 1 min 20 secs"
+        },
+        {
+          title: "First Mix",
+          subTitle: "11 samples, 1 min 20 secs"
+        },
+        {
+          title: "First Mix",
+          subTitle: "11 samples, 1 min 20 secs"
         }
       ],
       samples: [
@@ -58,11 +74,27 @@ export default class Studio extends React.Component {
     };
   }
 
+  handleCreateSample = () => {
+    console.log("create sample");
+  }
+
+  handleCreateWorkspace = () => {
+    console.log("create workspace");
+  }
+
+  handleLoadWorkspace = (index) => {
+    console.log("load workspace", index);
+  }
+
+  handleLoadSample = (index) => {
+    console.log("load sample", index);
+  }
+
   render() {
     return (
       <div className="StudioBackground">
-        {StudioSection(true, this.state.beats)}
-        {StudioSection(false, this.state.samples)}
+        {StudioSection(true, this.state.beats, this.handleCreateWorkspace, this.handleLoadWorkspace)}
+        {StudioSection(false, this.state.samples, this.handleCreateSample, this.handleLoadSample)}
         <div className="StudioWorkstationBackground">
 
         </div>
