@@ -34,19 +34,19 @@ export default class Studio extends React.Component {
 
   handleCreateSample = () => {
     console.log("create sample");
-  }
+  };
 
   handleCreateWorkspace = () => {
     console.log("create workspace");
-  }
+  };
 
   handleLoadWorkspace = (index) => {
     console.log("load workspace", index);
-  }
+  };
 
   handleLoadSample = (index) => {
     console.log("load sample", index);
-  }
+  };
 
   render() {
     return (
