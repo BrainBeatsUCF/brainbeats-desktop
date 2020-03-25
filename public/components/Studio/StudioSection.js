@@ -1,6 +1,7 @@
 import React from 'react';
 
-import PauseButton from '../../images/pauseButton.png';
+import redAddButton from '../../images/redAddButton.png';
+import whiteAddButton from '../../images/whiteAddButton.png';
 
 import './Studio.css';
 
@@ -21,17 +22,17 @@ export const StudioSection = (isBeatSection, dataList, handleCreateButtonTapped,
           <h5 className="PublicBeatInfoLabel">{data.title}</h5>
           <h5 className="PublicBeatInfoDesc">{data.subTitle}</h5>
         </div>
-        <img src={PauseButton} style={style} className="StudioButton StudioButtonSmall"></img>
+        <img src={whiteAddButton} style={style} className="StudioButton StudioButtonSmall"></img>
       </div>
     );
-  })
+  });
 
   return (
     <div className="StudioSectionBackground">
       <div className="StudioSectionHeading">
         <h4 className="HomeHorizontalScrollMenuTitle">{isBeatSection ? "Beats" : "Samples"}</h4>
         <img 
-          src={PauseButton} 
+          src={redAddButton} 
           className="StudioButton StudioButtonMedium"
           onClick={() => handleCreateButtonTapped()}
         ></img>
