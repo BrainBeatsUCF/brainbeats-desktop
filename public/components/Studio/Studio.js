@@ -1,33 +1,19 @@
-import React from 'react';
-import { StudioSection } from './StudioSection';
+import "./Studio.css";
 
-import './Studio.css';
+import React from "react";
+
+import { StudioSection } from "./StudioSection";
 
 export default class Studio extends React.Component {
-  
   constructor(props) {
     super();
     this.state = {
       beats: [
-        {
-          title: "First Mix",
-          subTitle: "11 samples, 1 min 20 secs"
-        },
-        {
-          title: "First Mix",
-          subTitle: "11 samples, 1 min 20 secs"
-        },
-        {
-          title: "First Mix",
-          subTitle: "11 samples, 1 min 20 secs"
-        }
+        { title: "First Mix", subTitle: "11 samples, 1 min 20 secs" },
+        { title: "First Mix", subTitle: "11 samples, 1 min 20 secs" },
+        { title: "First Mix", subTitle: "11 samples, 1 min 20 secs" }
       ],
-      samples: [
-        {
-          title: "Sassy Saxxy",
-          subTitle: "Saxophone"
-        }
-      ],
+      samples: [{ title: "Sassy Saxxy", subTitle: "Saxophone" }],
       workstation: null
     };
   }
@@ -40,22 +26,30 @@ export default class Studio extends React.Component {
     console.log("create workspace");
   };
 
-  handleLoadWorkspace = (index) => {
+  handleLoadWorkspace = index => {
     console.log("load workspace", index);
   };
 
-  handleLoadSample = (index) => {
+  handleLoadSample = index => {
     console.log("load sample", index);
   };
 
   render() {
     return (
       <div className="StudioBackground">
-        {StudioSection(true, this.state.beats, this.handleCreateWorkspace, this.handleLoadWorkspace)}
-        {StudioSection(false, this.state.samples, this.handleCreateSample, this.handleLoadSample)}
-        <div className="StudioWorkstationBackground">
-
-        </div>
+        {StudioSection(
+          true,
+          this.state.beats,
+          this.handleCreateWorkspace,
+          this.handleLoadWorkspace
+        )}{" "}
+        {StudioSection(
+          false,
+          this.state.samples,
+          this.handleCreateSample,
+          this.handleLoadSample
+        )}
+        <div className="StudioWorkstationBackground"></div>
       </div>
     );
   }
