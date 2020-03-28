@@ -150,8 +150,12 @@ div {
   opacity: 1; /* Firefox */
 }
 
-.SWButton:active {
+.SWButtonClick:active {
   transform: translateY(0.8px) translateX(0.8px);
+}
+
+.SWButton:focus {
+  outline: none;
 }
 
 .SWButtonGray {
