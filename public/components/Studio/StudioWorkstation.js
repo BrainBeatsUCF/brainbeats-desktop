@@ -8,7 +8,8 @@ export const WorkStationSection = (
   play, 
   nameChange, 
   uploadImage, 
-  save
+  save,
+  renderCanvas
 ) => {
   return (
     <div className="StudioWorkstationContent">
@@ -18,12 +19,7 @@ export const WorkStationSection = (
         </h4>
       </div>
       <div className="SWContainer">
-        <div className="SWActivators">
-
-        </div>
-        <div className="SWCanvasContainer">
-
-        </div>
+        {renderCanvas()}
       </div>
       <div className="SWButtonSection">
         <div className="SWButtonLeft">

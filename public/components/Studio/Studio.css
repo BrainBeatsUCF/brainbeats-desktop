@@ -108,7 +108,6 @@
 }
 
 .SWContainer {
-  background-color: #903636;
   height: calc(100% - var(--studio-section-header-height) - var(--studio-workstation-button-section-height));
 }
 
