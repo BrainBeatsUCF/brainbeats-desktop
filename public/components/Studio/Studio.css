@@ -1,8 +1,12 @@
 
 :root {
   --studio-section-width: 200px;
-  --studio-button-medium-dimension: 28px;
+  --studio-button-large-dimension: 32px;
+  --studio-button-medium-dimension: 26px;
   --studio-button-small-dimension: 22px;
+
+  --studio-section-header-height: 42px;
+  --studio-workstation-button-section-height: 55px;
 }
 
 .StudioBackground {
@@ -10,6 +14,7 @@
   flex-direction: row;
   height: 100%;
   width: 100%;
+  overflow: hidden;
 }
 
 .StudioSectionBackground {
@@ -21,6 +26,7 @@
 
   box-sizing: border-box;
   width: var(--studio-section-width);
+  min-width: var(--studio-section-width);
   padding: 5px;
 }
 
@@ -29,7 +35,7 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-
+  height: var(--studio-section-header-height);
   box-sizing: border-box;
   padding: 2px 0px;
 }
@@ -37,6 +43,13 @@
 .StudioButton {
   padding: 4px;
   cursor: pointer;
+}
+
+.StudioButtonLarge {
+  width: var(--studio-button-large-dimension);
+  height: var(--studio-button-large-dimension);
+  min-width: var(--studio-button-large-dimension);
+  min-height: var(--studio-button-large-dimension);
 }
 
 .StudioButtonMedium {
@@ -72,4 +85,79 @@
 .StudioSectionOptionBackground:active {
   box-shadow: 0px 0px 2px rgb(70, 66, 77);
   transform: translateY(0.8px) translateX(0.8px);
+}
+
+.StudioWorkstationBackground {
+  box-sizing: border-box;
+  height: 100%;
+  width: calc(100% - var(--studio-section-width));
+  min-width: calc(100% - (2 * var(--studio-section-width)));
+  overflow-x: scroll;
+}
+
+.StudioWorkstationContent {
+  width: 100%;
+  min-width: 540px;
+  height: 100%;
+  color: rgb(223, 223, 223);
+  box-sizing: border-box;
+  padding: 6px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.SWContainer {
+  background-color: #903636;
+  height: calc(100% - var(--studio-section-header-height) - var(--studio-workstation-button-section-height));
+}
+
+.SWButtonSection {
+  height: var(--studio-workstation-button-section-height);
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+div {
+  box-sizing: border-box;
+}
+
+.SWButtonLeft {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 30px;
+  box-sizing: border-box;
+}
+
+.SWButtonRight {
+  display: flex;
+  align-items: center;
+}
+
+.SWButton {
+  border-radius: 8px;
+  margin: 0px 7.5px;
+  font-size: 0.8em;
+  border: none;
+}
+
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #fff;
+  opacity: 1; /* Firefox */
+}
+
+.SWButton:active {
+  transform: translateY(0.8px) translateX(0.8px);
+}
+
+.SWButtonGray {
+  background-color: rgb(255, 255, 255, 0.27);
+}
+
+.SWButtonBlue {
+  background-color: #134074;
 }
