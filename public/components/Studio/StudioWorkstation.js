@@ -3,18 +3,20 @@ import "./Studio.css";
 import React from "react";
 import whitePlayButton from "../../images/whitePlayButton.png";
 
-export const WorkStationSection =
-    (data, play, nameChange, uploadImage, save, renderCanvas) => {
+export const WorkStationSection = (
+  data,
+  play,
+  nameChange,
+  uploadImage,
+  save,
+  renderCanvas
+) => {
   return (
     <div className="StudioWorkstationContent">
       <div className="StudioSectionHeading">
-        <h4 className="HomeHorizontalScrollMenuTitle">
-          Workstation
-        </h4>
+        <h4 className="HomeHorizontalScrollMenuTitle">Workstation</h4>
       </div>
-      <div className="SWContainer">
-        {renderCanvas()}
-      </div>
+      <div className="SWContainer">{renderCanvas()}</div>
       <div className="SWButtonSection">
         <div className="SWButtonLeft">
           <img
