@@ -4,6 +4,8 @@ import "./SWCanvas.css";
 import React from "react";
 import checkGreen from "../../images/checkGreen.png";
 import checkRed from "../../images/checkRed.png";
+
+import { Rnd } from "react-rnd";
 import { StudioSection } from "./StudioSection";
 import { WorkStationSection } from './StudioWorkstation';
 
@@ -18,7 +20,11 @@ export default class Studio extends React.Component {
         { title: "First Mix", subTitle: "11 samples, 1 min 20 secs" },
         { title: "First Mix", subTitle: "11 samples, 1 min 20 secs" }
       ],
-      samples: [{ title: "Sassy Saxxy", subTitle: "Saxophone" }],
+      samples: [
+        { title: "Sassy Saxxy", subTitle: "Saxophone", length: 4 },
+        { title: "Party Noise", subTitle: "Drums", length: 3 },
+        { title: "DaVinci", subTitle: "Piano", length: 6 }
+      ],
       workstation: []
     };
   }
@@ -42,8 +48,7 @@ export default class Studio extends React.Component {
       title: this.state.samples[index].title,
       row: workstation.length,
       col: 0,
-      length: 4,
-      isTracking: false
+      length: this.state.samples[index].length
     });
     this.setState(workstation);
   };
@@ -88,43 +93,52 @@ export default class Studio extends React.Component {
     });
   }
 
-  handleMouseDown = index => {
+  handleResize = (index, delta) => {
+    const lengthDelta = delta.width / 40;
     let row = this.state.workstation[index];
-    row.isTracking = true;
-    this.setState(row);
+    row.length += lengthDelta;
+    // this.setState(row)
   }
 
-  handleMouseUp = index => {
+  handleDrag = (index, xPosition) => {
+    const newXPosition = xPosition / 40;
     let row = this.state.workstation[index];
-    row.isTracking = false;
-    this.setState(row);
-  }
-
-  handleMouseMove = (event, index) => {
-    if(!this.state.workstation[index].isTracking) {
-      return;
-    }
-
-    console.log(event.clientX, event.clientY);
+    row.col = newXPosition;
+    // this.setState(row)
   }
 
   renderGridItems = () => {
+    const style = {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center"
+    }
+
     return this.state.workstation.map((workItem, index) => {
-      const position = {
-        top: `${40 * workItem.row}px`,
-        left: "0px"
-      }
       return (
-        <div 
-          onMouseDown={() => this.handleMouseDown(index)}
-          onMouseMove={event => this.handleMouseMove(event, index)}
-          onMouseUp={() => this.handleMouseUp(index)}
-          key={`${index}${workItem.col}${workItem.row}${workItem.title}`}
-          className="SWGridItem" 
-          style={position}
+        <Rnd
+        key={`${index}${workItem.row}${workItem.col}`}
+        className="SWGridItem"
+        style={style}
+        default={{
+          x: 0,
+          y: 40 * workItem.row,
+          width: 40 * workItem.length,
+          height: 40
+        }}
+        minHeight={40}
+        maxHeight={40}
+        maxWidth={MAX_GRID_WIDTH}
+        minWidth={40}
+        resizeGrid={[40,1]}
+        dragGrid={[40,1]}
+        dragAxis={"x"}
+        bounds={"parent"}
+        onResizeStop={(event, dir, ref, delta, position) => this.handleResize(index, delta)}
+        onDragStop={(event, handler) => this.handleDrag(index, handler.lastX)}
         >
           <h5 className="SampleCardLabel NoMargins">{workItem.title}</h5>
-        </div>
+        </Rnd>
       );
     });
   }
