@@ -2,12 +2,13 @@ import "./Studio.css";
 import "./SWCanvas.css";
 
 import React from "react";
+import { Rnd } from "react-rnd";
+
 import checkGreen from "../../images/checkGreen.png";
 import checkRed from "../../images/checkRed.png";
 
-import { Rnd } from "react-rnd";
 import { StudioSection } from "./StudioSection";
-import { WorkStationSection } from './StudioWorkstation';
+import { WorkStationSection } from "./StudioWorkstation";
 
 const MAX_GRID_WIDTH = "3840px";
 
@@ -44,7 +45,7 @@ export default class Studio extends React.Component {
   handleLoadSample = index => {
     let workstation = this.state.workstation;
     workstation.push({
-      isActive: true, 
+      isActive: true,
       title: this.state.samples[index].title,
       row: workstation.length,
       col: 0,
@@ -53,35 +54,36 @@ export default class Studio extends React.Component {
     this.setState(workstation);
   };
 
-  handlePlayWorkstation = (editingBeat) => {
+  handlePlayWorkstation = editingBeat => {
     console.log("play");
-  }
+  };
 
   handleUploadImage = () => {
     console.log("upload image");
-  }
+  };
 
-  handleNameChange = (value) => {
+  handleNameChange = value => {
     console.log(value);
-  }
+  };
 
-  handleSaveBeat = (editingBeat) => {
-    console.log("save beat")
-  }
+  handleSaveBeat = editingBeat => {
+    console.log("save beat");
+  };
 
-  handleToggleActiveRow = (index) => {
+  handleToggleActiveRow = index => {
     let row = this.state.workstation[index];
     row.isActive = !row.isActive;
     this.setState(row);
-  }
+  };
 
   renderActivators = () => {
     return this.state.workstation.map((single, index) => {
       return (
-        <div 
-          key={`${index}${single.isActive}`} 
+        <div
+          key={`${index}${single.isActive}`}
           className="SWActivatorContainer"
         >
+          {" "}
           <img
             src={single.isActive ? checkGreen : checkRed}
             height="25px"
@@ -91,81 +93,78 @@ export default class Studio extends React.Component {
         </div>
       );
     });
-  }
+  };
 
   handleResize = (index, delta) => {
     const lengthDelta = delta.width / 40;
     let row = this.state.workstation[index];
     row.length += lengthDelta;
     // this.setState(row)
-  }
+  };
 
   handleDrag = (index, xPosition) => {
     const newXPosition = xPosition / 40;
     let row = this.state.workstation[index];
     row.col = newXPosition;
     // this.setState(row)
-  }
+  };
 
   renderGridItems = () => {
     const style = {
       display: "flex",
       alignItems: "center",
       justifyContent: "center"
-    }
+    };
 
     return this.state.workstation.map((workItem, index) => {
       return (
         <Rnd
-        key={`${index}${workItem.row}${workItem.col}`}
-        className="SWGridItem"
-        style={style}
-        default={{
-          x: 0,
-          y: 40 * workItem.row,
-          width: 40 * workItem.length,
-          height: 40
-        }}
-        minHeight={40}
-        maxHeight={40}
-        maxWidth={MAX_GRID_WIDTH}
-        minWidth={40}
-        resizeGrid={[40,1]}
-        dragGrid={[40,1]}
-        dragAxis={"x"}
-        bounds={"parent"}
-        onResizeStop={(event, dir, ref, delta, position) => this.handleResize(index, delta)}
-        onDragStop={(event, handler) => this.handleDrag(index, handler.lastX)}
+          key={`${index}${workItem.row}${workItem.col}`}
+          className="SWGridItem"
+          style={style}
+          default={{
+            x: 0,
+            y: 40 * workItem.row,
+            width: 40 * workItem.length,
+            height: 40
+          }}
+          minHeight={40}
+          maxHeight={40}
+          maxWidth={MAX_GRID_WIDTH}
+          minWidth={40}
+          resizeGrid={[40, 1]}
+          dragGrid={[40, 1]}
+          dragAxis={"x"}
+          bounds={"parent"}
+          onResizeStop={(event, dir, ref, delta, position) =>
+            this.handleResize(index, delta)
+          }
+          onDragStop={(event, handler) => this.handleDrag(index, handler.lastX)}
         >
           <h5 className="SampleCardLabel NoMargins">{workItem.title}</h5>
         </Rnd>
       );
     });
-  }
+  };
 
   renderCanvas = () => {
     const gridDimensions = {
       width: MAX_GRID_WIDTH,
       height: `${this.state.workstation.length * 40}px`
-    }
+    };
 
     return (
       <div className="SWCanvasMainContainer">
-        <div className="SWCanvasActivators"> 
-          {this.renderActivators()}
-        </div>
+        <div className="SWCanvasActivators">{this.renderActivators()}</div>
         <div className="SWCanvasGridContainer">
-          <div
-            className="SWCanvasGrid"
-            style={gridDimensions}
-          > 
+          <div className="SWCanvasGrid" style={gridDimensions}>
             {this.renderGridItems()}
           </div>
         </div>
         <div className="ScrollCover"></div>
       </div>
     );
-  }
+  };
 
   render() {
     return (
