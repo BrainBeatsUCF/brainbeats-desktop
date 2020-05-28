@@ -25,6 +25,7 @@
     "midi-player-js": "^2.0.5",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
+    "react-rnd": "^10.1.7",
     "scribbletune": "^3.5.0"
   },
   "devDependencies": {
