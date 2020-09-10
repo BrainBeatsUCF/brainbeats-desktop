@@ -27,6 +27,7 @@ public/images
 # ignore other configs
 *.config.js
 .gitignore
+*.editorconfig
 
 # misc
 .DS_Store
