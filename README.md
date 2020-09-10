@@ -14,6 +14,6 @@ During development, the various parts of the application run in the following po
 #### Run
 ```npm start```
 
-
-### Known Road Bumps
-* None
+### Known Issues
+* August 27, 2020
+    * Only starts electron for mac right now. It's missing boot instructions for windows

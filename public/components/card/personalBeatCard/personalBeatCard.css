@@ -1,0 +1,72 @@
+:root {
+	--large-card-width: 300px;
+	--large-card-height: 170px;
+}
+
+.BeatsContainer {
+	height: var(--large-card-height);
+	min-height: var(--large-card-height);
+	width: var(--large-card-width);
+	min-width: var(--large-card-width);
+	background-color: #fff;
+	background-size: var(--large-card-width) var(--large-card-height);
+	border: solid #000 1px;
+	border-radius: 15px;
+	position: relative;
+	box-sizing: border-box;
+	margin: 10px;
+}
+
+.BeatsCardContainerOverlay {
+	height: 100%;
+	width: 100%;
+	display: flex;
+	border-radius: 15px;
+	background-color: rgba(0, 0, 0, 0.6);
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	color: #fff;
+}
+
+.BeatsCardTagContainer {
+	width: 100%;
+	height: 100%;
+	border-radius: 15px;
+	box-sizing: border-box;
+	padding: 3px;
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: flex;
+	justify-content: flex-start;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	align-content: flex-end;
+	flex-direction: row;
+	overflow: hidden;
+}
+
+.BeatsCardTagContainer:hover {
+	cursor: pointer;
+	border: solid 1px rgba(101, 101, 101, 0.6);
+	box-sizing: border-box;
+	border-radius: 15px;
+	transition: border 0.4s;
+}
+
+.BeatsCardTag {
+	box-sizing: border-box;
+	padding: 2px 13px;
+	margin: 5px 3px;
+	margin-top: 0px;
+	border-radius: 10px;
+	font-size: 0.8em;
+	background-color: rgba(0, 0, 0, 0.6);
+	color: #fff;
+}
+
+.BeatsCardDisplayTitle {
+	font-size: 1.1em;
+	padding: 0px 10px;
+}

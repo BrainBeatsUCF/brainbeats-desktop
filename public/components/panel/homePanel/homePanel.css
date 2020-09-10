@@ -1,0 +1,23 @@
+.HomePanel {
+  display: grid;
+  grid-template-rows: 300px auto 270px;
+  grid-template-columns: auto min(300px, max(220px, 25%));
+  grid-template-areas:
+    'mainSection sideTopSection   '
+    'mainSection .                '
+    'mainSection sideBottomSection';
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.MainSection {
+  grid-area: mainSection;
+}
+
+.SideTopSection {
+  grid-area: sideTopSection;
+}
+
+.SideBottomSection {
+  grid-area: sideBottomSection;
+}

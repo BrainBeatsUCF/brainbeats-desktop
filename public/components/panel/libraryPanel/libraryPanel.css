@@ -1,0 +1,26 @@
+.LibraryPanel {
+	display: grid;
+	grid-template-columns: auto min(300px, max(220px, 25%));
+	grid-template-areas: '. overlaySection';
+	align-items: stretch;
+	overflow-y: scroll;
+}
+
+.LibraryPanelOverlaySection {
+	grid-area: overlaySection;
+	pointer-events: none;
+	z-index: 100;
+	background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(40, 37, 43, 0.9) 60%, rgba(40, 37, 43, 1) 100%);
+}
+
+.LibraryPanelSection {
+	grid-column-start: 1;
+	grid-column-end: -1;
+	grid-row-start: 1;
+	grid-row-end: -1;
+	overflow-y: scroll;
+}
+
+.ListBottomPaddingInjection {
+	padding-bottom: 25px;
+}

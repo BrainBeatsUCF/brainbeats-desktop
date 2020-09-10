@@ -1,0 +1,12 @@
+{
+  "extends": [
+    "eslint:recommended", 
+    "plugin:react/recommended",
+    "prettier",
+    "prettier/react"
+  ],
+  "rules": {
+    "indent" : ["error", 2],
+    "quotes": ["error", "single"]
+  }
+}
