@@ -1,0 +1,39 @@
+.GridActivator {
+	box-sizing: border-box;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.GridActivatorImage {
+	cursor: pointer;
+}
+
+.GridMatrix {
+	background-image: repeating-linear-gradient(0deg, transparent 1px, transparent 39px, #707070 40px, #707070 41px),
+		repeating-linear-gradient(-90deg, transparent 1px, transparent 39px, #707070 40px, #707070 41px);
+	background-size: 40px 40px;
+}
+
+.SampleGridItem {
+	background-color: #134074;
+	border: solid 0.7px #fff;
+	border-radius: 10px;
+	margin: 0px;
+	padding: 5px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.SampleGridItemTitle {
+	color: #fff;
+	margin: 0px;
+	padding: 0px;
+	height: auto;
+	text-align: center;
+	overflow: hidden;
+	box-sizing: border-box;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}

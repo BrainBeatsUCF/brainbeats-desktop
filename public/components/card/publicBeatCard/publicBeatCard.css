@@ -1,0 +1,93 @@
+:root {
+	--large-card-width: 300px;
+	--large-card-height: 170px;
+}
+
+.PublicBeatsContainer {
+	height: var(--large-card-height);
+	min-height: var(--large-card-height);
+	width: var(--large-card-width);
+	min-width: var(--large-card-width);
+	background-color: #fff;
+	background-size: var(--large-card-width) var(--large-card-height);
+	border: solid #000 1px;
+	border-radius: 15px;
+	position: relative;
+	box-sizing: border-box;
+	margin: 10px;
+}
+
+.PublicBeatsContentOverlay {
+	height: 100%;
+	width: 100%;
+	border-radius: 15px;
+	background-color: rgba(0, 0, 0, 0.6);
+}
+
+.PublicBeatsContent {
+	width: 100%;
+	height: 100%;
+	border-radius: 15px;
+	box-sizing: border-box;
+	padding: 3px;
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: flex;
+	justify-content: flex-start;
+	align-items: flex-end;
+	align-content: flex-end;
+	flex-direction: row;
+	overflow: hidden;
+}
+
+.PublicBeatsContent:hover {
+	border: solid 2px rgba(101, 101, 101, 0.6);
+	border-radius: 15px;
+	transition: border 0.4s;
+}
+
+.PublicBeatsOwnerImage {
+	border-radius: 12px;
+	min-width: 60px;
+	min-height: 60px;
+	object-fit: cover;
+}
+
+.PublicBeatInfo {
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	margin-left: 4.5px;
+}
+
+.PublicBeatInfoLabel {
+	margin: 3px 0px;
+	font-size: 0.8em;
+	color: #fff;
+}
+
+.PublicBeatInfoContent {
+	display: flex;
+	flex-direction: row;
+}
+
+.PublicBeatPlayInfo {
+	display: flex;
+	flex-direction: column;
+	margin-left: 3px;
+}
+
+.PublicBeatInfoDesc {
+	margin: 0.5px 0px;
+	font-size: 0.65em;
+	color: rgba(255, 255, 255, 0.804);
+}
+
+.PublicBeatVerticalSpacer {
+	height: 10px;
+}
+
+.PublicBeatActionButton {
+	cursor: pointer;
+}

@@ -1,0 +1,30 @@
+.LoginBackground {
+	background-color: #28252b;
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.LoginForm {
+	display: flex;
+	flex-direction: column;
+}
+
+.LoginInput {
+	padding: 10px;
+	margin-bottom: 7px;
+	color: #fff;
+	background-color: rgba(0, 0, 0, 0.27);
+	border: solid #707070 1px;
+	border-radius: 4px;
+	font-size: 1em;
+}
+
+.LoginAuthenticationError {
+	color: #fff;
+	font-size: 1em;
+}

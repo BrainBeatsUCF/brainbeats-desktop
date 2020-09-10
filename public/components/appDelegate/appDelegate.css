@@ -1,0 +1,19 @@
+.AppDelegate {
+	background-color: #28252b;
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	display: grid;
+	grid-template-rows: [header-start header-end] 50px [main-start main-end] auto;
+	grid-template-areas:
+		'header'
+		'main';
+}
+
+.AppHeader {
+	grid-area: header;
+}
+
+.AppBody {
+	grid-area: main;
+}

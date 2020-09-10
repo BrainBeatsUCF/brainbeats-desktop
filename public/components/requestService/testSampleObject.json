@@ -1,0 +1,11 @@
+{
+  "sampleSource": "",
+  "sampleTitle": "Some Title",
+  "sampleSubtitle": "Some subtitle",
+  "sampleIsActive": true,
+  "sampleRowIndex": 0,
+  "sampleColIndex": 0,
+  "samplePlayLength": 1,
+  "type": "sample",
+  "attributes": null
+}

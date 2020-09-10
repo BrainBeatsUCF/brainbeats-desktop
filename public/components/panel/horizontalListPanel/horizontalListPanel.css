@@ -1,0 +1,64 @@
+.HorizontalListPanel {
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	margin: 0px;
+	padding: 15px;
+	padding-bottom: 0px;
+}
+
+.HorizontalListMenuPanel {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding: 5px 0px;
+}
+
+.HorizontalListMenuPanelTitle {
+	margin: 0px 10px;
+	cursor: default;
+	user-select: none;
+	font-size: 1.4em;
+	color: #fff;
+}
+
+.HorizontalListMenuPanelSearch {
+	padding: 9px;
+	margin: 0px;
+	border: solid 0px;
+	border-radius: 10px;
+	background-color: rgb(59, 55, 61);
+	font-size: 0.8em;
+	color: #fff;
+}
+
+.HorizontalListMenuPanelSearchButton {
+	padding: 6px;
+	margin: 0px 4px;
+	color: #fff;
+	background-color: rgba(0, 0, 0, 0.27);
+	border: solid #707070 1px;
+	border-radius: 10px;
+	font-size: 0.9em;
+}
+
+.HorizontalListMenuPanelSearchButtonHidden {
+	display: none;
+}
+
+.HorizontalListMenuPanelSeparator {
+	margin: 0px;
+	margin-bottom: 3px;
+	border: 1px solid rgb(250, 250, 250);
+	width: 100%;
+}
+
+.HorizontalListPanelContent {
+	overflow-x: scroll;
+	display: flex;
+	flex-direction: row;
+}
+
+.HorizontalListPanelContentSpacer {
+	min-width: 100px;
+}
