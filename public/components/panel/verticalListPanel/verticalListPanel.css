@@ -1,112 +1,112 @@
 :root {
-	--studio-button-dimension: 26px;
-	--studio-button-space: 30px;
+  --studio-button-dimension: 26px;
+  --studio-button-space: 30px;
 }
 
 .VerticalListPanel {
-	display: flex;
-	flex-direction: column;
-	box-sizing: border-box;
-	padding: 10px;
-	padding-right: 0px;
-	overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 10px;
+  padding-right: 0px;
+  overflow: hidden;
 }
 
 .VerticalListPanelMenu {
-	box-sizing: border-box;
-	width: 100%;
-	padding: 0px 10px 8px 0px;
-	display: grid;
-	box-sizing: border-box;
-	grid-template-rows: 100%;
-	grid-template-columns: auto var(--studio-button-space) 5px var(--studio-button-space);
-	grid-template-areas: 'leftSpot middleSpot . rightSpot';
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0px 10px 8px 0px;
+  display: grid;
+  box-sizing: border-box;
+  grid-template-rows: 100%;
+  grid-template-columns: auto var(--studio-button-space) 5px var(--studio-button-space);
+  grid-template-areas: 'leftSpot middleSpot . rightSpot';
 }
 
 .LeftSpot {
-	grid-area: leftSpot;
-	align-self: center;
+  grid-area: leftSpot;
+  align-self: center;
 }
 
 .MiddleSpot {
-	grid-area: middleSpot;
+  grid-area: middleSpot;
 }
 
 .RightSpot {
-	grid-area: rightSpot;
+  grid-area: rightSpot;
 }
 
 .CenterSelf {
-	justify-self: center;
-	align-self: center;
+  justify-self: center;
+  align-self: center;
 }
 
 .VerticalListPanelMenuTitle {
-	color: #fff;
-	font-size: 1.1em;
-	user-select: none;
-	margin: auto 10px;
+  color: #fff;
+  font-size: 1.1em;
+  user-select: none;
+  margin: auto 10px;
 }
 
 .VerticalListPanelMenuButton {
-	width: var(--studio-button-dimension);
-	height: var(--studio-button-dimension);
-	min-width: var(--studio-button-dimension);
-	min-height: var(--studio-button-dimension);
-	cursor: pointer;
+  width: var(--studio-button-dimension);
+  height: var(--studio-button-dimension);
+  min-width: var(--studio-button-dimension);
+  min-height: var(--studio-button-dimension);
+  cursor: pointer;
 }
 
 .VerticalListPanelSearchButton {
-	padding: 6px;
-	margin: 0px 3px;
-	margin-right: 10px;
-	border: solid rgba(255, 255, 255, 0.5) 0.6px;
-	border-radius: 8px;
-	background-color: rgb(59, 55, 61);
-	font-size: 0.8em;
-	color: #fff;
-	box-sizing: border-box;
+  padding: 6px;
+  margin: 0px 3px;
+  margin-right: 10px;
+  border: solid rgba(255, 255, 255, 0.5) 0.6px;
+  border-radius: 8px;
+  background-color: rgb(59, 55, 61);
+  font-size: 0.8em;
+  color: #fff;
+  box-sizing: border-box;
 }
 
 .VerticalListPanelCollection {
-	overflow-y: scroll;
-	display: flex;
-	flex-direction: column;
-	box-sizing: border-box;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
 }
 
 .ListCard {
-	display: flex;
-	flex-direction: column;
-	background-color: rgb(38, 37, 46);
-	border: solid 2.4px rgb(46, 43, 50);
-	box-shadow: 0.5px 0.5px 1px rgb(70, 66, 77);
-	border-radius: 10px;
-	box-sizing: border-box;
-	padding: 2px;
-	margin: 3px;
-	margin-top: 8px;
-	cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  background-color: rgb(38, 37, 46);
+  border: solid 2.4px rgb(46, 43, 50);
+  box-shadow: 0.5px 0.5px 1px rgb(70, 66, 77);
+  border-radius: 10px;
+  box-sizing: border-box;
+  padding: 2px;
+  margin: 3px;
+  margin-top: 8px;
+  cursor: pointer;
 }
 
 .ListCard:hover {
-	box-shadow: 0.8px 0.8px 2px rgb(70, 66, 77);
+  box-shadow: 0.8px 0.8px 2px rgb(70, 66, 77);
 }
 
 .ListCardTitle {
-	margin: 3px 2px;
-	font-size: 0.8em;
-	color: rgba(255, 255, 255, 0.804);
+  margin: 3px 2px;
+  font-size: 0.8em;
+  color: rgba(255, 255, 255, 0.804);
 }
 
 .ListCardSubtitle {
-	margin: 0.5px 2px;
-	font-size: 0.65em;
-	color: rgba(255, 255, 255, 0.804);
+  margin: 0.5px 2px;
+  font-size: 0.65em;
+  color: rgba(255, 255, 255, 0.804);
 }
 
 ::placeholder {
-	/* Chrome, Firefox, Opera, Safari 10.1+ */
-	color: #fff;
-	opacity: 1; /* Firefox */
+  /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #fff;
+  opacity: 1; /* Firefox */
 }

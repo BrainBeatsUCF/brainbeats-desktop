@@ -1,62 +1,62 @@
 :root {
-	--sample-card-image-dimension: 100px;
+  --sample-card-image-dimension: 100px;
 }
 
 .SampleCardContainer {
-	min-width: calc(var(--sample-card-image-dimension) + 25px);
-	min-height: calc(var(--sample-card-image-dimension) + 30px);
-	width: calc(var(--sample-card-image-dimension) + 25px);
-	height: calc(var(--sample-card-image-dimension) + 30px);
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	overflow: hidden;
-	color: #fff;
+  min-width: calc(var(--sample-card-image-dimension) + 25px);
+  min-height: calc(var(--sample-card-image-dimension) + 30px);
+  width: calc(var(--sample-card-image-dimension) + 25px);
+  height: calc(var(--sample-card-image-dimension) + 30px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  color: #fff;
 
-	box-sizing: border-box;
-	margin: 9px 1px;
+  box-sizing: border-box;
+  margin: 9px 1px;
 }
 
 .SampleCardBackgroundImage {
-	width: var(--sample-card-image-dimension);
-	min-width: var(--sample-card-image-dimension);
-	min-height: var(--sample-card-image-dimension);
-	height: var(--sample-card-image-dimension);
-	border: solid 0px;
-	border-radius: 50%;
-	position: relative;
+  width: var(--sample-card-image-dimension);
+  min-width: var(--sample-card-image-dimension);
+  min-height: var(--sample-card-image-dimension);
+  height: var(--sample-card-image-dimension);
+  border: solid 0px;
+  border-radius: 50%;
+  position: relative;
 }
 
 .SampleCardOverlay {
-	width: 100%;
-	min-width: 100%;
-	min-height: 100%;
-	height: 100%;
-	top: 0px;
-	border-radius: 50%;
-	position: absolute;
-	float: left;
+  width: 100%;
+  min-width: 100%;
+  min-height: 100%;
+  height: 100%;
+  top: 0px;
+  border-radius: 50%;
+  position: absolute;
+  float: left;
 }
 
 .SampleCardOverlay:hover {
-	border: solid 0.8px;
-	background-color: rgba(53, 53, 53, 0.249);
-	cursor: pointer;
-	transition: 0.2s;
+  border: solid 0.8px;
+  background-color: rgba(53, 53, 53, 0.249);
+  cursor: pointer;
+  transition: 0.2s;
 }
 
 .SampleCardLabel {
-	height: 50px;
-	width: 98%;
-	text-align: center;
-	font-size: 0.9em;
-	overflow: hidden;
-	box-sizing: border-box;
-	margin: 2px;
-	margin-top: 9px;
+  height: 50px;
+  width: 98%;
+  text-align: center;
+  font-size: 0.9em;
+  overflow: hidden;
+  box-sizing: border-box;
+  margin: 2px;
+  margin-top: 9px;
 
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

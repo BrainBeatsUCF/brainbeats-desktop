@@ -1,28 +1,28 @@
 :root {
-	--studio-section-width: 225px;
-	--studio-button-large-dimension: 32px;
-	--studio-button-small-dimension: 22px;
+  --studio-section-width: 225px;
+  --studio-button-large-dimension: 32px;
+  --studio-button-small-dimension: 22px;
 
-	--studio-section-header-height: 42px;
-	--studio-workstation-button-section-height: 55px;
+  --studio-section-header-height: 42px;
+  --studio-workstation-button-section-height: 55px;
 }
 
 .StudioPanel {
-	display: grid;
-	grid-template-rows: 100%;
-	grid-template-columns: var(--studio-section-width) var(--studio-section-width) auto;
-	grid-template-areas: 'leftColumn middleColumn rightColumn';
-	overflow: hidden;
+  display: grid;
+  grid-template-rows: 100%;
+  grid-template-columns: var(--studio-section-width) var(--studio-section-width) auto;
+  grid-template-areas: 'leftColumn middleColumn rightColumn';
+  overflow: hidden;
 }
 
 .LeftColumn {
-	grid-area: leftColumn;
+  grid-area: leftColumn;
 }
 
 .MiddleColumn {
-	grid-area: middleColumn;
+  grid-area: middleColumn;
 }
 
 .RightColumn {
-	grid-area: rightColumn;
+  grid-area: rightColumn;
 }

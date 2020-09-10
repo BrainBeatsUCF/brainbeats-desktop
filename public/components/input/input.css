@@ -1,35 +1,35 @@
 .InputMenuButton {
-	border: solid #000 0px;
-	border-radius: 10px;
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-	align-items: center;
-	box-sizing: border-box;
-	padding: 10px;
-	color: #fff;
-	cursor: pointer;
-	margin: 0px;
+  border: solid #000 0px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 10px;
+  color: #fff;
+  cursor: pointer;
+  margin: 0px;
 }
 
 label.InputMenuButton {
-	cursor: pointer;
+  cursor: pointer;
 }
 
 .InputMenuButtonBlue {
-	background-color: rgb(33, 36, 45);
+  background-color: rgb(33, 36, 45);
 }
 
 .InputMenuButtonBlue:hover,
 .InputMenuButtonBlue.InputMenuButtonActive {
-	background-color: rgb(19, 56, 105);
+  background-color: rgb(19, 56, 105);
 }
 
 .InputMenuButtonRed {
-	background-color: rgb(37, 31, 33);
+  background-color: rgb(37, 31, 33);
 }
 
 .InputMenuButtonRed:hover,
 .InputMenuButtonRed.InputMenuButtonActive {
-	background-color: rgb(150, 31, 31);
+  background-color: rgb(150, 31, 31);
 }
