@@ -1,80 +1,79 @@
 :root {
-  --workstation-button-space: 80px;
-  --workstation-menu-height: 38px;
-  --section-combined-width: 450px;
-  --header-combined-height: 98px;
+	--workstation-button-space: 80px;
+	--workstation-menu-height: 38px;
+	--section-combined-width: 450px;
+	--header-combined-height: 98px;
 }
 
 .WorkstationPanel {
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-  padding: 10px;
-  overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	padding: 10px;
+	overflow: hidden;
 }
 
 .WorkstationPanelMenu {
-  box-sizing: border-box;
-  padding-bottom: 10px;
-  width: 100%;
-  height: var(--workstation-menu-height);
-  display: grid;
-  box-sizing: border-box;
-  grid-template-rows: 100%;
-  grid-template-columns: auto var(--workstation-button-space) 5px var(--workstation-button-space);
-  grid-template-areas: 'leftSpot middleSpot . rightSpot';
+	box-sizing: border-box;
+	padding-bottom: 10px;
+	width: 100%;
+	height: var(--workstation-menu-height);
+	display: grid;
+	grid-template-rows: 100%;
+	grid-template-columns: auto var(--workstation-button-space) 5px var(--workstation-button-space);
+	grid-template-areas: 'leftSpot middleSpot . rightSpot';
 }
 
 .WorkstationPanelMenuTitle {
-  color: #fff;
-  font-size: 1.1em;
-  user-select: none;
-  margin: 3.391px 10px;
+	color: #fff;
+	font-size: 1.1em;
+	user-select: none;
+	margin: 3.391px 10px;
 }
 
 .WorkstationPanelMenuButton {
-  height: 28px;
-  width: 100%;
-  font-size: 1em;
+	height: 28px;
+	width: 100%;
+	font-size: 1em;
 }
 
 .WorkstationPanelNoImageMenuButton {
-  display: none;
+	display: none;
 }
 
 .LeftSpot {
-  grid-area: leftSpot;
-  align-self: center;
+	grid-area: leftSpot;
+	align-self: center;
 }
 
 .MiddleSpot {
-  grid-area: middleSpot;
+	grid-area: middleSpot;
 }
 
 .RightSpot {
-  grid-area: rightSpot;
+	grid-area: rightSpot;
 }
 
 .CenterSelf {
-  justify-self: center;
-  align-self: center;
-  user-select: none;
+	justify-self: center;
+	align-self: center;
+	user-select: none;
 }
 
 .GridContainer {
-  position: absolute;
-  left: var(--section-combined-width);
-  top: var(--header-combined-height);
-  height: calc(100% - var(--header-combined-height));
-  width: calc(100% - var(--section-combined-width));
-  display: flex;
-  flex-direction: row;
-  overflow: scroll;
+	position: absolute;
+	left: var(--section-combined-width);
+	top: var(--header-combined-height);
+	height: calc(100% - var(--header-combined-height));
+	width: calc(100% - var(--section-combined-width));
+	display: flex;
+	flex-direction: row;
+	overflow: scroll;
 }
 
 .GridActivators {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 40px;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	width: 40px;
 }

@@ -13,12 +13,11 @@ package-lock.json
 /build
 /dist
 
-# ignore non js || css
+# ignore non js || css || md
 *.html
 *.py
 *.json
 LICENSE
-*.md
 *.yml
 public/images
 /public/images
