@@ -15,6 +15,7 @@
   "scripts": {
     "create": "webpack",
     "start": "concurrently \"webpack-dev-server --hot --port 3232\" \"sleep 3.0 && electron .\"",
+    "format": "npx prettier --write .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Lloyd Dapaah",

@@ -9,8 +9,8 @@ const mockNetworkDelayMillisecond = 2000
 const mockRandomListCountMaximum = 20
 
 const ResultStatus = {
-  Success: 'success',
-  Error: 'error',
+	Success: 'success',
+	Error: 'error',
 }
 
 /**
@@ -18,10 +18,10 @@ const ResultStatus = {
  * @param {(data: any, status: String) => void} didCompleteRequest
  */
 const RequestHomeData = (userInfo, didCompleteRequest) => {
-  setTimeout(() => {
-    console.log(userInfo)
-    didCompleteRequest(secondTestDataSet, ResultStatus.Success)
-  }, 2500)
+	setTimeout(() => {
+		console.log(userInfo)
+		didCompleteRequest(secondTestDataSet, ResultStatus.Success)
+	}, 2500)
 }
 
 /**
@@ -29,18 +29,18 @@ const RequestHomeData = (userInfo, didCompleteRequest) => {
  * @param {(data: [GridSampleObject]) => void} didCompleteRequest
  */
 const RequestUserSampleItems = (userInfo, didCompleteRequest) => {
-  setTimeout(() => {
-    const oneObject = testSampleData
-    let somelist = []
-    const maxCount = Math.floor(Math.random() * Math.floor(mockRandomListCountMaximum))
-    for (let i = 0; i < maxCount; i++) {
-      let newObject = {}
-      Object.assign(newObject, oneObject)
-      somelist.push(newObject)
-    }
-    console.log(userInfo)
-    didCompleteRequest(somelist)
-  }, mockNetworkDelayMillisecond)
+	setTimeout(() => {
+		const oneObject = testSampleData
+		let somelist = []
+		const maxCount = Math.floor(Math.random() * Math.floor(mockRandomListCountMaximum))
+		for (let i = 0; i < maxCount; i++) {
+			let newObject = {}
+			Object.assign(newObject, oneObject)
+			somelist.push(newObject)
+		}
+		console.log(userInfo)
+		didCompleteRequest(somelist)
+	}, mockNetworkDelayMillisecond)
 }
 
 /**
@@ -48,28 +48,28 @@ const RequestUserSampleItems = (userInfo, didCompleteRequest) => {
  * @param {(data: [any]) => void} didCompleteRequest
  */
 const RequestUserBeatItems = (userInfo, didCompleteRequest) => {
-  setTimeout(() => {
-    const oneObject = {
-      sampleSource: '',
-      sampleTitle: 'Some Title',
-      sampleSubtitle: 'Some subtitle',
-      sampleIsActive: true,
-      sampleRowIndex: 0,
-      sampleColIndex: 0,
-      samplePlayLength: 1,
-      type: ListObjectType.Sample,
-      attributes: null,
-    }
-    let somelist = []
-    const maxCount = Math.floor(Math.random() * Math.floor(mockRandomListCountMaximum))
-    for (let i = 0; i < maxCount; i++) {
-      let newObject = {}
-      Object.assign(newObject, oneObject)
-      somelist.push(oneObject)
-    }
-    console.log(userInfo)
-    didCompleteRequest(somelist)
-  }, mockNetworkDelayMillisecond)
+	setTimeout(() => {
+		const oneObject = {
+			sampleSource: '',
+			sampleTitle: 'Some Title',
+			sampleSubtitle: 'Some subtitle',
+			sampleIsActive: true,
+			sampleRowIndex: 0,
+			sampleColIndex: 0,
+			samplePlayLength: 1,
+			type: ListObjectType.Sample,
+			attributes: null,
+		}
+		let somelist = []
+		const maxCount = Math.floor(Math.random() * Math.floor(mockRandomListCountMaximum))
+		for (let i = 0; i < maxCount; i++) {
+			let newObject = {}
+			Object.assign(newObject, oneObject)
+			somelist.push(oneObject)
+		}
+		console.log(userInfo)
+		didCompleteRequest(somelist)
+	}, mockNetworkDelayMillisecond)
 }
 
 /**
@@ -77,15 +77,15 @@ const RequestUserBeatItems = (userInfo, didCompleteRequest) => {
  * @return {String}
  */
 const RequestUserProfileImage = userInfo => {
-  console.log(userInfo.email)
-  const options = {
-    height: 120,
-    width: 120,
-    cellSize: 25,
-    seed: userInfo.uuid,
-  }
-  const pattern = trianglify(options)
-  return pattern.toCanvas().toDataURL()
+	console.log(userInfo.email)
+	const options = {
+		height: 120,
+		width: 120,
+		cellSize: 25,
+		seed: userInfo.uuid,
+	}
+	const pattern = trianglify(options)
+	return pattern.toCanvas().toDataURL()
 }
 
 export { RequestHomeData, RequestUserProfileImage, RequestUserBeatItems, RequestUserSampleItems, ResultStatus }

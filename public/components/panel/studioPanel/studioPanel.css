@@ -25,3 +25,7 @@
 .RightColumn {
 	grid-area: rightColumn;
 }
+
+.HideFullCover {
+	display: none;
+}
