@@ -12,6 +12,11 @@ package-lock.json
 # production
 /build
 /dist
+/production/*
+!production/main.js
+!production/package.json
+!production/preload.js
+!production/renderer.js
 
 # misc
 .DS_Store

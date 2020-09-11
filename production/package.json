@@ -1,0 +1,16 @@
+{
+  "name": "brainbeats_desktop",
+  "version": "3.1.0",
+  "description": "Brainbeats desktop production application files for distribution",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "https://github.com/BrainBeatsUCF/brainbeats-desktop",
+  "keywords": [],
+  "author": "Lloyd Dapaah",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^10.1.1"
+  }
+}
