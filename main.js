@@ -12,6 +12,9 @@ function createWindow() {
     },
   })
 
+  // load development environment values
+  process.env.isElectronDevelopmentEnvironment = true
+
   // and load the index.html of the app.
   win.loadURL('http://localhost:3232')
 
