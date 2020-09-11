@@ -158,6 +158,9 @@ class SampleSynthesizer extends React.Component {
   }
 
   renderConnectingStage = () => {
+    // TODO: add UI for equalizer animation with D3.js, or other simpler lib
+    // * start EEG script
+    // * listen for completion or error callback. should include a timeout?
     return <div></div>
   }
 

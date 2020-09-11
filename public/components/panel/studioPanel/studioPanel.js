@@ -52,8 +52,7 @@ class StudioPanel extends React.Component {
    * @param {GridSampleObject} sampleObject
    */
   handleSaveSampleToDatabase = sampleObject => {
-    // TODO:
-    // save sample to database
+    // TODO: save sample to database
     // start refreshing samples
     // turn off synthesizer
   }
@@ -69,8 +68,6 @@ class StudioPanel extends React.Component {
    */
   handleSampleAddClick = () => {
     const { isSynthesizingSample } = this.state
-    // TODO: Overlay menu buttons to prevent page from being switched
-    // in the process when will be synthesizingSample
     this.setIsSynthesizingSample(!isSynthesizingSample)
   }
 
