@@ -1,24 +1,24 @@
 :root {
-	--app-header-height: 50px;
-	--app-background-color: #28252b;
+  --app-header-height: 50px;
+  --app-background-color: #28252b;
 }
 
 .AppDelegate {
-	background-color: var(--app-background-color);
-	position: absolute;
-	height: 100%;
-	width: 100%;
-	display: grid;
-	grid-template-rows: [header-start header-end] var(--app-header-height) [main-start main-end] auto;
-	grid-template-areas:
-		'header'
-		'main';
+  background-color: var(--app-background-color);
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  display: grid;
+  grid-template-rows: [header-start header-end] var(--app-header-height) [main-start main-end] auto;
+  grid-template-areas:
+    'header'
+    'main';
 }
 
 .AppHeader {
-	grid-area: header;
+  grid-area: header;
 }
 
 .AppBody {
-	grid-area: main;
+  grid-area: main;
 }
