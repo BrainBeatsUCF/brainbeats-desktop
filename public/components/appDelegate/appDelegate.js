@@ -5,8 +5,6 @@ import { HomePanel } from '../panel/homePanel/homePanel'
 import { StudioPanel } from '../panel/studioPanel/studioPanel'
 import './appDelegate.css'
 
-const electron = window.require('electron')
-
 /**
  * @param {{
  * onLogoutClick: () => void,
@@ -16,8 +14,6 @@ const electron = window.require('electron')
 const AppDelegate = props => {
   const [navigationPage, setNavigationPage] = useState(NavigationPage.Studio)
   const [isMakingNetworkActivity, setIsMakingNetworkActivity] = useState(false)
-
-  console.log(electron.remote.process.env.isElectronDevelopmentEnvironment)
 
   const handleLogout = () => {
     if (navigationPage == NavigationPage.Logout) {

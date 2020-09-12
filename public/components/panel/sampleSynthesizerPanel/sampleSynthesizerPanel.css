@@ -31,11 +31,22 @@
 }
 
 .SynthesizerLeftBodySection {
+  box-sizing: border-box;
   grid-area: synthesizerLeftBodySection;
+  padding-bottom: 10px;
 }
 
 .SynthesizerRightBodySection {
+  box-sizing: border-box;
   grid-area: synthesizerRightBodySection;
+  padding-bottom: 10px;
+}
+
+.FlexWithCenteredContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .SynthesizerFullBodySection {
