@@ -17,9 +17,13 @@ let socket = null
 /**
  * @param {(message: [String]) => void} handleData
  * @param {(message: String) => void} handleError
+ * @param {() => void} handleConfirmation
  */
-async function establishConnection(handleData, handleError) {
+function establishConnection(handleData, handleError, handleConfirmation) {
   setTimeout(() => {
+    if (child == null || child === undefined) {
+      return
+    }
     console.log('Establishing Connection')
     socket = io.connect(socketConnectionURL)
     socket.on('connect', () => {
@@ -27,21 +31,31 @@ async function establishConnection(handleData, handleError) {
     })
     socket.on('eegEvent', message => {
       handleData(message)
+      closeHardwareSocket()
     })
     socket.on('eegError', message => {
       handleError(message)
+      closeHardwareSocket()
+    })
+    socket.on('eegConnect', () => {
+      handleConfirmation()
     })
   }, delayMilliseconds)
 }
 
 /**
- * @param {(message: [String]) => void} handleData
- * @param {(message: String) => void} handleError
+ * @param {(message: [String]) => void} handleData,
+ * @param {(message: String) => void} handleError,
+ * @param {() => void} handleConfirmation
  */
-const startHardwareSocket = (handleData, handleError) => {
+const startHardwareSocket = (handleData, handleError, handleConfirmation) => {
   child = window.spawn('python', [serverStartScriptRelativePath])
 
   child.on('exit', code => {
+    if (socket != null && socket != undefined) {
+      socket.disconnect()
+    }
+    closeHardwareSocket()
     console.log(`${ChildProcessMessages.Exit}: ${code}`)
   })
 
@@ -59,7 +73,7 @@ const startHardwareSocket = (handleData, handleError) => {
     console.log(`${ChildProcessMessages.Alert}: ${message}`)
   })
 
-  establishConnection(handleData, handleError)
+  establishConnection(handleData, handleError, handleConfirmation)
   return child
 }
 

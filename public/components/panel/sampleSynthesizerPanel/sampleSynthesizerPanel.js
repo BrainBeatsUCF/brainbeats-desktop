@@ -63,16 +63,28 @@ class SampleSynthesizer extends React.Component {
 
   handleConnectingToHardware = () => {
     this.setState({ hasEstablishedHardwareConnection: true })
-    startHardwareSocket(this.handleHardwareData, this.handleHardwareError)
-    // TODO: call handler which opens python app and feed it callback functions
+    startHardwareSocket(this.handleHardwareData, this.handleHardwareError, this.handleHardwareDidConnect)
   }
 
   handleHardwareData = message => {
+    const { synthesizingStage } = this.state
+    // TODO: make request to model server with data
     console.log('HM', message)
+    if (synthesizingStage === SynthesizingStage.Recording) {
+      this.setState({ synthesizingStage: SynthesizingStage.Modeling })
+    }
   }
 
   handleHardwareError = errorMessage => {
-    console.log('HE', errorMessage)
+    console.log('Error from hardware: ', errorMessage)
+    this.handleAbortProcessing()
+  }
+
+  handleHardwareDidConnect = () => {
+    const { synthesizingStage } = this.state
+    if (synthesizingStage === SynthesizingStage.Connecting) {
+      this.setState({ synthesizingStage: SynthesizingStage.Recording })
+    }
   }
 
   handleAbortProcessing = () => {
