@@ -3,6 +3,7 @@ import { ListObjectType, VerticalListPanel } from '../verticalListPanel/vertical
 import { WorkstationPanel } from '../workstationPanel/workstationPanel'
 import { GridSampleObject } from '../workstationPanel/gridComponents'
 import { RequestUserBeatItems, RequestUserSampleItems } from '../../requestService/requestService'
+import { SampleSynthesizer, SynthesizingStage } from '../sampleSynthesizerPanel/sampleSynthesizerPanel'
 import './studioPanel.css'
 
 let StudioPanelComponentMounted = false
@@ -24,6 +25,7 @@ class StudioPanel extends React.Component {
     super(props)
     this.state = {
       customClass: props.customClass ?? '',
+      isSynthesizingSample: true,
       loadedBeats: [],
       loadedSamples: [GridSampleObject],
       loadedGridSampleObjects: [GridSampleObject],
@@ -46,16 +48,27 @@ class StudioPanel extends React.Component {
 
   // MARK : Event Handlers
 
+  /**
+   * @param {GridSampleObject} sampleObject
+   */
+  handleSaveSampleToDatabase = sampleObject => {
+    // TODO: save sample to database
+    // start refreshing samples
+    // turn off synthesizer
+  }
+
   handleBeatsAddClick = () => {
     // TODO: Start a new slate on grid
     // If content already exists in grid, ask user to save then close
     // else close right away and renew slate
   }
 
+  /**
+   * Opens up synthesizer component to start EEG -> Sample flow
+   */
   handleSampleAddClick = () => {
-    // TODO: Open up EEG interface to start recording flow
-    // Should be handled by appdelegate function with a callback on flow completion
-    // This will help avoid memory leaks as a result of component lifecycles
+    const { isSynthesizingSample } = this.state
+    this.setIsSynthesizingSample(!isSynthesizingSample)
   }
 
   handleBeatsItemClick = beatsObject => {
@@ -120,7 +133,15 @@ class StudioPanel extends React.Component {
     this.setState({ loadedGridSampleObjects: loadedGridSampleObjects })
   }
 
+  /**
+   * @param {Boolean} isSynthesizingSample
+   */
+  setIsSynthesizingSample = isSynthesizingSample => {
+    this.setState({ isSynthesizingSample: isSynthesizingSample })
+  }
+
   render() {
+    const { isSynthesizingSample } = this.state
     return (
       <div className={`StudioPanel ${this.state.customClass}`}>
         <VerticalListPanel
@@ -145,6 +166,11 @@ class StudioPanel extends React.Component {
           loadedSampleList={this.state.loadedGridSampleObjects}
           setLoadedSampleList={this.setLoadedGridSampleObjects}
         ></WorkstationPanel>
+        <SampleSynthesizer
+          customClassname={`${isSynthesizingSample ? '' : 'HideFullCover'}`}
+          startSynthesizingStage={SynthesizingStage.Selecting}
+          didSelectFinalSample={this.handleSaveSampleToDatabase}
+        ></SampleSynthesizer>
       </div>
     )
   }

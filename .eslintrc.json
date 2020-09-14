@@ -8,5 +8,14 @@
   "rules": {
     "indent" : ["error", 2],
     "quotes": ["error", "single"]
-  }
+  },
+  "overrides": [
+    {
+      "files": [ "*.json" ],
+      "excludedFiles": ["*.js", "*.css"],
+      "rules": {
+        "quotes": ["error", "double" ]
+      }
+    }
+  ]
 }
