@@ -71,7 +71,10 @@ class SampleSynthesizer extends React.Component {
     // TODO: make request to model server with data
     console.log('HM', message)
     if (synthesizingStage === SynthesizingStage.Recording) {
-      this.setState({ synthesizingStage: SynthesizingStage.Modeling })
+      this.setState({
+        hasEstablishedHardwareConnection: false,
+        synthesizingStage: SynthesizingStage.Modeling,
+      })
     }
   }
 

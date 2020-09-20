@@ -2,11 +2,8 @@ import random
 import eventlet
 import socketio
 import time
-
-connectEvent = 'eegConnect'
-errorEvent = 'eegError'
-dataEvent = 'eegEvent'
-port = 5333
+import json
+import os
 
 sio = socketio.Server(cors_allowed_origins='*')
 app = socketio.WSGIApp(sio, static_files={
@@ -16,19 +13,29 @@ app = socketio.WSGIApp(sio, static_files={
 # Uncomment for server debug mode
 # app.debug = True
 
+sharedVariables = {}
+with open(os.getcwd() + '/shared_variables.json') as environmentVariablesJsonFile:
+  data = json.load(environmentVariablesJsonFile)
+  for sharedVariable in data:
+    for key, value in zip(sharedVariable.keys(), sharedVariable.values()):
+      sharedVariables[key] = value
+
+def getSharedVariable(key=''):
+  return sharedVariables.get(key, 'defaultKey')
+
 def deliverEvent(data=[]):
   # Call this function to send back some information to the client
   # Note: on getting this event, client will shut server down
-  sio.emit(dataEvent, data)
+  sio.emit(getSharedVariable('BRAINBEATS_DATA_EVENT'), data)
 
 def deliverError(data=[]):
   # Call this function to sent back some error to the client
   # Note: on getting this event, client will shut server down
-  sio.emit(errorEvent, {''})
+  sio.emit(getSharedVariable('BRAINBEATS_ERROR_EVENT'), {""})
 
 def confirmationEvent():
   # This function is called to inform client that connection succeeded
-  sio.emit(connectEvent, connectEvent)
+  sio.emit(getSharedVariable('BRAINBEATS_CONNECT_EVENT'), "EEG connected confirmation")
 
 @sio.event
 def connect(sid, environ):
@@ -53,4 +60,4 @@ def disconnect(sid):
   print('Disconnect ', sid)
 
 if __name__ == '__main__':
-  eventlet.wsgi.server(eventlet.listen(('', port)), app)
+  eventlet.wsgi.server(eventlet.listen(('', sharedVariables.get('BRAINBEATS_HARDWARE_SOCKET_PORT', 5000))), app)

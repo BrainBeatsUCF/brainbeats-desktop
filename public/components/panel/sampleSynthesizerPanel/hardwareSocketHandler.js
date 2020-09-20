@@ -2,8 +2,9 @@ import io from 'socket.io-client'
 
 // A wait time is required since hardware must be up and running
 // before a socket connection is attempted
-const delayMilliseconds = 1500
-const socketConnectionURL = 'http://0.0.0.0:5333'
+const delayMilliseconds = window.process.env['BRAINBEATS_HARDWARE_SOCKET_LAUNCH_DELAY']
+const socketConnectionURL =
+  window.process.env['BRAINBEATS_HOST_URL'] + String(window.process.env['BRAINBEATS_HARDWARE_SOCKET_PORT'])
 const serverStartScriptRelativePath = './hardware/starter.py'
 const ChildProcessMessages = {
   Exit: 'Child Process Exit Code',
@@ -29,15 +30,15 @@ function establishConnection(handleData, handleError, handleConfirmation) {
     socket.on('connect', () => {
       console.log('Client Connected')
     })
-    socket.on('eegEvent', message => {
+    socket.on(window.process.env['BRAINBEATS_DATA_EVENT'], message => {
       handleData(message)
       closeHardwareSocket()
     })
-    socket.on('eegError', message => {
+    socket.on(window.process.env['BRAINBEATS_ERROR_EVENT'], message => {
       handleError(message)
       closeHardwareSocket()
     })
-    socket.on('eegConnect', () => {
+    socket.on(window.process.env['BRAINBEATS_CONNECT_EVENT'], () => {
       handleConfirmation()
     })
   }, delayMilliseconds)
