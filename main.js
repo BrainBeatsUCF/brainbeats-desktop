@@ -1,4 +1,5 @@
 const { app, BrowserWindow } = require('electron')
+const path = require('path')
 
 function createWindow() {
   // Create the browser window.
@@ -9,8 +10,12 @@ function createWindow() {
     minHeight: 680,
     webPreferences: {
       nodeIntegration: true,
+      preload: path.join(__dirname, 'preload.js'),
     },
   })
+
+  // load development environment values
+  process.env.isElectronDevelopmentEnvironment = true
 
   // and load the index.html of the app.
   win.loadURL('http://localhost:3232')

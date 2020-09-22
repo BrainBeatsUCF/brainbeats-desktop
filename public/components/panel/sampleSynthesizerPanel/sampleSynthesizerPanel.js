@@ -1,53 +1,18 @@
 import React from 'react'
 import SynthesizerModels from './synthesizerModels.json'
+import { startHardwareSocket, closeHardwareSocket } from './hardwareSocketHandler'
 import { GridSampleObject } from '../workstationPanel/gridComponents'
+import {
+  SynthModelObject,
+  SynthesizingStage,
+  SynthStagePanel,
+  MODEL_CELL_LENGTH_IN_PIXELS,
+} from './stageComponentPanels'
 import './sampleSynthesizerPanel.css'
-
-const SynthesizingStage = {
-  Selecting: 'selecting',
-  Connecting: 'connecting',
-  Recording: 'recording',
-  Modeling: 'modeling',
-  Completed: 'completed',
-}
 
 const StageTitle = {
   Selecting: 'Select Sample Synthesizer',
   Default: 'Sample Creator Processing',
-}
-
-const SynthModelObject = {
-  modelImageName: '',
-  modelName: '',
-  modelRequestURL: '',
-}
-
-const MODEL_CELL_LENGTH_IN_PIXELS = 100
-const MODEL_CARD_KEY_PREFIX = 'synthModelCard'
-
-/**
- *
- * @param {{
- * modelObjects: [SynthModelObject],
- * onModelClick: (modelObject: SynthModelObject) => void
- * }} props
- */
-const SynthModelCards = props => {
-  return props.modelObjects.map((modelObject, index) => {
-    return (
-      <div
-        className="SynthModelCard Tooltip"
-        key={MODEL_CARD_KEY_PREFIX + index}
-        style={{
-          height: MODEL_CELL_LENGTH_IN_PIXELS,
-          width: MODEL_CELL_LENGTH_IN_PIXELS,
-        }}
-        onClick={() => props.onModelClick(modelObject)}
-      >
-        <span className="TooltipText">{modelObject.modelName}</span>
-      </div>
-    )
-  })
 }
 
 class SampleSynthesizer extends React.Component {
@@ -63,22 +28,27 @@ class SampleSynthesizer extends React.Component {
     this.state = {
       synthesizingStage: props.startSynthesizingStage,
       selectedSynthModel: SynthesizerModels.length > 0 ? SynthesizerModels[0] : null,
-      modelsDisplayedInModalsContainer: 0,
-      modalsContainerLength: 0,
-      availableSynthModels: SynthesizerModels,
+      modelsContainerLength: this.getModelMosaicContainerLength(SynthesizerModels.length),
+      hasEstablishedHardwareConnection: false,
     }
   }
 
   // MARK : Life Cycle
 
   componentDidUpdate() {
-    const { availableSynthModels, modelsDisplayedInModalsContainer } = this.state
-    if (availableSynthModels.length != modelsDisplayedInModalsContainer) {
-      this.setModelMosaicContainerLength(availableSynthModels.length)
+    // processing stage effect
+    const { synthesizingStage, hasEstablishedHardwareConnection } = this.state
+    if (synthesizingStage == SynthesizingStage.Connecting && !hasEstablishedHardwareConnection) {
+      this.handleConnectingToHardware()
     }
   }
 
   // MARK : Event Handlers
+
+  /**
+   * @param {SynthesizingStage} newStage
+   */
+  handleAdvanceStage = newStage => this.setState({ synthesizingStage: newStage })
 
   /**
    * Sets the selected synth and triggers flow start
@@ -91,6 +61,43 @@ class SampleSynthesizer extends React.Component {
     })
   }
 
+  handleConnectingToHardware = () => {
+    this.setState({ hasEstablishedHardwareConnection: true })
+    startHardwareSocket(this.handleHardwareData, this.handleHardwareError, this.handleHardwareDidConnect)
+  }
+
+  handleHardwareData = message => {
+    const { synthesizingStage } = this.state
+    // TODO: make request to model server with data
+    console.log('HM', message)
+    if (synthesizingStage === SynthesizingStage.Recording) {
+      this.setState({
+        hasEstablishedHardwareConnection: false,
+        synthesizingStage: SynthesizingStage.Modeling,
+      })
+    }
+  }
+
+  handleHardwareError = errorMessage => {
+    console.log('Error from hardware: ', errorMessage)
+    this.handleAbortProcessing()
+  }
+
+  handleHardwareDidConnect = () => {
+    const { synthesizingStage } = this.state
+    if (synthesizingStage === SynthesizingStage.Connecting) {
+      this.setState({ synthesizingStage: SynthesizingStage.Recording })
+    }
+  }
+
+  handleAbortProcessing = () => {
+    closeHardwareSocket()
+    this.setState({
+      hasEstablishedHardwareConnection: false,
+      synthesizingStage: SynthesizingStage.Selecting,
+    })
+  }
+
   // MARK : Helpers
 
   hasStartedFlow = () => {
@@ -98,83 +105,47 @@ class SampleSynthesizer extends React.Component {
     return synthesizingStage !== SynthesizingStage.Selecting
   }
 
-  getStageTitle = () => {
+  hasConnectedToHardware = () => {
     const { synthesizingStage } = this.state
-    switch (synthesizingStage) {
-      case SynthesizingStage.Selecting:
-        return StageTitle.Selecting
-      default:
-        return StageTitle.Default
-    }
+    return synthesizingStage !== SynthesizingStage.Selecting && synthesizingStage !== SynthesizingStage.Connecting
   }
 
   /**
    * @param {Number} modelCount
    */
-  setModelMosaicContainerLength = modelCount => {
+  getModelMosaicContainerLength = modelCount => {
     const lengthWithMargin = MODEL_CELL_LENGTH_IN_PIXELS + 40
     let length = lengthWithMargin
     const minimumMiddleCount = Math.ceil(Math.sqrt(modelCount))
     while (length / lengthWithMargin < minimumMiddleCount) {
       length += lengthWithMargin
     }
-    this.setState({
-      modelsDisplayedInModalsContainer: modelCount,
-      modalsContainerLength: length,
-    })
+    return length
   }
 
   // MARK : Render
 
-  renderStage = () => {
-    const { synthesizingStage } = this.state
-    switch (synthesizingStage) {
-      case SynthesizingStage.Selecting:
-        return this.renderSelectionStage()
-      case SynthesizingStage.Connecting:
-        return this.renderConnectingStage()
-      default:
-        return <></>
-    }
-  }
-
-  renderSelectionStage = () => {
-    const { modalsContainerLength, availableSynthModels } = this.state
-    return (
-      <div className="SynthesizerFullBodySection">
-        <div
-          className="SynthModelsContainer"
-          style={{
-            width: modalsContainerLength,
-          }}
-        >
-          <SynthModelCards
-            modelObjects={availableSynthModels}
-            onModelClick={this.handleSynthModelClick}
-          ></SynthModelCards>
-        </div>
-      </div>
-    )
-  }
-
-  renderConnectingStage = () => {
-    // TODO: add UI for equalizer animation with D3.js, or other simpler lib
-    // * start EEG script
-    // * listen for completion or error callback. should include a timeout?
-    return <div></div>
-  }
-
   render() {
     const customClass = this.props.customClassname ?? ''
+    const { modelsContainerLength, synthesizingStage } = this.state
     const appHeaderDisplayControl = this.hasStartedFlow() ? '' : 'HideSection'
+    const headerSectionTitle =
+      synthesizingStage === SynthesizingStage.Selecting ? StageTitle.Selecting : StageTitle.Default
     return (
       <>
         <div className={`appHeaderOverlaySection ${appHeaderDisplayControl}`}></div>
         <div className={`SampleSynthesizer ${customClass}`}>
           <div className="SynthesizerHeaderSection">
-            <h4 className="SynthesizerHeaderTitle">{this.getStageTitle()}</h4>
+            <h4 className="SynthesizerHeaderTitle">{headerSectionTitle}</h4>
           </div>
-          {this.renderStage()}
+          <SynthStagePanel
+            modelCardsContainerWidth={modelsContainerLength}
+            availableSynthModels={SynthesizerModels}
+            synthesizingStage={synthesizingStage}
+            handleSynthModelClick={this.handleSynthModelClick}
+            advanceStage={this.handleAdvanceStage}
+            abortProcessing={this.handleAbortProcessing}
+          ></SynthStagePanel>
         </div>
       </>
     )
