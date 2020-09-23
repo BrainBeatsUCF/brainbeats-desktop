@@ -25,7 +25,7 @@ class StudioPanel extends React.Component {
     super(props)
     this.state = {
       customClass: props.customClass ?? '',
-      isSynthesizingSample: true,
+      isSynthesizingSample: false,
       loadedBeats: [],
       loadedSamples: [GridSampleObject],
       loadedGridSampleObjects: [GridSampleObject],

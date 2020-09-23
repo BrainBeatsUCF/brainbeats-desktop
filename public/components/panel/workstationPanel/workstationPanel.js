@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { DEFAULT_GRID_COLUMN_COUNT } from './constants'
 import { GridSampleObject, GridSampleMatrix, GridActivator } from './gridComponents'
 import { MenuButton, MenuButtonColor, MenuButtonSelectionState } from '../../input/input'
+import { SampleSequencePlayer } from './sampleSequencePlayer'
 
 import PlayButton from '../../../images/whitePlayButton.png'
 import './workstationPanel.css'
@@ -32,6 +33,23 @@ const WorkstationPanel = props => {
   // MARK : Event handlers
 
   const handlePlayButtonClick = () => {
+    const { loadedSampleList } = props
+    // let sampleSequencePlayer = SampleSequencePlayer(loadedSampleList)
+    const testSampleObjects = [
+      {
+        sampleSource: 'https://tribeofnoisestorage.blob.core.windows.net/music/30b3d365e7b15b0b6d2e6ba270dc2142.mp3',
+        sampleAudioDelay: 5,
+        sampleAudioStart: 30,
+        sampleAudioLength: 10,
+      },
+      {
+        sampleSource: 'https://tribeofnoisestorage.blob.core.windows.net/music/736d17f0b30c8eb02eebbedf9c593443.mp3',
+        sampleAudioDelay: 1,
+        sampleAudioStart: 60,
+        sampleAudioLength: 40,
+      },
+    ]
+    SampleSequencePlayer(testSampleObjects, null)
     // TODO: Merge arranged grid samples into single audio file and initiate playback
   }
 
