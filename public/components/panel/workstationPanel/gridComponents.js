@@ -11,7 +11,10 @@ const GridSampleObject = {
   sampleTitle: '',
   sampleSubtitle: '',
   sampleIsActive: true,
-  sampleRowIndex: 0,
+  sampleAudioDelay: 0,
+  sampleAudioStart: 0,
+  sampleAudioLength: -1,
+  sampleArrayBuffer: AudioBuffer,
   sampleColIndex: 0,
   samplePlayLength: 1,
 }
@@ -77,7 +80,7 @@ const GridSampleMatrix = props => {
           }}
           default={{
             x: Constants.CELL_DIMENSION_IN_PIXELS * gridSampleItem.sampleColIndex,
-            y: Constants.CELL_DIMENSION_IN_PIXELS * gridSampleItem.sampleRowIndex + Constants.GRID_SCREEN_Y_OFFSET,
+            y: Constants.CELL_DIMENSION_IN_PIXELS * index + Constants.GRID_SCREEN_Y_OFFSET,
             width: Constants.CELL_DIMENSION_IN_PIXELS * gridSampleItem.samplePlayLength,
             height: Constants.CELL_DIMENSION_IN_PIXELS,
           }}

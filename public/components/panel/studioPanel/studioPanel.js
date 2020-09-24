@@ -2,11 +2,13 @@ import React from 'react'
 import { ListObjectType, VerticalListPanel } from '../verticalListPanel/verticalListPanel'
 import { WorkstationPanel } from '../workstationPanel/workstationPanel'
 import { GridSampleObject } from '../workstationPanel/gridComponents'
+import { SampleDownloader } from './sampleDownloader'
 import { RequestUserBeatItems, RequestUserSampleItems } from '../../requestService/requestService'
 import { SampleSynthesizer, SynthesizingStage } from '../sampleSynthesizerPanel/sampleSynthesizerPanel'
 import './studioPanel.css'
 
 let StudioPanelComponentMounted = false
+const StudioAudioContext = new AudioContext()
 const WorkstationTitle = 'WorkStation'
 const VerticalListTitles = {
   Beats: 'Beats',
@@ -25,6 +27,7 @@ class StudioPanel extends React.Component {
     super(props)
     this.state = {
       customClass: props.customClass ?? '',
+      downloadSample: null,
       isSynthesizingSample: false,
       loadedBeats: [],
       loadedSamples: [GridSampleObject],
@@ -80,16 +83,17 @@ class StudioPanel extends React.Component {
    * @param {GridSampleObject} sampleObject
    */
   handleSampleItemClick = sampleObject => {
+    this.setState({ downloadSample: sampleObject })
+  }
+
+  /**
+   * @param {GridSampleObject} sampleObject
+   */
+  handleSampleItemDownloaded = sampleObject => {
     const { loadedGridSampleObjects } = this.state
     loadedGridSampleObjects.push(sampleObject)
-    this.setLoadedGridSampleObjects(
-      loadedGridSampleObjects.map((value, index) => {
-        let newValue = {}
-        Object.assign(newValue, value)
-        newValue.sampleRowIndex = index
-        return newValue
-      })
-    )
+    this.setLoadedGridSampleObjects(loadedGridSampleObjects)
+    this.setState({ downloadSample: null })
   }
 
   // MARK : Network Request Handlers
@@ -140,6 +144,39 @@ class StudioPanel extends React.Component {
     this.setState({ isSynthesizingSample: isSynthesizingSample })
   }
 
+  renderSampleDownloader = () => {
+    const { downloadSample } = this.state
+    if (downloadSample == null) {
+      return <></>
+    } else {
+      return (
+        <SampleDownloader
+          sample={downloadSample}
+          audioContext={StudioAudioContext}
+          onComplete={this.handleSampleItemDownloaded}
+          onError={() => {
+            this.setState({ downloadSample: null })
+          }}
+        ></SampleDownloader>
+      )
+    }
+  }
+
+  renderSynthesizer = () => {
+    const { isSynthesizingSample } = this.state
+    if (!isSynthesizingSample) {
+      return <></>
+    } else {
+      return (
+        <SampleSynthesizer
+          customClassname={`${isSynthesizingSample ? '' : 'HideFullCover'}`}
+          startSynthesizingStage={SynthesizingStage.Selecting}
+          didSelectFinalSample={this.handleSaveSampleToDatabase}
+        ></SampleSynthesizer>
+      )
+    }
+  }
+
   render() {
     const { isSynthesizingSample } = this.state
     return (
@@ -166,11 +203,8 @@ class StudioPanel extends React.Component {
           loadedSampleList={this.state.loadedGridSampleObjects}
           setLoadedSampleList={this.setLoadedGridSampleObjects}
         ></WorkstationPanel>
-        <SampleSynthesizer
-          customClassname={`${isSynthesizingSample ? '' : 'HideFullCover'}`}
-          startSynthesizingStage={SynthesizingStage.Selecting}
-          didSelectFinalSample={this.handleSaveSampleToDatabase}
-        ></SampleSynthesizer>
+        {this.renderSynthesizer()}
+        {this.renderSampleDownloader()}
       </div>
     )
   }

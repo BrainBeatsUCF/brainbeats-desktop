@@ -44,9 +44,33 @@ const WorkstationPanel = props => {
       },
       {
         sampleSource: 'https://tribeofnoisestorage.blob.core.windows.net/music/736d17f0b30c8eb02eebbedf9c593443.mp3',
-        sampleAudioDelay: 1,
+        sampleAudioDelay: 10,
         sampleAudioStart: 60,
-        sampleAudioLength: 40,
+        sampleAudioLength: 30,
+      },
+      {
+        sampleSource: 'https://tribeofnoisestorage.blob.core.windows.net/music/736d17f0b30c8eb02eebbedf9c593443.mp3',
+        sampleAudioDelay: 0,
+        sampleAudioStart: 12,
+        sampleAudioLength: 10,
+      },
+      {
+        sampleSource: 'https://tribeofnoisestorage.blob.core.windows.net/music/3224dee000f1a0cc6709b62f6988927e.mp3',
+        sampleAudioDelay: 0,
+        sampleAudioStart: 0,
+        sampleAudioLength: 2.5,
+      },
+      {
+        sampleSource: 'https://tribeofnoisestorage.blob.core.windows.net/music/3224dee000f1a0cc6709b62f6988927e.mp3',
+        sampleAudioDelay: 15,
+        sampleAudioStart: 0,
+        sampleAudioLength: 2.5,
+      },
+      {
+        sampleSource: 'https://tribeofnoisestorage.blob.core.windows.net/music/3224dee000f1a0cc6709b62f6988927e.mp3',
+        sampleAudioDelay: 16.5,
+        sampleAudioStart: 0,
+        sampleAudioLength: 2.5,
       },
     ]
     SampleSequencePlayer(testSampleObjects, null)
