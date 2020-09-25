@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { DEFAULT_GRID_COLUMN_COUNT } from './constants'
 import { GridSampleObject, GridSampleMatrix, GridActivator } from './gridComponents'
 import { MenuButton, MenuButtonColor, MenuButtonSelectionState } from '../../input/input'
-import { SampleSequencePlayer } from './sampleSequencePlayer'
+import { SampleSequenceRenderer } from './sampleSequencePlayer'
 
 import PlayButton from '../../../images/whitePlayButton.png'
 import './workstationPanel.css'
@@ -37,6 +37,12 @@ const WorkstationPanel = props => {
     // let sampleSequencePlayer = SampleSequencePlayer(loadedSampleList)
     const testSampleObjects = [
       {
+        sampleSource: 'https://tribeofnoisestorage.blob.core.windows.net/music/3224dee000f1a0cc6709b62f6988927e.mp3',
+        sampleAudioDelay: 0,
+        sampleAudioStart: 0,
+        sampleAudioLength: 3,
+      },
+      {
         sampleSource: 'https://tribeofnoisestorage.blob.core.windows.net/music/30b3d365e7b15b0b6d2e6ba270dc2142.mp3',
         sampleAudioDelay: 5,
         sampleAudioStart: 30,
@@ -58,22 +64,22 @@ const WorkstationPanel = props => {
         sampleSource: 'https://tribeofnoisestorage.blob.core.windows.net/music/3224dee000f1a0cc6709b62f6988927e.mp3',
         sampleAudioDelay: 0,
         sampleAudioStart: 0,
-        sampleAudioLength: 2.5,
+        sampleAudioLength: 3,
       },
       {
         sampleSource: 'https://tribeofnoisestorage.blob.core.windows.net/music/3224dee000f1a0cc6709b62f6988927e.mp3',
-        sampleAudioDelay: 15,
+        sampleAudioDelay: 3,
         sampleAudioStart: 0,
-        sampleAudioLength: 2.5,
-      },
-      {
-        sampleSource: 'https://tribeofnoisestorage.blob.core.windows.net/music/3224dee000f1a0cc6709b62f6988927e.mp3',
-        sampleAudioDelay: 16.5,
-        sampleAudioStart: 0,
-        sampleAudioLength: 2.5,
+        sampleAudioLength: 3,
       },
     ]
-    SampleSequencePlayer(testSampleObjects, null)
+    console.log(loadedSampleList)
+    testSampleObjects.forEach((test, index) => {
+      loadedSampleList[index].sampleAudioDelay = test.sampleAudioDelay
+      loadedSampleList[index].sampleAudioStart = test.sampleAudioStart
+      loadedSampleList[index].sampleAudioLength = test.sampleAudioLength
+    })
+    SampleSequenceRenderer(loadedSampleList, null)
     // TODO: Merge arranged grid samples into single audio file and initiate playback
   }
 

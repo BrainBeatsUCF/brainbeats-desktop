@@ -14,7 +14,7 @@ const GridSampleObject = {
   sampleAudioDelay: 0,
   sampleAudioStart: 0,
   sampleAudioLength: -1,
-  sampleArrayBuffer: AudioBuffer,
+  sampleAudioBuffer: AudioBuffer,
   sampleColIndex: 0,
   samplePlayLength: 1,
 }

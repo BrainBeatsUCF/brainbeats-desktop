@@ -92,7 +92,13 @@ class StudioPanel extends React.Component {
   handleSampleItemDownloaded = sampleObject => {
     const { loadedGridSampleObjects } = this.state
     loadedGridSampleObjects.push(sampleObject)
-    this.setLoadedGridSampleObjects(loadedGridSampleObjects)
+    this.setLoadedGridSampleObjects(
+      loadedGridSampleObjects.map(oldValue => {
+        let newValue = {}
+        Object.assign(newValue, oldValue)
+        return newValue
+      })
+    )
     this.setState({ downloadSample: null })
   }
 

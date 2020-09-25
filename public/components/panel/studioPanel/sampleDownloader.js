@@ -53,7 +53,7 @@ class SampleDownloader extends React.Component {
       .then(response => this.props.audioContext.decodeAudioData(response.data))
       .then(audioBuffer => {
         if (SampleDownloaderMounted) {
-          sample.sampleArrayBuffer = audioBuffer
+          sample.sampleAudioBuffer = audioBuffer
           sample.sampleAudioLength = audioBuffer.duration
           this.props.onComplete(sample)
         }
