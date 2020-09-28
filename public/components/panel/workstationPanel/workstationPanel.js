@@ -41,7 +41,7 @@ const WorkstationPanel = props => {
     // Stop audio if something playing
     if (isPlayingAudio && renderedAudioNode != null) {
       renderedAudioNode.stop()
-      renderedAudioNode.removeEventListener('ended')
+      renderedAudioNode.removeEventListener('ended', null)
       return
     }
 

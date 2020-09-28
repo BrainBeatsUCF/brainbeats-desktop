@@ -7,10 +7,7 @@
     "sampleAudioDelay": 0,
     "sampleAudioStart": 0,
     "sampleAudioLength": -1,
-    "sampleAudioBuffer": null,
-    "sampleRowIndex": 0,
-    "sampleColIndex": 0,
-    "samplePlayLength": 1
+    "sampleAudioBuffer": null
   },
   {
     "sampleSource": "https://tribeofnoisestorage.blob.core.windows.net/music/736d17f0b30c8eb02eebbedf9c593443.mp3",
@@ -20,10 +17,7 @@
     "sampleAudioDelay": 0,
     "sampleAudioStart": 0,
     "sampleAudioLength": -1,
-    "sampleAudioBuffer": null,
-    "sampleRowIndex": 0,
-    "sampleColIndex": 0,
-    "samplePlayLength": 1
+    "sampleAudioBuffer": null
   },
   {
     "sampleSource": "https://tribeofnoisestorage.blob.core.windows.net/music/3224dee000f1a0cc6709b62f6988927e.mp3",
@@ -33,9 +27,6 @@
     "sampleAudioDelay": 0,
     "sampleAudioStart": 0,
     "sampleAudioLength": -1,
-    "sampleAudioBuffer": null,
-    "sampleRowIndex": 0,
-    "sampleColIndex": 0,
-    "samplePlayLength": 1
+    "sampleAudioBuffer": null
   }
 ]
