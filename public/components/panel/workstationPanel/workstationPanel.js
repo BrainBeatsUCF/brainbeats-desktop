@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react'
 import { DEFAULT_GRID_COLUMN_COUNT } from './constants'
 import { GridSampleObject, GridSampleMatrix, GridActivator } from './gridComponents'
 import { MenuButton, MenuButtonColor, MenuButtonSelectionState } from '../../input/input'
+import { SampleSequenceRenderer } from './sampleSequencePlayer'
 
 import PlayButton from '../../../images/whitePlayButton.png'
 import './workstationPanel.css'
+
+const PlayAudioContext = new AudioContext()
 
 /**
  * @param {{
@@ -19,7 +22,8 @@ import './workstationPanel.css'
 const WorkstationPanel = props => {
   const customClass = props.customClass ?? ''
   const [numberOfRows, setNumberOfRows] = useState(0)
-  // const [loadedSampleList, setLoadedSampleList] = useState([])
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false)
+  const [renderedAudioNode, setRenderedAudioNode] = useState(null)
 
   // MARK : Life Cycle
   useEffect(() => {
@@ -32,7 +36,35 @@ const WorkstationPanel = props => {
   // MARK : Event handlers
 
   const handlePlayButtonClick = () => {
-    // TODO: Merge arranged grid samples into single audio file and initiate playback
+    const { loadedSampleList } = props
+
+    // Stop audio if something playing
+    if (isPlayingAudio && renderedAudioNode != null) {
+      renderedAudioNode.stop()
+      renderedAudioNode.removeEventListener('ended', null)
+      return
+    }
+
+    if (loadedSampleList.length == 0) {
+      return
+    }
+    props.setIsMakingNetworkActivity(true)
+    SampleSequenceRenderer(
+      loadedSampleList,
+      renderedBuffer => {
+        props.setIsMakingNetworkActivity(false)
+        let renderedAudioNodeSource = PlayAudioContext.createBufferSource()
+        renderedAudioNodeSource.buffer = renderedBuffer
+        renderedAudioNodeSource.connect(PlayAudioContext.destination)
+        setRenderedAudioNode(renderedAudioNodeSource)
+        setIsPlayingAudio(true)
+        renderedAudioNodeSource.start()
+        renderedAudioNodeSource.addEventListener('ended', _ => setIsPlayingAudio(false))
+      },
+      _ => {
+        props.setIsMakingNetworkActivity(false)
+      }
+    )
   }
 
   const handleSaveButtonClick = () => {
@@ -41,28 +73,64 @@ const WorkstationPanel = props => {
 
   /**
    * @param {Number} index
-   * @param {Number} newEditedCol new position on grid
+   * @param {Number} newAudioDelay new position on grid
    */
-  const handleGridSampleDragEnd = (index, newEditedCol) => {
+  const handleGridSampleDragEnd = (index, newAudioDelay) => {
     if (index < 0 || index >= props.loadedSampleList.length) {
       return
     }
     let newValue = getLoadedSampleCopy()
-    newValue[index].sampleColIndex = newEditedCol
+    newValue[index].sampleAudioDelay = newAudioDelay
+    fixResizeOverCorrections(newValue[index])
     props.setLoadedSampleList(newValue)
   }
 
   /**
    * @param {Number} index
-   * @param {Number} lengthDelta change in item length. can be +/-
+   * @param {Number} durationDelta change in item length. can be +/-
+   * @param {ResizeDirection} direction
    */
-  const handleGridSampleResizeEnd = (index, lengthDelta) => {
+  const handleGridSampleResizeEnd = (index, durationDelta, direction) => {
     if (index < 0 || index >= props.loadedSampleList.length) {
       return
     }
     let newValue = getLoadedSampleCopy()
-    newValue[index].samplePlayLength += lengthDelta
+    let editedSample = newValue[index]
+
+    if ('right' === direction) {
+      editedSample.sampleAudioLength += durationDelta
+    } else {
+      editedSample.sampleAudioDelay -= durationDelta
+      editedSample.sampleAudioStart -= durationDelta
+      editedSample.sampleAudioLength += durationDelta
+    }
+    fixResizeOverCorrections(editedSample)
     props.setLoadedSampleList(newValue)
+  }
+
+  /**
+   * @param {GridSampleObject} sample
+   */
+  const fixResizeOverCorrections = sample => {
+    const maxDurationPossible = sample.sampleAudioBuffer.duration
+    if (sample.sampleAudioDelay < 0) {
+      sample.sampleAudioDelay = 0
+    }
+    if (sample.sampleAudioStart < 0) {
+      sample.sampleAudioStart = 0
+    }
+    if (sample.sampleAudioLength < 0) {
+      sample.sampleAudioLength = 0
+    }
+    if (sample.sampleAudioStart > maxDurationPossible) {
+      sample.sampleAudioStart = maxDurationPossible
+    }
+    if (sample.sampleAudioLength > maxDurationPossible) {
+      sample.sampleAudioLength = maxDurationPossible
+    }
+    if (sample.sampleAudioStart + sample.sampleAudioLength > maxDurationPossible) {
+      sample.sampleAudioStart = maxDurationPossible - sample.sampleAudioLength
+    }
   }
 
   /**
@@ -97,7 +165,7 @@ const WorkstationPanel = props => {
             color: MenuButtonColor.Blue,
             selectionState: MenuButtonSelectionState.Active,
             customClass: 'WorkstationPanelMenuButton MiddleSpot CenterSelf',
-            title: 'Play',
+            title: `${isPlayingAudio ? 'Stop' : 'Play'}`,
             imageSource: PlayButton,
             imageHeight: '20px',
             imageWidth: '20px',

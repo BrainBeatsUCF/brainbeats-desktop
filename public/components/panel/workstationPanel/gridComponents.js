@@ -11,9 +11,10 @@ const GridSampleObject = {
   sampleTitle: '',
   sampleSubtitle: '',
   sampleIsActive: true,
-  sampleRowIndex: 0,
-  sampleColIndex: 0,
-  samplePlayLength: 1,
+  sampleAudioDelay: 0,
+  sampleAudioStart: 0,
+  sampleAudioLength: 0,
+  sampleAudioBuffer: AudioBuffer,
 }
 
 /**
@@ -51,21 +52,26 @@ const GridActivator = props => {
  * numberOfRows: Number,
  * numberOfCols: Number,
  * onItemDragStop: (index: Number, newEditedCol: Number) => void,
- * onItemResizeStop: (index: Number, newEditedLength: Number) => void
+ * onItemResizeStop: (index: Number, durationDelta: Number, direction: ResizeDirection) => void
  * }} props
  */
 const GridSampleMatrix = props => {
+  const maxGridLength = Constants.MAXIMUM_GRID_COLUMN_COUNT * Constants.CELL_DIMENSION_IN_PIXELS
+
   const handleDrag = (index, xPosition) => {
-    props.onItemDragStop(index, xPosition / Constants.CELL_DIMENSION_IN_PIXELS - 1)
+    const dragInSeconds = (xPosition - Constants.CELL_DIMENSION_IN_PIXELS) / Constants.PIXELS_FOR_SECOND
+    props.onItemDragStop(index, Math.abs(dragInSeconds))
   }
 
-  const handleResize = (index, delta) => {
-    const lengthDelta = delta.width / Constants.CELL_DIMENSION_IN_PIXELS
-    props.onItemResizeStop(index, lengthDelta)
+  const handleResize = (index, delta, direction) => {
+    const durationDeltaInSeconds = Math.round(delta.width / Constants.PIXELS_FOR_SECOND)
+    props.onItemResizeStop(index, durationDeltaInSeconds, direction)
   }
 
   const renderSampleGridItems = () => {
     return props.loadedGridSampleItems.map((gridSampleItem, index) => {
+      const maxAudioLength = gridSampleItem.sampleAudioBuffer.duration * Constants.PIXELS_FOR_SECOND
+      const rndMaximumLength = maxAudioLength < maxGridLength ? maxAudioLength : maxGridLength
       return (
         <Rnd
           key={Constants.SAMPLE_GRID_ITEM_KEY_PREFIX + index}
@@ -76,20 +82,20 @@ const GridSampleMatrix = props => {
             alignItems: 'center',
           }}
           default={{
-            x: Constants.CELL_DIMENSION_IN_PIXELS * gridSampleItem.sampleColIndex,
-            y: Constants.CELL_DIMENSION_IN_PIXELS * gridSampleItem.sampleRowIndex + Constants.GRID_SCREEN_Y_OFFSET,
-            width: Constants.CELL_DIMENSION_IN_PIXELS * gridSampleItem.samplePlayLength,
+            x: Constants.PIXELS_FOR_SECOND * gridSampleItem.sampleAudioDelay,
+            y: Constants.CELL_DIMENSION_IN_PIXELS * index + Constants.GRID_SCREEN_Y_OFFSET,
+            width: rndMaximumLength,
             height: Constants.CELL_DIMENSION_IN_PIXELS,
           }}
           minHeight={Constants.CELL_DIMENSION_IN_PIXELS}
           maxHeight={Constants.CELL_DIMENSION_IN_PIXELS}
-          minWidth={Constants.CELL_DIMENSION_IN_PIXELS}
-          maxWidth={Constants.MAXIMUM_GRID_COLUMN_COUNT * Constants.CELL_DIMENSION_IN_PIXELS}
-          resizeGrid={[Constants.CELL_DIMENSION_IN_PIXELS, 1]}
-          dragGrid={[Constants.CELL_DIMENSION_IN_PIXELS, 1]}
+          minWidth={Constants.PIXELS_FOR_SECOND}
+          maxWidth={rndMaximumLength}
+          resizeGrid={[Constants.PIXELS_FOR_SECOND, 1]}
+          dragGrid={[Constants.PIXELS_FOR_SECOND, 1]}
           dragAxis="x"
           bounds=".GridMatrix"
-          onResizeStop={(event, dir, ref, delta, position) => handleResize(index, delta)}
+          onResizeStop={(event, dir, ref, delta, position) => handleResize(index, delta, dir)}
           onDragStop={(event, handler) => handleDrag(index, handler.lastX)}
         >
           <h5 className="SampleGridItemTitle">{gridSampleItem.sampleTitle}</h5>

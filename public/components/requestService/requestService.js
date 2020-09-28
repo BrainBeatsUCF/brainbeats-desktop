@@ -1,6 +1,6 @@
 import trianglify from 'trianglify'
 import secondTestDataSet from './testHomeData2.json'
-import testSampleData from './testSampleObject.json'
+import testSampleAudioBuffer from './testSampleAudioBuffer.json'
 import { VerifiedUserInfo } from './authRequestService'
 import { ListObjectType } from '../panel/verticalListPanel/verticalListPanel'
 import { GridSampleObject } from '../panel/workstationPanel/gridComponents'
@@ -30,16 +30,8 @@ const RequestHomeData = (userInfo, didCompleteRequest) => {
  */
 const RequestUserSampleItems = (userInfo, didCompleteRequest) => {
   setTimeout(() => {
-    const oneObject = testSampleData
-    let somelist = []
-    const maxCount = Math.floor(Math.random() * Math.floor(mockRandomListCountMaximum))
-    for (let i = 0; i < maxCount; i++) {
-      let newObject = {}
-      Object.assign(newObject, oneObject)
-      somelist.push(newObject)
-    }
     console.log(userInfo)
-    didCompleteRequest(somelist)
+    didCompleteRequest(testSampleAudioBuffer)
   }, mockNetworkDelayMillisecond)
 }
 
