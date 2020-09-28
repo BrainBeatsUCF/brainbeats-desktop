@@ -208,6 +208,7 @@ class StudioPanel extends React.Component {
           title={WorkstationTitle}
           loadedSampleList={this.state.loadedGridSampleObjects}
           setLoadedSampleList={this.setLoadedGridSampleObjects}
+          setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}
         ></WorkstationPanel>
         {this.renderSynthesizer()}
         {this.renderSampleDownloader()}

@@ -7,6 +7,8 @@ import { SampleSequenceRenderer } from './sampleSequencePlayer'
 import PlayButton from '../../../images/whitePlayButton.png'
 import './workstationPanel.css'
 
+const PlayAudioContext = new AudioContext()
+
 /**
  * @param {{
  * customClassname: String?,
@@ -20,7 +22,8 @@ import './workstationPanel.css'
 const WorkstationPanel = props => {
   const customClass = props.customClass ?? ''
   const [numberOfRows, setNumberOfRows] = useState(0)
-  // const [loadedSampleList, setLoadedSampleList] = useState([])
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false)
+  const [renderedAudioNode, setRenderedAudioNode] = useState(null)
 
   // MARK : Life Cycle
   useEffect(() => {
@@ -34,53 +37,34 @@ const WorkstationPanel = props => {
 
   const handlePlayButtonClick = () => {
     const { loadedSampleList } = props
-    // let sampleSequencePlayer = SampleSequencePlayer(loadedSampleList)
-    const testSampleObjects = [
-      {
-        sampleSource: 'https://tribeofnoisestorage.blob.core.windows.net/music/3224dee000f1a0cc6709b62f6988927e.mp3',
-        sampleAudioDelay: 0,
-        sampleAudioStart: 0,
-        sampleAudioLength: 3,
+
+    // Stop audio if something playing
+    if (isPlayingAudio && renderedAudioNode != null) {
+      renderedAudioNode.stop()
+      renderedAudioNode.removeEventListener('ended')
+      return
+    }
+
+    if (loadedSampleList.length == 0) {
+      return
+    }
+    props.setIsMakingNetworkActivity(true)
+    SampleSequenceRenderer(
+      loadedSampleList,
+      renderedBuffer => {
+        props.setIsMakingNetworkActivity(false)
+        let renderedAudioNodeSource = PlayAudioContext.createBufferSource()
+        renderedAudioNodeSource.buffer = renderedBuffer
+        renderedAudioNodeSource.connect(PlayAudioContext.destination)
+        setRenderedAudioNode(renderedAudioNodeSource)
+        setIsPlayingAudio(true)
+        renderedAudioNodeSource.start()
+        renderedAudioNodeSource.addEventListener('ended', _ => setIsPlayingAudio(false))
       },
-      {
-        sampleSource: 'https://tribeofnoisestorage.blob.core.windows.net/music/30b3d365e7b15b0b6d2e6ba270dc2142.mp3',
-        sampleAudioDelay: 5,
-        sampleAudioStart: 30,
-        sampleAudioLength: 10,
-      },
-      {
-        sampleSource: 'https://tribeofnoisestorage.blob.core.windows.net/music/736d17f0b30c8eb02eebbedf9c593443.mp3',
-        sampleAudioDelay: 10,
-        sampleAudioStart: 60,
-        sampleAudioLength: 30,
-      },
-      {
-        sampleSource: 'https://tribeofnoisestorage.blob.core.windows.net/music/736d17f0b30c8eb02eebbedf9c593443.mp3',
-        sampleAudioDelay: 0,
-        sampleAudioStart: 12,
-        sampleAudioLength: 10,
-      },
-      {
-        sampleSource: 'https://tribeofnoisestorage.blob.core.windows.net/music/3224dee000f1a0cc6709b62f6988927e.mp3',
-        sampleAudioDelay: 0,
-        sampleAudioStart: 0,
-        sampleAudioLength: 3,
-      },
-      {
-        sampleSource: 'https://tribeofnoisestorage.blob.core.windows.net/music/3224dee000f1a0cc6709b62f6988927e.mp3',
-        sampleAudioDelay: 3,
-        sampleAudioStart: 0,
-        sampleAudioLength: 3,
-      },
-    ]
-    console.log(loadedSampleList)
-    testSampleObjects.forEach((test, index) => {
-      loadedSampleList[index].sampleAudioDelay = test.sampleAudioDelay
-      loadedSampleList[index].sampleAudioStart = test.sampleAudioStart
-      loadedSampleList[index].sampleAudioLength = test.sampleAudioLength
-    })
-    SampleSequenceRenderer(loadedSampleList, null)
-    // TODO: Merge arranged grid samples into single audio file and initiate playback
+      _ => {
+        props.setIsMakingNetworkActivity(false)
+      }
+    )
   }
 
   const handleSaveButtonClick = () => {
@@ -89,28 +73,64 @@ const WorkstationPanel = props => {
 
   /**
    * @param {Number} index
-   * @param {Number} newEditedCol new position on grid
+   * @param {Number} newAudioDelay new position on grid
    */
-  const handleGridSampleDragEnd = (index, newEditedCol) => {
+  const handleGridSampleDragEnd = (index, newAudioDelay) => {
     if (index < 0 || index >= props.loadedSampleList.length) {
       return
     }
     let newValue = getLoadedSampleCopy()
-    newValue[index].sampleColIndex = newEditedCol
+    newValue[index].sampleAudioDelay = newAudioDelay
+    fixResizeOverCorrections(newValue[index])
     props.setLoadedSampleList(newValue)
   }
 
   /**
    * @param {Number} index
-   * @param {Number} lengthDelta change in item length. can be +/-
+   * @param {Number} durationDelta change in item length. can be +/-
+   * @param {ResizeDirection} direction
    */
-  const handleGridSampleResizeEnd = (index, lengthDelta) => {
+  const handleGridSampleResizeEnd = (index, durationDelta, direction) => {
     if (index < 0 || index >= props.loadedSampleList.length) {
       return
     }
     let newValue = getLoadedSampleCopy()
-    newValue[index].samplePlayLength += lengthDelta
+    let editedSample = newValue[index]
+
+    if ('right' === direction) {
+      editedSample.sampleAudioLength += durationDelta
+    } else {
+      editedSample.sampleAudioDelay -= durationDelta
+      editedSample.sampleAudioStart -= durationDelta
+      editedSample.sampleAudioLength += durationDelta
+    }
+    fixResizeOverCorrections(editedSample)
     props.setLoadedSampleList(newValue)
+  }
+
+  /**
+   * @param {GridSampleObject} sample
+   */
+  const fixResizeOverCorrections = sample => {
+    const maxDurationPossible = sample.sampleAudioBuffer.duration
+    if (sample.sampleAudioDelay < 0) {
+      sample.sampleAudioDelay = 0
+    }
+    if (sample.sampleAudioStart < 0) {
+      sample.sampleAudioStart = 0
+    }
+    if (sample.sampleAudioLength < 0) {
+      sample.sampleAudioLength = 0
+    }
+    if (sample.sampleAudioStart > maxDurationPossible) {
+      sample.sampleAudioStart = maxDurationPossible
+    }
+    if (sample.sampleAudioLength > maxDurationPossible) {
+      sample.sampleAudioLength = maxDurationPossible
+    }
+    if (sample.sampleAudioStart + sample.sampleAudioLength > maxDurationPossible) {
+      sample.sampleAudioStart = maxDurationPossible - sample.sampleAudioLength
+    }
   }
 
   /**
@@ -145,7 +165,7 @@ const WorkstationPanel = props => {
             color: MenuButtonColor.Blue,
             selectionState: MenuButtonSelectionState.Active,
             customClass: 'WorkstationPanelMenuButton MiddleSpot CenterSelf',
-            title: 'Play',
+            title: `${isPlayingAudio ? 'Stop' : 'Play'}`,
             imageSource: PlayButton,
             imageHeight: '20px',
             imageWidth: '20px',
