@@ -1,7 +1,7 @@
 import React from 'react'
 import { ListObjectType, VerticalListPanel } from '../verticalListPanel/verticalListPanel'
 import { WorkstationPanel } from '../workstationPanel/workstationPanel'
-import { GridSampleObject } from '../workstationPanel/gridComponents'
+import { GridSampleObject, GridBeatObject } from '../workstationPanel/gridComponents'
 import { SampleDownloader } from './sampleDownloader'
 import { RequestUserBeatItems, RequestUserSampleItems } from '../../requestService/requestService'
 import { SampleSynthesizer, SynthesizingStage } from '../sampleSynthesizerPanel/sampleSynthesizerPanel'
@@ -74,6 +74,10 @@ class StudioPanel extends React.Component {
     this.setIsSynthesizingSample(!isSynthesizingSample)
   }
 
+  /**
+   * Load the samples of the selected beat and position in grid
+   * @param {GridBeatObject} beatsObject
+   */
   handleBeatsItemClick = beatsObject => {
     // TODO: Prompt save of current work if grid is occupied
   }

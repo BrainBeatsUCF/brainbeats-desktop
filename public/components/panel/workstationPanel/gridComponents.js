@@ -17,6 +17,14 @@ const GridSampleObject = {
   sampleAudioBuffer: AudioBuffer,
 }
 
+const GridBeatObject = {
+  sampleTitle: '',
+  sampleSubTitle: '',
+  beatID: 0,
+  image: '',
+  samples: [GridSampleObject],
+}
+
 const backgroundCellHeight = `
   repeating-linear-gradient(
     0deg, 
@@ -147,4 +155,4 @@ const GridSampleMatrix = props => {
   )
 }
 
-export { GridSampleObject, GridSampleMatrix, GridActivator }
+export { GridSampleObject, GridBeatObject, GridSampleMatrix, GridActivator }

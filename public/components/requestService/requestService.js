@@ -1,9 +1,10 @@
 import trianglify from 'trianglify'
 import secondTestDataSet from './testHomeData2.json'
+import testBeatDataSet from './testBeats.json'
 import testSampleAudioBuffer from './testSampleAudioBuffer.json'
 import { VerifiedUserInfo } from './authRequestService'
 import { ListObjectType } from '../panel/verticalListPanel/verticalListPanel'
-import { GridSampleObject } from '../panel/workstationPanel/gridComponents'
+import { GridSampleObject, GridBeatObject } from '../panel/workstationPanel/gridComponents'
 
 const mockNetworkDelayMillisecond = 2000
 const mockRandomListCountMaximum = 20
@@ -37,30 +38,12 @@ const RequestUserSampleItems = (userInfo, didCompleteRequest) => {
 
 /**
  * @param {VerifiedUserInfo} userInfo
- * @param {(data: [any]) => void} didCompleteRequest
+ * @param {(data: [GridBeatObject]) => void} didCompleteRequest
  */
 const RequestUserBeatItems = (userInfo, didCompleteRequest) => {
   setTimeout(() => {
-    const oneObject = {
-      sampleSource: '',
-      sampleTitle: 'Some Title',
-      sampleSubtitle: 'Some subtitle',
-      sampleIsActive: true,
-      sampleRowIndex: 0,
-      sampleColIndex: 0,
-      samplePlayLength: 1,
-      type: ListObjectType.Sample,
-      attributes: null,
-    }
-    let somelist = []
-    const maxCount = Math.floor(Math.random() * Math.floor(mockRandomListCountMaximum))
-    for (let i = 0; i < maxCount; i++) {
-      let newObject = {}
-      Object.assign(newObject, oneObject)
-      somelist.push(oneObject)
-    }
     console.log(userInfo)
-    didCompleteRequest(somelist)
+    didCompleteRequest(testBeatDataSet)
   }, mockNetworkDelayMillisecond)
 }
 
