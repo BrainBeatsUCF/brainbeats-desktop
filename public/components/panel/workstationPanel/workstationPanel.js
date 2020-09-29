@@ -106,6 +106,7 @@ const WorkstationPanel = props => {
       editedSample.sampleAudioLength += durationDelta
     }
     fixResizeOverCorrections(editedSample)
+    console.log(editedSample.sampleAudioLength)
     props.setLoadedSampleList(newValue)
   }
 

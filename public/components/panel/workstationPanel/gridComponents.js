@@ -13,9 +13,25 @@ const GridSampleObject = {
   sampleIsActive: true,
   sampleAudioDelay: 0,
   sampleAudioStart: 0,
-  sampleAudioLength: 0,
+  sampleAudioLength: -1,
   sampleAudioBuffer: AudioBuffer,
 }
+
+const backgroundCellHeight = `
+  repeating-linear-gradient(
+    0deg, 
+    transparent 1px, 
+    transparent ${Constants.CELL_HEIGHT_IN_PIXELS - 1}px, 
+    #707070 ${Constants.CELL_HEIGHT_IN_PIXELS}px, 
+    #707070 ${Constants.CELL_HEIGHT_IN_PIXELS + 1}px)`
+
+const backgroundCellWidth = `
+  repeating-linear-gradient(
+    -90deg, 
+    transparent 1px, 
+    transparent ${Constants.CELL_WIDTH_IN_PIXELS - 1}px, 
+    #707070 ${Constants.CELL_WIDTH_IN_PIXELS}px, 
+    #707070 ${Constants.CELL_WIDTH_IN_PIXELS + 1}px)`
 
 /**
  * @param {{
@@ -30,8 +46,8 @@ const GridActivator = props => {
         key={Constants.ACTIVATOR_KEY_PREFIX + index}
         className="GridActivator"
         style={{
-          minHeight: Constants.CELL_DIMENSION_IN_PIXELS,
-          minWidth: Constants.CELL_DIMENSION_IN_PIXELS,
+          minHeight: Constants.CELL_HEIGHT_IN_PIXELS,
+          minWidth: Constants.CELL_HEIGHT_IN_PIXELS,
         }}
       >
         <img
@@ -56,10 +72,10 @@ const GridActivator = props => {
  * }} props
  */
 const GridSampleMatrix = props => {
-  const maxGridLength = Constants.MAXIMUM_GRID_COLUMN_COUNT * Constants.CELL_DIMENSION_IN_PIXELS
+  const maxGridLength = Constants.MAXIMUM_GRID_COLUMN_COUNT * Constants.CELL_WIDTH_IN_PIXELS
 
   const handleDrag = (index, xPosition) => {
-    const dragInSeconds = (xPosition - Constants.CELL_DIMENSION_IN_PIXELS) / Constants.PIXELS_FOR_SECOND
+    const dragInSeconds = (xPosition - Constants.CELL_WIDTH_IN_PIXELS) / Constants.PIXELS_FOR_SECOND
     props.onItemDragStop(index, Math.abs(dragInSeconds))
   }
 
@@ -83,13 +99,23 @@ const GridSampleMatrix = props => {
           }}
           default={{
             x: Constants.PIXELS_FOR_SECOND * gridSampleItem.sampleAudioDelay,
-            y: Constants.CELL_DIMENSION_IN_PIXELS * index + Constants.GRID_SCREEN_Y_OFFSET,
+            y: Constants.CELL_HEIGHT_IN_PIXELS * index + Constants.GRID_SCREEN_Y_OFFSET,
             width: rndMaximumLength,
-            height: Constants.CELL_DIMENSION_IN_PIXELS,
+            height: Constants.CELL_HEIGHT_IN_PIXELS,
           }}
-          minHeight={Constants.CELL_DIMENSION_IN_PIXELS}
-          maxHeight={Constants.CELL_DIMENSION_IN_PIXELS}
-          minWidth={Constants.PIXELS_FOR_SECOND}
+          enableResizing={{
+            left: true,
+            right: true,
+            top: false,
+            topLeft: false,
+            topRight: false,
+            bottom: false,
+            bottomLeft: false,
+            bottomRight: false,
+          }}
+          minHeight={Constants.CELL_HEIGHT_IN_PIXELS}
+          maxHeight={Constants.CELL_HEIGHT_IN_PIXELS}
+          minWidth={Constants.CELL_MINIMUM_WIDTH_IN_PIXELS}
           maxWidth={rndMaximumLength}
           resizeGrid={[Constants.PIXELS_FOR_SECOND, 1]}
           dragGrid={[Constants.PIXELS_FOR_SECOND, 1]}
@@ -108,10 +134,12 @@ const GridSampleMatrix = props => {
     <div
       className="GridMatrix"
       style={{
-        minHeight: Constants.CELL_DIMENSION_IN_PIXELS * props.numberOfRows,
-        minWidth: Constants.CELL_DIMENSION_IN_PIXELS * props.numberOfCols,
-        height: Constants.CELL_DIMENSION_IN_PIXELS * props.numberOfRows,
-        width: Constants.CELL_DIMENSION_IN_PIXELS * props.numberOfCols,
+        minHeight: Constants.CELL_HEIGHT_IN_PIXELS * props.numberOfRows,
+        minWidth: Constants.CELL_WIDTH_IN_PIXELS * props.numberOfCols,
+        height: Constants.CELL_HEIGHT_IN_PIXELS * props.numberOfRows,
+        width: Constants.CELL_WIDTH_IN_PIXELS * props.numberOfCols,
+        backgroundSize: `${Constants.CELL_WIDTH_IN_PIXELS}px ${Constants.CELL_HEIGHT_IN_PIXELS}px`,
+        backgroundImage: `${backgroundCellWidth}, ${backgroundCellHeight}`,
       }}
     >
       {renderSampleGridItems()}

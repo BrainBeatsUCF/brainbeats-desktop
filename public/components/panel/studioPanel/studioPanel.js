@@ -27,7 +27,7 @@ class StudioPanel extends React.Component {
     super(props)
     this.state = {
       customClass: props.customClass ?? '',
-      downloadSample: null,
+      downloadSamples: null,
       isSynthesizingSample: false,
       loadedBeats: [],
       loadedSamples: [GridSampleObject],
@@ -75,7 +75,7 @@ class StudioPanel extends React.Component {
   }
 
   handleBeatsItemClick = beatsObject => {
-    // TODO: Load up beat into grid
+    // TODO: Prompt save of current work if grid is occupied
   }
 
   /**
@@ -83,15 +83,15 @@ class StudioPanel extends React.Component {
    * @param {GridSampleObject} sampleObject
    */
   handleSampleItemClick = sampleObject => {
-    this.setState({ downloadSample: sampleObject })
+    this.setState({ downloadSamples: [sampleObject] })
   }
 
   /**
-   * @param {GridSampleObject} sampleObject
+   * @param {[GridSampleObject]} sampleObjects
    */
-  handleSampleItemDownloaded = sampleObject => {
+  handleSampleItemDownloaded = sampleObjects => {
     const { loadedGridSampleObjects } = this.state
-    loadedGridSampleObjects.push(sampleObject)
+    loadedGridSampleObjects.push(sampleObjects[0])
     this.setLoadedGridSampleObjects(
       loadedGridSampleObjects.map(oldValue => {
         let newValue = {}
@@ -99,7 +99,7 @@ class StudioPanel extends React.Component {
         return newValue
       })
     )
-    this.setState({ downloadSample: null })
+    this.setState({ downloadSamples: null })
   }
 
   // MARK : Network Request Handlers
@@ -151,17 +151,17 @@ class StudioPanel extends React.Component {
   }
 
   renderSampleDownloader = () => {
-    const { downloadSample } = this.state
-    if (downloadSample == null) {
+    const { downloadSamples } = this.state
+    if (downloadSamples == null) {
       return <></>
     } else {
       return (
         <SampleDownloader
-          sample={downloadSample}
+          samples={downloadSamples}
           audioContext={StudioAudioContext}
           onComplete={this.handleSampleItemDownloaded}
           onError={() => {
-            this.setState({ downloadSample: null })
+            this.setState({ downloadSamples: null })
           }}
         ></SampleDownloader>
       )
