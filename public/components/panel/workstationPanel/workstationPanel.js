@@ -26,6 +26,7 @@ const WorkstationPanel = props => {
   const [renderedAudioNode, setRenderedAudioNode] = useState(null)
 
   // MARK : Life Cycle
+
   useEffect(() => {
     // update number of rows if necessary
     if (numberOfRows != props.loadedSampleList.length) {
