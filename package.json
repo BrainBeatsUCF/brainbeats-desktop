@@ -23,7 +23,6 @@
   "dependencies": {
     "audiobuffer-to-wav": "^1.0.0",
     "axios": "^0.20.0",
-    "browserify-fs": "^1.0.0",
     "canvas": "^2.6.1",
     "concurrently": "^5.1.0",
     "midi-player-js": "^2.0.5",
