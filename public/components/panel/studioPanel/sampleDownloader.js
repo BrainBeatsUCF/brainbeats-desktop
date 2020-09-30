@@ -8,9 +8,9 @@ let SampleDownloaderMounted = false
 class SampleDownloader extends React.Component {
   /**
    * @param {{
-   * sample: GridSampleObject,
+   * samples: [GridSampleObject],
    * audioContext: AudioContext,
-   * onComplete: (audioBuffer: AudioBuffer) => void,
+   * onComplete: (samples: [GridSampleObject]) => void,
    * onError: () => void
    * }} props
    */
@@ -18,15 +18,16 @@ class SampleDownloader extends React.Component {
     super(props)
     this.state = {
       downloadError: false,
-      downloadProgress: 0,
-      contentLength: 0.000001,
+      samples: props.samples,
+      currentDownloadIndex: 0,
+      currentDownloadProgress: 0,
     }
   }
 
   componentDidMount() {
     const { sample } = this.props
     SampleDownloaderMounted = true
-    this.startDownload(sample)
+    this.startDownload([], 0)
   }
 
   componentWillUnmount() {
@@ -34,14 +35,27 @@ class SampleDownloader extends React.Component {
   }
 
   /**
-   * @param {GridSampleObject} sample
+   * @param {GridSampleObject} prevResults
+   * @param {Number} downloadIndex
    */
-  startDownload = sample => {
+  startDownload = (prevResults, downloadIndex) => {
+    if (!SampleDownloaderMounted) {
+      return
+    }
+
+    if (downloadIndex >= this.state.samples.length) {
+      this.props.onComplete(prevResults)
+      return
+    }
+
     const setProgress = progressPercentage => {
       if (SampleDownloaderMounted) {
-        this.setState({ downloadProgress: progressPercentage })
+        this.setState({ currentDownloadProgress: progressPercentage })
       }
     }
+
+    let sample = this.state.samples[downloadIndex]
+    setProgress(0)
     axios({
       responseType: 'arraybuffer',
       url: 'https://cors-anywhere.herokuapp.com/' + sample.sampleSource,
@@ -54,11 +68,13 @@ class SampleDownloader extends React.Component {
       .then(audioBuffer => {
         if (SampleDownloaderMounted) {
           sample.sampleAudioBuffer = audioBuffer
-          sample.sampleAudioLength = audioBuffer.duration
-          this.props.onComplete(sample)
+          sample.sampleAudioLength = sample.sampleAudioLength === -1 ? audioBuffer.duration : -1
+          prevResults.push(sample)
+          this.startDownload(prevResults, downloadIndex + 1)
         }
       })
       .catch(error => {
+        console.error(error)
         if (SampleDownloaderMounted) {
           this.setState({ downloadError: true })
           setTimeout(() => {
@@ -71,12 +87,13 @@ class SampleDownloader extends React.Component {
   }
 
   render() {
-    const { downloadProgress, downloadError } = this.state
+    const { currentDownloadIndex, currentDownloadProgress, samples, downloadError } = this.state
+    const sampleTitle = currentDownloadIndex < samples.length ? samples[currentDownloadIndex].sampleTitle : 'Sample'
     const getTitle = () => {
       if (downloadError) {
         return 'An error occured, please try again'
       } else {
-        return `Downloading sample... ${downloadProgress}%`
+        return `Downloading ${sampleTitle}... ${currentDownloadProgress}%`
       }
     }
     return (
