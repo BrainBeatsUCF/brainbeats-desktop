@@ -1,10 +1,11 @@
 import React from 'react'
 import { ListObjectType, VerticalListPanel } from '../verticalListPanel/verticalListPanel'
 import { WorkstationPanel } from '../workstationPanel/workstationPanel'
-import { GridSampleObject, GridBeatObject } from '../workstationPanel/gridComponents'
+import { GridSampleObject } from '../workstationPanel/gridComponents'
 import { SampleDownloader } from './sampleDownloader'
 import { RequestUserBeatItems, RequestUserSampleItems } from '../../requestService/requestService'
 import { SampleSynthesizer, SynthesizingStage } from '../sampleSynthesizerPanel/sampleSynthesizerPanel'
+import { GridBeatObject, updateBeatSamples, appendSamplesToBeat } from '../workstationPanel/gridObjects'
 import './studioPanel.css'
 
 let StudioPanelComponentMounted = false
@@ -31,12 +32,12 @@ class StudioPanel extends React.Component {
       isSynthesizingSample: false,
       loadedBeats: [],
       loadedSamples: [GridSampleObject],
-      loadedGridSampleObjects: [GridSampleObject],
+      currentGridItem: GridBeatObject,
     }
 
     // Hacky way of adding autocomplete to state through VSCode intellisense
     this.state.loadedSamples = []
-    this.state.loadedGridSampleObjects = []
+    this.state.currentGridItem.samples = []
   }
 
   // MARK : Life Cycle
@@ -80,6 +81,13 @@ class StudioPanel extends React.Component {
    */
   handleBeatsItemClick = beatsObject => {
     // TODO: Prompt save of current work if grid is occupied
+
+    const samplesToDownload = beatsObject.samples
+    beatsObject.samples = []
+    this.setState({
+      currentGridItem: beatsObject,
+      downloadSamples: samplesToDownload,
+    })
   }
 
   /**
@@ -90,23 +98,18 @@ class StudioPanel extends React.Component {
     this.setState({ downloadSamples: [sampleObject] })
   }
 
-  /**
-   * @param {[GridSampleObject]} sampleObjects
-   */
-  handleSampleItemDownloaded = sampleObjects => {
-    const { loadedGridSampleObjects } = this.state
-    loadedGridSampleObjects.push(sampleObjects[0])
-    this.setLoadedGridSampleObjects(
-      loadedGridSampleObjects.map(oldValue => {
-        let newValue = {}
-        Object.assign(newValue, oldValue)
-        return newValue
-      })
-    )
-    this.setState({ downloadSamples: null })
-  }
-
   // MARK : Network Request Handlers
+
+  /**
+   * @param {[GridSampleObject]} newSamples
+   */
+  handleSampleItemDownloaded = newSamples => {
+    const { currentGridItem } = this.state
+    this.setState({
+      downloadSamples: null,
+      currentGridItem: appendSamplesToBeat(newSamples, currentGridItem),
+    })
+  }
 
   beatsItemListRequest = onCompletion => {
     RequestUserBeatItems(this.props.userInfo, data => {
@@ -125,27 +128,12 @@ class StudioPanel extends React.Component {
     RequestUserSampleItems(this.props.userInfo, data => {
       if (StudioPanelComponentMounted) {
         onCompletion(data)
-        this.setLoadedSamples(data)
+        this.setState({ loadedSamples: data })
       }
     })
   }
 
   // MARK : Helpers
-
-  /**
-   *
-   * @param {[GridSampleObject]} loadedSamples
-   */
-  setLoadedSamples = loadedSamples => {
-    this.setState({ loadedSamples: loadedSamples })
-  }
-
-  /**
-   * @param {[GridSampleObject]} loadedGridSampleObjects
-   */
-  setLoadedGridSampleObjects = loadedGridSampleObjects => {
-    this.setState({ loadedGridSampleObjects: loadedGridSampleObjects })
-  }
 
   /**
    * @param {Boolean} isSynthesizingSample
@@ -164,9 +152,7 @@ class StudioPanel extends React.Component {
           samples={downloadSamples}
           audioContext={StudioAudioContext}
           onComplete={this.handleSampleItemDownloaded}
-          onError={() => {
-            this.setState({ downloadSamples: null })
-          }}
+          onError={() => this.setState({ downloadSamples: null })}
         ></SampleDownloader>
       )
     }
@@ -210,8 +196,11 @@ class StudioPanel extends React.Component {
         <WorkstationPanel
           customClassname="RightColumn"
           title={WorkstationTitle}
-          loadedSampleList={this.state.loadedGridSampleObjects}
-          setLoadedSampleList={this.setLoadedGridSampleObjects}
+          currentGridBeat={this.state.currentGridItem}
+          setLoadedSampleList={newGridSamples => {
+            const { currentGridItem } = this.state
+            this.setState({ currentGridBeat: updateBeatSamples(newGridSamples, currentGridItem) })
+          }}
           setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}
         ></WorkstationPanel>
         {this.renderSynthesizer()}

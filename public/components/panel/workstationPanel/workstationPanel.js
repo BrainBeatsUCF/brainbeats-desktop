@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { DEFAULT_GRID_COLUMN_COUNT } from './constants'
 import { GridSampleObject, GridSampleMatrix, GridActivator } from './gridComponents'
+import { GridBeatObject } from './gridObjects'
 import { MenuButton, MenuButtonColor, MenuButtonSelectionState } from '../../input/input'
 import { SampleSequenceRenderer } from './sampleSequencePlayer'
 
@@ -13,7 +14,7 @@ const PlayAudioContext = new AudioContext()
  * @param {{
  * customClassname: String?,
  * title: String,
- * loadedSampleList: [GridSampleObject],
+ * currentGridBeat: GridBeatObject,
  * setLoadedSampleList: (loadedSampleList: [GridSampleObject]) => void,
  * onSaveWork: () => void,
  * setIsMakingNetworkActivity: (Boolean) => void
@@ -29,16 +30,15 @@ const WorkstationPanel = props => {
 
   useEffect(() => {
     // update number of rows if necessary
-    if (numberOfRows != props.loadedSampleList.length) {
-      setNumberOfRows(props.loadedSampleList.length)
+    if (numberOfRows != props.currentGridBeat.samples.length) {
+      setNumberOfRows(props.currentGridBeat.samples.length)
     }
   })
 
   // MARK : Event handlers
 
   const handlePlayButtonClick = () => {
-    const { loadedSampleList } = props
-
+    const { samples } = props.currentGridBeat
     // Stop audio if something playing
     if (isPlayingAudio && renderedAudioNode != null) {
       renderedAudioNode.stop()
@@ -46,12 +46,12 @@ const WorkstationPanel = props => {
       return
     }
 
-    if (loadedSampleList.length == 0) {
+    if (samples.length == 0) {
       return
     }
     props.setIsMakingNetworkActivity(true)
     SampleSequenceRenderer(
-      loadedSampleList,
+      samples,
       renderedBuffer => {
         props.setIsMakingNetworkActivity(false)
         let renderedAudioNodeSource = PlayAudioContext.createBufferSource()
@@ -77,7 +77,7 @@ const WorkstationPanel = props => {
    * @param {Number} newAudioDelay new position on grid
    */
   const handleGridSampleDragEnd = (index, newAudioDelay) => {
-    if (index < 0 || index >= props.loadedSampleList.length) {
+    if (index < 0 || index >= props.currentGridBeat.samples.length) {
       return
     }
     let newValue = getLoadedSampleCopy()
@@ -92,7 +92,7 @@ const WorkstationPanel = props => {
    * @param {ResizeDirection} direction
    */
   const handleGridSampleResizeEnd = (index, durationDelta, direction) => {
-    if (index < 0 || index >= props.loadedSampleList.length) {
+    if (index < 0 || index >= props.currentGridBeat.samples.length) {
       return
     }
     let newValue = getLoadedSampleCopy()
@@ -106,7 +106,6 @@ const WorkstationPanel = props => {
       editedSample.sampleAudioLength += durationDelta
     }
     fixResizeOverCorrections(editedSample)
-    console.log(editedSample.sampleAudioLength)
     props.setLoadedSampleList(newValue)
   }
 
@@ -139,7 +138,7 @@ const WorkstationPanel = props => {
    * @param {Number} index index of activator being toggled
    */
   const handleActivatorToggle = index => {
-    if (index < 0 || index >= props.loadedSampleList.length) {
+    if (index < 0 || index >= props.currentGridBeat.samples.length) {
       return
     }
     let newValue = getLoadedSampleCopy()
@@ -154,7 +153,7 @@ const WorkstationPanel = props => {
    */
   const getLoadedSampleCopy = () => {
     let newValue = []
-    Object.assign(newValue, props.loadedSampleList)
+    Object.assign(newValue, props.currentGridBeat.samples)
     return newValue
   }
 
@@ -195,12 +194,12 @@ const WorkstationPanel = props => {
       <div className="GridContainer">
         <div className="GridActivators">
           <GridActivator
-            activatorStates={props.loadedSampleList}
+            activatorStates={props.currentGridBeat.samples}
             onActivatorClick={handleActivatorToggle}
           ></GridActivator>
         </div>
         <GridSampleMatrix
-          loadedGridSampleItems={props.loadedSampleList}
+          loadedGridSampleItems={props.currentGridBeat.samples}
           numberOfCols={DEFAULT_GRID_COLUMN_COUNT}
           numberOfRows={numberOfRows}
           onItemDragStop={handleGridSampleDragEnd}

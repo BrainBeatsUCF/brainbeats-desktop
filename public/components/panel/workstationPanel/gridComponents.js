@@ -83,7 +83,7 @@ const GridSampleMatrix = props => {
   const maxGridLength = Constants.MAXIMUM_GRID_COLUMN_COUNT * Constants.CELL_WIDTH_IN_PIXELS
 
   const handleDrag = (index, xPosition) => {
-    const dragInSeconds = (xPosition - Constants.CELL_WIDTH_IN_PIXELS) / Constants.PIXELS_PER_SECOND
+    const dragInSeconds = (xPosition - Constants.GRID_SCREEN_X_OFFSET) / Constants.PIXELS_PER_SECOND
     props.onItemDragStop(index, Math.abs(dragInSeconds))
   }
 
@@ -95,6 +95,7 @@ const GridSampleMatrix = props => {
   const renderSampleGridItems = () => {
     return props.loadedGridSampleItems.map((gridSampleItem, index) => {
       const maxAudioLength = gridSampleItem.sampleAudioBuffer.duration * Constants.PIXELS_PER_SECOND
+      const currentAudioLength = gridSampleItem.sampleAudioLength * Constants.PIXELS_PER_SECOND
       const rndMaximumLength = maxAudioLength < maxGridLength ? maxAudioLength : maxGridLength
       return (
         <Rnd
@@ -108,7 +109,7 @@ const GridSampleMatrix = props => {
           default={{
             x: Constants.PIXELS_PER_SECOND * gridSampleItem.sampleAudioDelay,
             y: Constants.CELL_HEIGHT_IN_PIXELS * index + Constants.GRID_SCREEN_Y_OFFSET,
-            width: rndMaximumLength,
+            width: currentAudioLength < rndMaximumLength ? currentAudioLength : rndMaximumLength,
             height: Constants.CELL_HEIGHT_IN_PIXELS,
           }}
           enableResizing={{
