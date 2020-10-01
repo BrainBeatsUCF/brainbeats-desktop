@@ -3,6 +3,7 @@ import { DEFAULT_GRID_COLUMN_COUNT } from './constants'
 import { GridSampleObject, GridSampleMatrix, GridActivator } from './gridComponents'
 import { GridBeatObject } from './gridObjects'
 import { MenuButton, MenuButtonColor, MenuButtonSelectionState } from '../../input/input'
+import { fixResizeOverCorrections, commitBeatIfNecessary } from './gridObjects'
 import { SampleSequenceRenderer } from './sampleSequencePlayer'
 
 import PlayButton from '../../../images/whitePlayButton.png'
@@ -16,7 +17,7 @@ const PlayAudioContext = new AudioContext()
  * title: String,
  * currentGridBeat: GridBeatObject,
  * setLoadedSampleList: (loadedSampleList: [GridSampleObject]) => void,
- * onSaveWork: () => void,
+ * onSaveCurrentGridBeat: (beatObject: GridBeatObject) => void,
  * setIsMakingNetworkActivity: (Boolean) => void
  * }} props
  */
@@ -69,7 +70,15 @@ const WorkstationPanel = props => {
   }
 
   const handleSaveButtonClick = () => {
-    // TODO: Pull up save popup
+    const { currentGridBeat } = props
+    if (!currentGridBeat.isWorthSaving) {
+      return
+    }
+    const didPerformSave = commitBeatIfNecessary(currentGridBeat)
+    if (!didPerformSave) {
+      return
+    }
+    props.onSaveCurrentGridBeat(currentGridBeat)
   }
 
   /**
@@ -107,31 +116,6 @@ const WorkstationPanel = props => {
     }
     fixResizeOverCorrections(editedSample)
     props.setLoadedSampleList(newValue)
-  }
-
-  /**
-   * @param {GridSampleObject} sample
-   */
-  const fixResizeOverCorrections = sample => {
-    const maxDurationPossible = sample.sampleAudioBuffer.duration
-    if (sample.sampleAudioDelay < 0) {
-      sample.sampleAudioDelay = 0
-    }
-    if (sample.sampleAudioStart < 0) {
-      sample.sampleAudioStart = 0
-    }
-    if (sample.sampleAudioLength < 0) {
-      sample.sampleAudioLength = 0
-    }
-    if (sample.sampleAudioStart > maxDurationPossible) {
-      sample.sampleAudioStart = maxDurationPossible
-    }
-    if (sample.sampleAudioLength > maxDurationPossible) {
-      sample.sampleAudioLength = maxDurationPossible
-    }
-    if (sample.sampleAudioStart + sample.sampleAudioLength > maxDurationPossible) {
-      sample.sampleAudioStart = maxDurationPossible - sample.sampleAudioLength
-    }
   }
 
   /**

@@ -1,3 +1,5 @@
+import hash from 'object-hash'
+
 const GridSampleObject = {
   sampleSource: '',
   sampleTitle: '',
@@ -10,32 +12,19 @@ const GridSampleObject = {
 }
 
 const GridBeatObject = {
+  isWorthSaving: false,
   sampleTitle: '',
   sampleSubTitle: '',
   beatID: 0,
   image: '',
-  currentHash: '',
+  commit: '',
+  isSaved: '',
   samples: [GridSampleObject],
 }
 
 // Todo: update to parse some request body
 const createNewBeat = jsonBody => {
   return GridBeatObject
-}
-
-/**
- * @param {GridSampleObject} sample
- * @param {GridBeatObject} beat
- */
-const appendSampleToBeat = (sample, beat) => {
-  let retval = {}
-  let source = createNewBeat()
-  if (beat != null) {
-    source = beat
-  }
-  source.samples.push(sample)
-  Object.assign(retval, source)
-  return retval
 }
 
 /**
@@ -68,4 +57,74 @@ const updateBeatSamples = (samples, beat) => {
   return retval
 }
 
-export { GridBeatObject, createNewBeat, updateBeatSamples, appendSampleToBeat, appendSamplesToBeat }
+/**
+ * @param {GridSampleObject} sample
+ */
+const fixResizeOverCorrections = sample => {
+  const maxDurationPossible = sample.sampleAudioBuffer.duration
+  if (sample.sampleAudioDelay < 0) {
+    sample.sampleAudioDelay = 0
+  }
+  if (sample.sampleAudioStart < 0) {
+    sample.sampleAudioStart = 0
+  }
+  if (sample.sampleAudioLength < 0) {
+    sample.sampleAudioLength = 0
+  }
+  if (sample.sampleAudioStart > maxDurationPossible) {
+    sample.sampleAudioStart = maxDurationPossible
+  }
+  if (sample.sampleAudioLength > maxDurationPossible) {
+    sample.sampleAudioLength = maxDurationPossible
+  }
+  if (sample.sampleAudioStart + sample.sampleAudioLength > maxDurationPossible) {
+    sample.sampleAudioStart = maxDurationPossible - sample.sampleAudioLength
+  }
+}
+
+/**
+ * @param {GridBeatObject} beatObject
+ */
+const getCommit = beatObject => {
+  let commitObject = {}
+  Object.assign(commitObject, beatObject)
+  commitObject.samples = beatObject.samples.map(sample => {
+    return (
+      `${sample.sampleTitle}` +
+      `${sample.sampleSubtitle}` +
+      `${sample.sampleSource}` +
+      `${sample.sampleIsActive}` +
+      `${sample.sampleAudioStart}` +
+      `${sample.sampleAudioLength}` +
+      `${sample.sampleAudioDelay}`
+    )
+  })
+  commitObject.commit = ''
+  return commitObject
+}
+
+/**
+ * Checks if object has been saved and saves otherwise
+ * Used in place of a normal isSaved because hashing can be an expensive operation
+ * @param {GridBeatObject} beatObject
+ * @return {Boolean} indicates if save operation occured
+ */
+const commitBeatIfNecessary = beatObject => {
+  const commitObject = getCommit(beatObject)
+  const hashValue = hash(commitObject)
+  if (beatObject.commit != hashValue) {
+    beatObject.commit = hashValue
+    console.log(hashValue)
+    return true
+  }
+  return false
+}
+
+export {
+  GridBeatObject,
+  commitBeatIfNecessary,
+  createNewBeat,
+  updateBeatSamples,
+  appendSamplesToBeat,
+  fixResizeOverCorrections,
+}
