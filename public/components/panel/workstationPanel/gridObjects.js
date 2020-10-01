@@ -121,6 +121,7 @@ const commitBeatIfNecessary = beatObject => {
 }
 
 export {
+  GridSampleObject,
   GridBeatObject,
   commitBeatIfNecessary,
   createNewBeat,

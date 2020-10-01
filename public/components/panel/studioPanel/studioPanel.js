@@ -1,11 +1,15 @@
 import React from 'react'
 import { ListObjectType, VerticalListPanel } from '../verticalListPanel/verticalListPanel'
 import { WorkstationPanel } from '../workstationPanel/workstationPanel'
-import { GridSampleObject } from '../workstationPanel/gridObjects'
 import { SampleDownloader } from './sampleDownloader'
 import { RequestUserBeatItems, RequestUserSampleItems } from '../../requestService/requestService'
 import { SampleSynthesizer, SynthesizingStage } from '../sampleSynthesizerPanel/sampleSynthesizerPanel'
-import { GridBeatObject, updateBeatSamples, appendSamplesToBeat } from '../workstationPanel/gridObjects'
+import {
+  GridBeatObject,
+  GridSampleObject,
+  updateBeatSamples,
+  appendSamplesToBeat,
+} from '../workstationPanel/gridObjects'
 import './studioPanel.css'
 
 let StudioPanelComponentMounted = false

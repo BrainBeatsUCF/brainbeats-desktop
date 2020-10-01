@@ -1,29 +1,10 @@
 import React from 'react'
 import { Rnd } from 'react-rnd'
-
+import { GridSampleObject } from './gridObjects'
 import * as Constants from './constants.js'
 import GreenCheckmark from '../../../images/checkGreen.png'
 import RedCheckmark from '../../../images/checkRed.png'
 import './grid.css'
-
-const GridSampleObject = {
-  sampleSource: '',
-  sampleTitle: '',
-  sampleSubtitle: '',
-  sampleIsActive: true,
-  sampleAudioDelay: 0,
-  sampleAudioStart: 0,
-  sampleAudioLength: -1,
-  sampleAudioBuffer: AudioBuffer,
-}
-
-const GridBeatObject = {
-  sampleTitle: '',
-  sampleSubTitle: '',
-  beatID: 0,
-  image: '',
-  samples: [GridSampleObject],
-}
 
 const backgroundCellHeight = `
   repeating-linear-gradient(
@@ -156,4 +137,4 @@ const GridSampleMatrix = props => {
   )
 }
 
-export { GridSampleObject, GridBeatObject, GridSampleMatrix, GridActivator }
+export { GridSampleObject, GridSampleMatrix, GridActivator }

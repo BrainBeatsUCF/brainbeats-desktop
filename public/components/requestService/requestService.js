@@ -4,10 +4,9 @@ import testBeatDataSet from './testBeats.json'
 import testSampleAudioBuffer from './testSampleAudioBuffer.json'
 import { VerifiedUserInfo } from './authRequestService'
 import { ListObjectType } from '../panel/verticalListPanel/verticalListPanel'
-import { GridSampleObject, GridBeatObject } from '../panel/workstationPanel/gridComponents'
+import { GridSampleObject, GridBeatObject } from '../panel/workstationPanel/gridObjects'
 
 const mockNetworkDelayMillisecond = 2000
-const mockRandomListCountMaximum = 20
 
 const ResultStatus = {
   Success: 'success',

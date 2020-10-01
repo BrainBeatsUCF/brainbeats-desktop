@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { DEFAULT_GRID_COLUMN_COUNT } from './constants'
 import { GridSampleObject, GridSampleMatrix, GridActivator } from './gridComponents'
-import { GridBeatObject } from './gridObjects'
 import { MenuButton, MenuButtonColor, MenuButtonSelectionState } from '../../input/input'
-import { fixResizeOverCorrections, commitBeatIfNecessary } from './gridObjects'
+import { GridBeatObject, fixResizeOverCorrections, commitBeatIfNecessary } from './gridObjects'
 import { SampleSequenceRenderer } from './sampleSequencePlayer'
 
 import PlayButton from '../../../images/whitePlayButton.png'
