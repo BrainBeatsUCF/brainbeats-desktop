@@ -68,7 +68,7 @@ class SampleDownloader extends React.Component {
       .then(audioBuffer => {
         if (SampleDownloaderMounted) {
           sample.sampleAudioBuffer = audioBuffer
-          sample.sampleAudioLength = sample.sampleAudioLength === -1 ? audioBuffer.duration : -1
+          sample.sampleAudioLength = sample.sampleAudioLength === -1 ? audioBuffer.duration : sample.sampleAudioLength
           prevResults.push(sample)
           this.startDownload(prevResults, downloadIndex + 1)
         }

@@ -1,10 +1,15 @@
 import React from 'react'
 import { ListObjectType, VerticalListPanel } from '../verticalListPanel/verticalListPanel'
 import { WorkstationPanel } from '../workstationPanel/workstationPanel'
-import { GridSampleObject, GridBeatObject } from '../workstationPanel/gridComponents'
 import { SampleDownloader } from './sampleDownloader'
 import { RequestUserBeatItems, RequestUserSampleItems } from '../../requestService/requestService'
 import { SampleSynthesizer, SynthesizingStage } from '../sampleSynthesizerPanel/sampleSynthesizerPanel'
+import {
+  GridBeatObject,
+  GridSampleObject,
+  updateBeatSamples,
+  appendSamplesToBeat,
+} from '../workstationPanel/gridObjects'
 import './studioPanel.css'
 
 let StudioPanelComponentMounted = false
@@ -31,12 +36,12 @@ class StudioPanel extends React.Component {
       isSynthesizingSample: false,
       loadedBeats: [],
       loadedSamples: [GridSampleObject],
-      loadedGridSampleObjects: [GridSampleObject],
+      currentGridItem: GridBeatObject,
     }
 
     // Hacky way of adding autocomplete to state through VSCode intellisense
     this.state.loadedSamples = []
-    this.state.loadedGridSampleObjects = []
+    this.state.currentGridItem.samples = []
   }
 
   // MARK : Life Cycle
@@ -60,10 +65,24 @@ class StudioPanel extends React.Component {
     // turn off synthesizer
   }
 
+  /**
+   * @param {GridBeatObject} beatObject
+   */
+  handleSaveBeatToDatabase = beatObject => {
+    // Important!: Should show progress status in overlay, should cancel out overlay on error
+    // overlay screen, indicate network activity
+    // upload samples to database, get sample URLs
+    // upload images to database, get image URL
+    // upload beat json to database with sample and image URL
+    // remove overlay, stop network activity
+    // Note to self, should abstract to separate BeatUploader react component
+  }
+
   handleBeatsAddClick = () => {
-    // TODO: Start a new slate on grid
-    // If content already exists in grid, ask user to save then close
-    // else close right away and renew slate
+    // Check if current grid commit is valid
+    // if not valid
+    //    call handleSaveBeatToDatabase
+    // clear out grid
   }
 
   /**
@@ -80,6 +99,13 @@ class StudioPanel extends React.Component {
    */
   handleBeatsItemClick = beatsObject => {
     // TODO: Prompt save of current work if grid is occupied
+    const samplesToDownload = beatsObject.samples
+    beatsObject.samples = []
+    beatsObject.isWorthSaving = true
+    this.setState({
+      currentGridItem: beatsObject,
+      downloadSamples: samplesToDownload,
+    })
   }
 
   /**
@@ -87,26 +113,22 @@ class StudioPanel extends React.Component {
    * @param {GridSampleObject} sampleObject
    */
   handleSampleItemClick = sampleObject => {
+    this.state.currentGridItem.isWorthSaving = true
     this.setState({ downloadSamples: [sampleObject] })
   }
 
-  /**
-   * @param {[GridSampleObject]} sampleObjects
-   */
-  handleSampleItemDownloaded = sampleObjects => {
-    const { loadedGridSampleObjects } = this.state
-    loadedGridSampleObjects.push(sampleObjects[0])
-    this.setLoadedGridSampleObjects(
-      loadedGridSampleObjects.map(oldValue => {
-        let newValue = {}
-        Object.assign(newValue, oldValue)
-        return newValue
-      })
-    )
-    this.setState({ downloadSamples: null })
-  }
-
   // MARK : Network Request Handlers
+
+  /**
+   * @param {[GridSampleObject]} newSamples
+   */
+  handleSampleItemDownloaded = newSamples => {
+    const { currentGridItem } = this.state
+    this.setState({
+      downloadSamples: null,
+      currentGridItem: appendSamplesToBeat(newSamples, currentGridItem),
+    })
+  }
 
   beatsItemListRequest = onCompletion => {
     RequestUserBeatItems(this.props.userInfo, data => {
@@ -118,34 +140,18 @@ class StudioPanel extends React.Component {
   }
 
   /**
-   *
    * @param {(data: GridSampleObject) => void} onCompletion
    */
   sampleItemListRequest = onCompletion => {
     RequestUserSampleItems(this.props.userInfo, data => {
       if (StudioPanelComponentMounted) {
         onCompletion(data)
-        this.setLoadedSamples(data)
+        this.setState({ loadedSamples: data })
       }
     })
   }
 
   // MARK : Helpers
-
-  /**
-   *
-   * @param {[GridSampleObject]} loadedSamples
-   */
-  setLoadedSamples = loadedSamples => {
-    this.setState({ loadedSamples: loadedSamples })
-  }
-
-  /**
-   * @param {[GridSampleObject]} loadedGridSampleObjects
-   */
-  setLoadedGridSampleObjects = loadedGridSampleObjects => {
-    this.setState({ loadedGridSampleObjects: loadedGridSampleObjects })
-  }
 
   /**
    * @param {Boolean} isSynthesizingSample
@@ -164,9 +170,7 @@ class StudioPanel extends React.Component {
           samples={downloadSamples}
           audioContext={StudioAudioContext}
           onComplete={this.handleSampleItemDownloaded}
-          onError={() => {
-            this.setState({ downloadSamples: null })
-          }}
+          onError={() => this.setState({ downloadSamples: null })}
         ></SampleDownloader>
       )
     }
@@ -210,8 +214,12 @@ class StudioPanel extends React.Component {
         <WorkstationPanel
           customClassname="RightColumn"
           title={WorkstationTitle}
-          loadedSampleList={this.state.loadedGridSampleObjects}
-          setLoadedSampleList={this.setLoadedGridSampleObjects}
+          currentGridBeat={this.state.currentGridItem}
+          setLoadedSampleList={newGridSamples => {
+            const { currentGridItem } = this.state
+            this.setState({ currentGridBeat: updateBeatSamples(newGridSamples, currentGridItem) })
+          }}
+          onSaveCurrentGridBeat={this.handleSaveBeatToDatabase}
           setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}
         ></WorkstationPanel>
         {this.renderSynthesizer()}
