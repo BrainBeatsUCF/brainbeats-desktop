@@ -12,7 +12,7 @@ module.exports = {
         rules : [
             {test : /\.(js)$/, use:'babel-loader'},
             {test : /\.css$/, use:['style-loader', 'css-loader']},
-            {test : /\.(png|jpe?g|gif)$/i, use: 'file-loader'},
+            {test : /\.(png|svg|jpe?g|gif)$/i, use: 'file-loader'},
             {test : /\.(mp3|wav|wma|ogg)$/, use: 'file-loader'},
             {test : /\.(mp4|webm)$/, use: 'file-loader'}
         ]

@@ -2,6 +2,7 @@ import React from 'react'
 import { ListObjectType, VerticalListPanel } from '../verticalListPanel/verticalListPanel'
 import { WorkstationPanel } from '../workstationPanel/workstationPanel'
 import { SampleDownloader } from './sampleDownloader'
+import { SaveBeatPromptWrapper, ClosePromptInfo } from './saveBeatPrompt'
 import { RequestUserBeatItems, RequestUserSampleItems } from '../../requestService/requestService'
 import { SampleSynthesizer, SynthesizingStage } from '../sampleSynthesizerPanel/sampleSynthesizerPanel'
 import {
@@ -9,6 +10,7 @@ import {
   GridSampleObject,
   updateBeatSamples,
   appendSamplesToBeat,
+  getEmptyBeat,
 } from '../workstationPanel/gridObjects'
 import './studioPanel.css'
 
@@ -34,6 +36,7 @@ class StudioPanel extends React.Component {
       customClass: props.customClass ?? '',
       downloadSamples: null,
       isSynthesizingSample: false,
+      currentSavePromptInfo: ClosePromptInfo,
       loadedBeats: [],
       loadedSamples: [GridSampleObject],
       currentGridItem: GridBeatObject,
@@ -69,13 +72,19 @@ class StudioPanel extends React.Component {
    * @param {GridBeatObject} beatObject
    */
   handleSaveBeatToDatabase = beatObject => {
-    // Important!: Should show progress status in overlay, should cancel out overlay on error
-    // overlay screen, indicate network activity
-    // upload samples to database, get sample URLs
-    // upload images to database, get image URL
-    // upload beat json to database with sample and image URL
-    // remove overlay, stop network activity
-    // Note to self, should abstract to separate BeatUploader react component
+    const saveBeatPromptInfo = {
+      title: 'Save Beat',
+      shouldShowPrompt: true,
+      onSaveComplete: savedGridObject => {
+        console.log(savedGridObject)
+        // TODO: signal loaded beat list to refetch options
+        this.setState({
+          currentGridItem: savedGridObject,
+          currentSavePromptInfo: ClosePromptInfo,
+        })
+      },
+    }
+    this.setState({ currentSavePromptInfo: saveBeatPromptInfo })
   }
 
   handleBeatsAddClick = () => {
@@ -98,7 +107,27 @@ class StudioPanel extends React.Component {
    * @param {GridBeatObject} beatsObject
    */
   handleBeatsItemClick = beatsObject => {
-    // TODO: Prompt save of current work if grid is occupied
+    const { currentGridItem } = this.state
+    if (currentGridItem.isWorthSaving) {
+      const savePreviousWorkPromptInfo = {
+        title: 'Save Previous Work',
+        shouldShowPrompt: true,
+        onSaveComplete: savedGridObject => {
+          // TODO: signal loaded beat list to refetch options
+          this.setState({
+            currentGridItem: getEmptyBeat(),
+            currentSavePromptInfo: ClosePromptInfo,
+          })
+          this.startLoadingBeatItem(beatsObject)
+        },
+      }
+      this.setState({ currentSavePromptInfo: savePreviousWorkPromptInfo })
+    } else {
+      this.startLoadingBeatItem(beatsObject)
+    }
+  }
+
+  startLoadingBeatItem = beatsObject => {
     const samplesToDownload = beatsObject.samples
     beatsObject.samples = []
     beatsObject.isWorthSaving = true
@@ -217,13 +246,19 @@ class StudioPanel extends React.Component {
           currentGridBeat={this.state.currentGridItem}
           setLoadedSampleList={newGridSamples => {
             const { currentGridItem } = this.state
-            this.setState({ currentGridBeat: updateBeatSamples(newGridSamples, currentGridItem) })
+            this.setState({ currentGridItem: updateBeatSamples(newGridSamples, currentGridItem) })
           }}
           onSaveCurrentGridBeat={this.handleSaveBeatToDatabase}
           setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}
         ></WorkstationPanel>
         {this.renderSynthesizer()}
         {this.renderSampleDownloader()}
+        <SaveBeatPromptWrapper
+          promptInfo={this.state.currentSavePromptInfo}
+          currentGridItem={this.state.currentGridItem}
+          setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}
+          onSaveError={() => this.setState({ currentSavePromptInfo: ClosePromptInfo })}
+        ></SaveBeatPromptWrapper>
       </div>
     )
   }

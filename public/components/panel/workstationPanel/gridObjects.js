@@ -18,13 +18,24 @@ const GridBeatObject = {
   beatID: 0,
   image: '',
   commit: '',
-  isSaved: '',
   samples: [GridSampleObject],
 }
 
 // Todo: update to parse some request body
 const createNewBeat = jsonBody => {
   return GridBeatObject
+}
+
+const getEmptyBeat = () => {
+  return {
+    isWorthSaving: false,
+    sampleTitle: '',
+    sampleSubtitle: '',
+    beatID: 0,
+    image: '',
+    commit: '',
+    samples: [],
+  }
 }
 
 /**
@@ -128,4 +139,5 @@ export {
   updateBeatSamples,
   appendSamplesToBeat,
   fixResizeOverCorrections,
+  getEmptyBeat,
 }

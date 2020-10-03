@@ -48,3 +48,44 @@
   border-radius: 10px;
   font-size: 1.2em;
 }
+
+.SaveBeatPromptBackground {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.7);
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.SaveBeatPrompt {
+  display: flex;
+  width: 350px;
+  flex-direction: column;
+  justify-content: left;
+}
+
+.SaveBeatPromptButtons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+
+.PromptButton {
+  width: 45%;
+  cursor: pointer;
+}
+
+.PromptButton:hover {
+  background-color: rgba(81, 81, 81, 0.771);
+}
+
+.SaveBeatPromptText {
+  align-self: center;
+  color: #fff;
+}
+
+.fileContainer.chooseFileButton {
+  border-radius: 4px;
+}

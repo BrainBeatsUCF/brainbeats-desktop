@@ -30,6 +30,7 @@
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
     "react-h5-audio-player": "^3.4.0",
+    "react-images-upload": "^1.2.8",
     "react-rnd": "^10.2.2",
     "socket.io-client": "^2.3.0",
     "trianglify": "^4.0.0"
