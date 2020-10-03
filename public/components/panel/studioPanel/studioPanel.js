@@ -72,26 +72,41 @@ class StudioPanel extends React.Component {
    * @param {GridBeatObject} beatObject
    */
   handleSaveBeatToDatabase = beatObject => {
-    const saveBeatPromptInfo = {
-      title: 'Save Beat',
-      shouldShowPrompt: true,
-      onSaveComplete: savedGridObject => {
-        console.log(savedGridObject)
-        // TODO: signal loaded beat list to refetch options
-        this.setState({
-          currentGridItem: savedGridObject,
-          currentSavePromptInfo: ClosePromptInfo,
-        })
+    this.setState({
+      currentSavePromptInfo: {
+        title: 'Save Beat',
+        shouldShowPrompt: true,
+        onSaveComplete: savedGridObject => {
+          console.log(savedGridObject)
+          // TODO: signal loaded beat list to refetch options
+          this.setState({
+            currentGridItem: savedGridObject,
+            currentSavePromptInfo: ClosePromptInfo,
+          })
+        },
       },
-    }
-    this.setState({ currentSavePromptInfo: saveBeatPromptInfo })
+    })
   }
 
   handleBeatsAddClick = () => {
-    // Check if current grid commit is valid
-    // if not valid
-    //    call handleSaveBeatToDatabase
-    // clear out grid
+    const { currentGridItem } = this.state
+    if (currentGridItem.isWorthSaving) {
+      this.setState({
+        currentSavePromptInfo: {
+          title: 'Save Previous Work To Continue',
+          shouldShowPrompt: true,
+          onSaveComplete: _ => {
+            // TODO: signal loaded beat list to refetch options
+            this.setState({
+              currentGridItem: getEmptyBeat(),
+              currentSavePromptInfo: ClosePromptInfo,
+            })
+          },
+        },
+      })
+    } else {
+      this.setState({ currentGridItem: getEmptyBeat() })
+    }
   }
 
   /**
@@ -109,19 +124,17 @@ class StudioPanel extends React.Component {
   handleBeatsItemClick = beatsObject => {
     const { currentGridItem } = this.state
     if (currentGridItem.isWorthSaving) {
-      const savePreviousWorkPromptInfo = {
-        title: 'Save Previous Work',
-        shouldShowPrompt: true,
-        onSaveComplete: savedGridObject => {
-          // TODO: signal loaded beat list to refetch options
-          this.setState({
-            currentGridItem: getEmptyBeat(),
-            currentSavePromptInfo: ClosePromptInfo,
-          })
-          this.startLoadingBeatItem(beatsObject)
+      this.setState({
+        currentSavePromptInfo: {
+          title: 'Save Previous Work To Continue',
+          shouldShowPrompt: true,
+          onSaveComplete: _ => {
+            // TODO: signal loaded beat list to refetch options
+            this.setState({ currentSavePromptInfo: ClosePromptInfo })
+            this.startLoadingBeatItem(beatsObject)
+          },
         },
-      }
-      this.setState({ currentSavePromptInfo: savePreviousWorkPromptInfo })
+      })
     } else {
       this.startLoadingBeatItem(beatsObject)
     }
@@ -153,6 +166,7 @@ class StudioPanel extends React.Component {
    */
   handleSampleItemDownloaded = newSamples => {
     const { currentGridItem } = this.state
+    currentGridItem.isWorthSaving = true
     this.setState({
       downloadSamples: null,
       currentGridItem: appendSamplesToBeat(newSamples, currentGridItem),
