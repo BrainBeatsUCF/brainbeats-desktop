@@ -77,7 +77,6 @@ class StudioPanel extends React.Component {
         title: 'Save Beat',
         shouldShowPrompt: true,
         onSaveComplete: savedGridObject => {
-          console.log(savedGridObject)
           // TODO: signal loaded beat list to refetch options
           this.setState({
             currentGridItem: savedGridObject,
