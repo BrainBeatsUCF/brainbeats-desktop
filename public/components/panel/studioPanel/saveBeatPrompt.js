@@ -39,7 +39,7 @@ const SaveBeatPrompt = props => {
   const [uploadStarted, setUploadStarted] = useState(false)
 
   const startUpload = () => {
-    if (beatTitle == '') {
+    if (props.currentGridItem.sampleTitle == '') {
       return
     }
     setUploadStarted(true)
