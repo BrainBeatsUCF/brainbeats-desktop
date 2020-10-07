@@ -73,10 +73,6 @@ const WorkstationPanel = props => {
     if (!currentGridBeat.isWorthSaving) {
       return
     }
-    const didPerformSave = commitBeatIfNecessary(currentGridBeat)
-    if (!didPerformSave) {
-      return
-    }
     props.onSaveCurrentGridBeat(currentGridBeat)
   }
 
