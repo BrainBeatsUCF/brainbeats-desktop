@@ -69,6 +69,7 @@ class StudioPanel extends React.Component {
   }
 
   /**
+   * Responds to the event of clicking the save button in workstation
    * @param {GridBeatObject} beatObject
    */
   handleSaveBeatToDatabase = beatObject => {
@@ -77,7 +78,7 @@ class StudioPanel extends React.Component {
         title: 'Save Beat',
         shouldShowPrompt: true,
         onSaveComplete: savedGridObject => {
-          // TODO: signal loaded beat list to refetch options
+          this.beatsItemListRequest()
           this.setState({
             currentGridItem: savedGridObject,
             currentSavePromptInfo: ClosePromptInfo,
@@ -87,6 +88,11 @@ class StudioPanel extends React.Component {
     })
   }
 
+  /**
+   * Responds to the event of clicking the add button in the beats list.
+   * if there's a beat already loaded, a save sequence is triggered and the existing work will be
+   * cleared if and only if the user saves their previous work..
+   */
   handleBeatsAddClick = () => {
     const { currentGridItem } = this.state
     if (currentGridItem.isWorthSaving) {
@@ -95,7 +101,7 @@ class StudioPanel extends React.Component {
           title: 'Save Previous Work To Continue',
           shouldShowPrompt: true,
           onSaveComplete: _ => {
-            // TODO: signal loaded beat list to refetch options
+            this.beatsItemListRequest()
             this.setState({
               currentGridItem: getEmptyBeat(),
               currentSavePromptInfo: ClosePromptInfo,
@@ -118,28 +124,42 @@ class StudioPanel extends React.Component {
 
   /**
    * Load the samples of the selected beat and position in grid
-   * @param {GridBeatObject} beatsObject
+   * if there's a beat already loaded, a save sequence is triggered and the next selected
+   * beat will be loaded if and only if the user saves their previous work.
+   * @param {GridBeatObject} selectedBeatObject
    */
-  handleBeatsItemClick = beatsObject => {
+  handleBeatsItemClick = selectedBeatObject => {
     const { currentGridItem } = this.state
+    if (currentGridItem.beatID === selectedBeatObject.beatID) {
+      return
+    }
     if (currentGridItem.isWorthSaving) {
       this.setState({
         currentSavePromptInfo: {
           title: 'Save Previous Work To Continue',
           shouldShowPrompt: true,
           onSaveComplete: _ => {
-            // TODO: signal loaded beat list to refetch options
+            this.beatsItemListRequest()
+            this.startLoadingBeatItem(selectedBeatObject)
             this.setState({ currentSavePromptInfo: ClosePromptInfo })
-            this.startLoadingBeatItem(beatsObject)
           },
         },
       })
     } else {
-      this.startLoadingBeatItem(beatsObject)
+      this.startLoadingBeatItem(selectedBeatObject)
     }
   }
 
+  /**
+   * Sets the current grid to the selected beat and initiates the download process for the
+   * samples it may contain.
+   * @param {GridBeatObject} beatsObject
+   */
   startLoadingBeatItem = beatsObject => {
+    // [Bug] Issue-18:
+    // Emptying out the samples here and relying on them being replaced after download completion
+    // can lead to a bug where local information for a sample will be lost if the download fails.
+    // A better approach would be replace the buffer of the downloaded samples in real-time.
     const samplesToDownload = beatsObject.samples
     beatsObject.samples = []
     beatsObject.isWorthSaving = true
@@ -154,13 +174,17 @@ class StudioPanel extends React.Component {
    * @param {GridSampleObject} sampleObject
    */
   handleSampleItemClick = sampleObject => {
+    // Sample are copied to overcome default pass-by-reference behavior in javascript
+    let copySampleObject = {}
+    Object.assign(copySampleObject, sampleObject)
     this.state.currentGridItem.isWorthSaving = true
-    this.setState({ downloadSamples: [sampleObject] })
+    this.setState({ downloadSamples: [copySampleObject] })
   }
 
   // MARK : Network Request Handlers
 
   /**
+   * Handles saving of samples being downloaded when they become available
    * @param {[GridSampleObject]} newSamples
    */
   handleSampleItemDownloaded = newSamples => {
@@ -172,22 +196,28 @@ class StudioPanel extends React.Component {
     })
   }
 
-  beatsItemListRequest = onCompletion => {
+  /**
+   * Fetches the most up to date list of a users beat library
+   * @param {(data: [GridBeatObject]) => void} onCompletion
+   */
+  beatsItemListRequest = () => {
+    this.props.setIsMakingNetworkActivity(true)
     RequestUserBeatItems(this.props.userInfo, data => {
       if (StudioPanelComponentMounted) {
-        onCompletion(data)
+        this.props.setIsMakingNetworkActivity(false)
         this.setState({ loadedBeats: data })
       }
     })
   }
 
   /**
-   * @param {(data: GridSampleObject) => void} onCompletion
+   * Fetches the most up to date list of users sample library
    */
-  sampleItemListRequest = onCompletion => {
+  sampleItemListRequest = () => {
+    this.props.setIsMakingNetworkActivity(true)
     RequestUserSampleItems(this.props.userInfo, data => {
       if (StudioPanelComponentMounted) {
-        onCompletion(data)
+        this.props.setIsMakingNetworkActivity(false)
         this.setState({ loadedSamples: data })
       }
     })
@@ -240,17 +270,17 @@ class StudioPanel extends React.Component {
         <VerticalListPanel
           customClassname="LeftColumn"
           title={VerticalListTitles.Beats}
+          itemList={this.state.loadedBeats}
           onAddClick={this.handleBeatsAddClick}
           onItemClick={this.handleBeatsItemClick}
-          setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}
           itemListRequest={this.beatsItemListRequest}
         ></VerticalListPanel>
         <VerticalListPanel
           customClassname="MiddleColumn"
           title={VerticalListTitles.Samples}
+          itemList={this.state.loadedSamples}
           onAddClick={this.handleSampleAddClick}
           onItemClick={this.handleSampleItemClick}
-          setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}
           itemListRequest={this.sampleItemListRequest}
         ></VerticalListPanel>
         <WorkstationPanel

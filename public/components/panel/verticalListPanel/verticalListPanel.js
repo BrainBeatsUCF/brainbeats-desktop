@@ -4,8 +4,6 @@ import AddButton from '../../../images/redAddButton.png'
 import RefreshButton from '../../../images/refreshButton.png'
 import './verticalListPanel.css'
 
-let ListComponentMounted = false
-
 const ListObjectType = {
   Sample: 'sample',
   Beat: 'beat',
@@ -31,50 +29,26 @@ class VerticalListPanel extends React.Component {
    * @param {{
    * customClassname: String?,
    * title: String,
+   * itemList: [GridSampleObject],
    * onAddClick: () => void,
    * onItemClick: (item: GridSampleObject) => void,
-   * setIsMakingNetworkActivity: (Boolean) => void,
-   * itemListRequest: (onCompletion: (items: [GridSampleObject]) => void) => void
+   * itemListRequest: () => void
    * }} props
    */
   constructor(props) {
     super(props)
     this.state = {
       query: '',
-      itemList: [],
-      hasFetchedData: false,
       customClassname: props.customClassname ?? '',
     }
   }
 
   componentDidMount() {
-    ListComponentMounted = true
-    this.handleDataRefresh()
-  }
-
-  componentWillUnmount() {
-    ListComponentMounted = false
-  }
-
-  handleDataRefresh = () => {
-    this.props.setIsMakingNetworkActivity(true)
-    this.props.itemListRequest(recievedItemList => {
-      if (ListComponentMounted) {
-        this.setItemList(recievedItemList)
-        this.props.setIsMakingNetworkActivity(false)
-      }
-    })
+    this.props.itemListRequest()
   }
 
   handleAddClick = () => {
     this.props.onAddClick()
-  }
-
-  /**
-   * @param {[GridSampleObject]} items
-   */
-  setItemList = items => {
-    this.setState({ itemList: items })
   }
 
   /**
@@ -116,7 +90,7 @@ class VerticalListPanel extends React.Component {
   }
 
   renderCards = () => {
-    return this.state.itemList
+    return this.props.itemList
       .filter(item => {
         return this.filterIncludeItem(item)
       })
@@ -140,7 +114,7 @@ class VerticalListPanel extends React.Component {
             className="VerticalListPanelMenuButton MiddleSpot CenterSelf"
             src={RefreshButton}
             onClick={() => {
-              this.handleDataRefresh()
+              this.props.itemListRequest()
             }}
             style={{ paddingBottom: '0.8px' }}
           ></img>

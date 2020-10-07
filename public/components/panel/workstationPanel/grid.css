@@ -31,3 +31,17 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+.GridMatrix {
+  position: relative;
+}
+
+.GridTimelineTrack {
+  z-index: 2147483647;
+  position: relative;
+}
+
+.GridTimelineTrackLine {
+  stroke: rgb(144, 119, 237);
+  stroke-width: 1.2;
+}
