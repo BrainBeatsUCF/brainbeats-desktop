@@ -6,6 +6,7 @@ import GreenCheckmark from '../../../images/checkGreen.png'
 import RedCheckmark from '../../../images/checkRed.png'
 import './grid.css'
 
+/// Provides the CSS styling for horizontal lines for the grid matrix
 const backgroundCellHeight = `
   repeating-linear-gradient(
     0deg, 
@@ -14,6 +15,7 @@ const backgroundCellHeight = `
     #707070 ${Constants.CELL_HEIGHT_IN_PIXELS}px, 
     #707070 ${Constants.CELL_HEIGHT_IN_PIXELS + 1}px)`
 
+/// Provides the CSS styling for vertical lines for the grid matrix
 const backgroundCellWidth = `
   repeating-linear-gradient(
     -90deg, 
@@ -53,6 +55,7 @@ const GridActivator = props => {
 
 /**
  * @param {{
+ * trackLinePosition: Number,
  * loadedGridSampleItems: [GridSampleObject]
  * numberOfRows: Number,
  * numberOfCols: Number,
@@ -62,15 +65,36 @@ const GridActivator = props => {
  */
 const GridSampleMatrix = props => {
   const maxGridLength = Constants.MAXIMUM_GRID_COLUMN_COUNT * Constants.CELL_WIDTH_IN_PIXELS
+  const totalGridHeight = Constants.CELL_HEIGHT_IN_PIXELS * props.numberOfRows
+  const totalGridWidth = Constants.CELL_WIDTH_IN_PIXELS * props.numberOfCols
 
   const handleDrag = (index, xPosition) => {
-    const dragInSeconds = (xPosition - Constants.GRID_SCREEN_X_OFFSET) / Constants.PIXELS_PER_SECOND
+    const dragInSeconds = xPosition / Constants.PIXELS_PER_SECOND
     props.onItemDragStop(index, Math.abs(dragInSeconds))
   }
 
   const handleResize = (index, delta, direction) => {
     const durationDeltaInSeconds = Math.round(delta.width / Constants.PIXELS_PER_SECOND)
     props.onItemResizeStop(index, durationDeltaInSeconds, direction)
+  }
+
+  const renderTrackLine = () => {
+    const { trackLinePosition } = props
+    if (trackLinePosition == undefined || trackLinePosition == null || trackLinePosition < 0) {
+      return <></>
+    } else {
+      return (
+        <svg height={totalGridHeight} width={totalGridWidth} className="GridTimelineTrack">
+          <line
+            x1={trackLinePosition}
+            y1={0}
+            x2={trackLinePosition}
+            y2={totalGridHeight}
+            className="GridTimelineTrackLine"
+          />
+        </svg>
+      )
+    }
   }
 
   const renderSampleGridItems = () => {
@@ -133,6 +157,7 @@ const GridSampleMatrix = props => {
       }}
     >
       {renderSampleGridItems()}
+      {renderTrackLine()}
     </div>
   )
 }

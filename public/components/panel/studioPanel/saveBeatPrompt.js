@@ -7,12 +7,14 @@ const maximumImageUploadSize = 5242880 // 5mb
 const acceptedImageFormats = ['.jpg', '.gif', '.png', '.jpeg']
 let timeoutId = null
 
+/// Generic info for displaying the save dialog
 const SavePromptInfo = {
   title: null,
   shouldShowPrompt: false,
   onSaveComplete: null,
 }
 
+/// Generic info for hiding the save dialog
 const ClosePromptInfo = {
   title: null,
   shouldShowPrompt: false,
@@ -20,6 +22,7 @@ const ClosePromptInfo = {
 }
 
 /**
+ * A dialog component that's customizable with `PromptInfo` objects.
  * @param {{
  * promptTitle: String?,
  * currentGridItem: GridBeatObject,
@@ -36,6 +39,9 @@ const SaveBeatPrompt = props => {
   const [uploadStarted, setUploadStarted] = useState(false)
 
   const startUpload = () => {
+    if (props.currentGridItem.sampleTitle == '') {
+      return
+    }
     setUploadStarted(true)
     setUploadProgress(2)
     timeoutId = BeatUploader(
@@ -116,6 +122,7 @@ const SaveBeatPrompt = props => {
 }
 
 /**
+ * A wrapper to abstract hiding/showing the save dialog
  * @param {{
  * promptInfo: SavePromptInfo,
  * currentGridItem: GridBeatObject,
