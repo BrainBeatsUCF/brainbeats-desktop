@@ -51,6 +51,10 @@ const ItemContextPrompt = props => {
     // use audiobuffer-to-wav to download
   }
 
+  /**
+   * Handles the delete request and informs parent component when completed.
+   * A failed request will have no visible effect on the UI
+   */
   const handleItemDelete = () => {
     props.setIsMakingNetworkActivity(true)
     if (isSample) {
