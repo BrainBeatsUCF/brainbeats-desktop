@@ -52,7 +52,7 @@ const ItemContextPrompt = props => {
   const openInputValue = `${isSample ? 'Add to' : 'Open in'} Workstation`
   const [activityMessage, setActivityMessage] = useState(null)
 
-  const handleItemAudioDownload = () => {
+  const handleItemAudioDownload = _ => {
     // use audiobuffer-to-wav to download
     props.setIsMakingNetworkActivity(true)
     if (isSample) {
@@ -105,7 +105,7 @@ const ItemContextPrompt = props => {
    * Handles the delete request and informs parent component when completed.
    * A failed request will have no visible effect on the UI
    */
-  const handleItemDelete = () => {
+  const handleItemDelete = _ => {
     props.setIsMakingNetworkActivity(true)
     if (isSample) {
       RequestDeleteSample(props.userInfo, props.value, status => {
@@ -124,11 +124,11 @@ const ItemContextPrompt = props => {
     }
   }
 
-  const isInActivity = () => {
+  const isInActivity = _ => {
     return activityMessage != null && activityMessage != undefined
   }
 
-  const getActivityMessage = () => {
+  const getActivityMessage = _ => {
     if (!isInActivity()) {
       return <></>
     } else {
