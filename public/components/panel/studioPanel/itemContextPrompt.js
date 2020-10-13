@@ -1,4 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
+import axios from 'axios'
+import bufferToWav from 'audiobuffer-to-wav'
 import { ListObjectType } from '../verticalListPanel/verticalListPanel'
 import { GridBeatObject, GridSampleObject } from '../workstationPanel/gridObjects'
 import {
@@ -30,6 +32,8 @@ const CloseContextPromptInfo = {
   onCancel: null,
 }
 
+const errorMessageDisplayDuration = 1500 // milliseconds
+
 /**
  * @param {{
  * promptTitle: String,
@@ -46,9 +50,55 @@ const ItemContextPrompt = props => {
   const isSample = props.type == ListObjectType.Sample
   const deleteInputValue = `Delete ${isSample ? 'Sample' : 'Beat'}`
   const openInputValue = `${isSample ? 'Add to' : 'Open in'} Workstation`
+  const [activityMessage, setActivityMessage] = useState(null)
 
   const handleItemAudioDownload = () => {
     // use audiobuffer-to-wav to download
+    props.setIsMakingNetworkActivity(true)
+    if (isSample) {
+      downloadSampleAudio(props.value, _ => {
+        props.setIsMakingNetworkActivity(false)
+      })
+    }
+  }
+
+  /**
+   * @param {GridSampleObject} sample
+   * @param {() => void} onComplete
+   */
+  const downloadSampleAudio = (sample, onComplete) => {
+    const tempAudioContext = new AudioContext()
+    axios({
+      responseType: 'arraybuffer',
+      url: 'https://cors-anywhere.herokuapp.com/' + sample.sampleSource,
+      onDownloadProgress(progressEvent) {
+        const progress = Math.round((progressEvent.loaded / progressEvent.total) * 100)
+        setActivityMessage(`Sample download progress... ${progress}%`)
+      },
+    })
+      .then(response => tempAudioContext.decodeAudioData(response.data))
+      .then(audioBuffer => {
+        const wavData = bufferToWav(audioBuffer)
+        const blob = new window.Blob([new DataView(wavData)], {
+          type: 'audio/wav',
+        })
+        let anchor = document.createElement('a')
+        let downloadURL = window.URL.createObjectURL(blob)
+        anchor.href = downloadURL
+        anchor.download = sample.sampleTitle + '.wav'
+        anchor.click()
+        window.URL.revokeObjectURL(downloadURL)
+        setActivityMessage(null)
+        onComplete()
+      })
+      .catch(error => {
+        console.error(error)
+        setActivityMessage('Something went wrong, please try again')
+        setTimeout(() => {
+          setActivityMessage(null)
+          onComplete()
+        }, errorMessageDisplayDuration)
+      })
   }
 
   /**
@@ -74,22 +124,47 @@ const ItemContextPrompt = props => {
     }
   }
 
-  return (
-    <div className="SaveBeatPromptBackground">
-      <div className="ItemContextPrompt">
-        <h4 className="SaveBeatPromptText">{props.promptTitle}</h4>
-        <input
-          className="LoginInput PromptButton ContextButton"
-          type="button"
-          value={openInputValue}
-          onClick={_ => props.onLoadItemToGrid(props.value)}
-        ></input>
+  const isInActivity = () => {
+    return activityMessage != null && activityMessage != undefined
+  }
+
+  const getActivityMessage = () => {
+    if (!isInActivity()) {
+      return <></>
+    } else {
+      return <h4 className="SaveBeatPromptText">{activityMessage}</h4>
+    }
+  }
+
+  const getDownloadAudioButton = _ => {
+    if (isSample) {
+      return (
         <input
           className="LoginInput PromptButton ContextButton"
           type="button"
           value="Download Audio File"
           onClick={_ => handleItemAudioDownload()}
+          disabled={isInActivity()}
         ></input>
+      )
+    } else {
+      return <></>
+    }
+  }
+
+  return (
+    <div className="SaveBeatPromptBackground">
+      <div className="ItemContextPrompt">
+        <h4 className="SaveBeatPromptText">{props.promptTitle}</h4>
+        {getActivityMessage()}
+        <input
+          className="LoginInput PromptButton ContextButton"
+          type="button"
+          value={openInputValue}
+          onClick={_ => props.onLoadItemToGrid(props.value)}
+          disabled={isInActivity()}
+        ></input>
+        {getDownloadAudioButton()}
         <input
           className="LoginInput PromptButton ContextButton"
           type="button"
@@ -99,12 +174,14 @@ const ItemContextPrompt = props => {
               handleItemDelete()
             }
           }}
+          disabled={isInActivity()}
         ></input>
         <input
           className="LoginInput PromptButton ContextButton"
           type="button"
           value="Cancel"
           onClick={_ => props.onCancel()}
+          disabled={isInActivity()}
         ></input>
       </div>
     </div>
