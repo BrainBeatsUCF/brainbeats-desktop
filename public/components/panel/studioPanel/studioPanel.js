@@ -3,6 +3,7 @@ import { ListObjectType, VerticalListPanel } from '../verticalListPanel/vertical
 import { WorkstationPanel } from '../workstationPanel/workstationPanel'
 import { SampleDownloader } from './sampleDownloader'
 import { SaveBeatPromptWrapper, ClosePromptInfo } from './saveBeatPrompt'
+import { ItemContextPromptWrapper, CloseContextPromptInfo } from './itemContextPrompt'
 import { RequestUserBeatItems, RequestUserSampleItems } from '../../requestService/requestService'
 import { SampleSynthesizer, SynthesizingStage } from '../sampleSynthesizerPanel/sampleSynthesizerPanel'
 import {
@@ -37,6 +38,7 @@ class StudioPanel extends React.Component {
       downloadSamples: null,
       isSynthesizingSample: false,
       currentSavePromptInfo: ClosePromptInfo,
+      currentItemContextPromptInfo: CloseContextPromptInfo,
       loadedBeats: [],
       loadedSamples: [GridSampleObject],
       currentGridItem: GridBeatObject,
@@ -55,6 +57,10 @@ class StudioPanel extends React.Component {
 
   componentWillUnmount() {
     StudioPanelComponentMounted = false
+  }
+
+  closeContextPromptInfo() {
+    this.setState({ currentItemContextPromptInfo: CloseContextPromptInfo })
   }
 
   // MARK : Event Handlers
@@ -123,12 +129,40 @@ class StudioPanel extends React.Component {
   }
 
   /**
+   * Responds to beat being clicked in vertical list
+   * @param {GridBeatObject} selectedBeatObject
+   */
+  handleBeatsItemClick = selectedBeatObject => {
+    this.setState({
+      currentItemContextPromptInfo: {
+        title: selectedBeatObject.sampleTitle,
+        shouldShowPrompt: true,
+        value: selectedBeatObject,
+        type: ListObjectType.Beat,
+        onLoadItemToGrid: _ => {
+          this.shouldLoadBeatObject(selectedBeatObject)
+          this.closeContextPromptInfo()
+        },
+        onItemDeleted: _ => {
+          // clear out current grid if it was the item deleted
+          if (selectedBeatObject.beatID === this.state.currentGridItem.beatID) {
+            this.setState({ currentGridItem: getEmptyBeat() })
+          }
+          this.beatsItemListRequest()
+          this.closeContextPromptInfo()
+        },
+        onCancel: _ => this.closeContextPromptInfo(),
+      },
+    })
+  }
+
+  /**
    * Load the samples of the selected beat and position in grid
    * if there's a beat already loaded, a save sequence is triggered and the next selected
    * beat will be loaded if and only if the user saves their previous work.
    * @param {GridBeatObject} selectedBeatObject
    */
-  handleBeatsItemClick = selectedBeatObject => {
+  shouldLoadBeatObject = selectedBeatObject => {
     const { currentGridItem } = this.state
     if (currentGridItem.beatID === selectedBeatObject.beatID) {
       return
@@ -170,10 +204,34 @@ class StudioPanel extends React.Component {
   }
 
   /**
-   * Load the selected sample onto the grid
+   * Responds to sample being clicked in vertical list
    * @param {GridSampleObject} sampleObject
    */
   handleSampleItemClick = sampleObject => {
+    this.setState({
+      currentItemContextPromptInfo: {
+        title: sampleObject.sampleTitle,
+        shouldShowPrompt: true,
+        value: sampleObject,
+        type: ListObjectType.Sample,
+        onLoadItemToGrid: _ => {
+          this.shouldLoadSampleItem(sampleObject)
+          this.closeContextPromptInfo()
+        },
+        onItemDeleted: _ => {
+          this.sampleItemListRequest()
+          this.closeContextPromptInfo()
+        },
+        onCancel: _ => this.closeContextPromptInfo(),
+      },
+    })
+  }
+
+  /**
+   * Load the selected sample onto the grid
+   * @param {GridSampleObject} sampleObject
+   */
+  shouldLoadSampleItem = sampleObject => {
     // Sample are copied to overcome default pass-by-reference behavior in javascript
     let copySampleObject = {}
     Object.assign(copySampleObject, sampleObject)
@@ -273,6 +331,7 @@ class StudioPanel extends React.Component {
           itemList={this.state.loadedBeats}
           onAddClick={this.handleBeatsAddClick}
           onItemClick={this.handleBeatsItemClick}
+          onItemDelete={this.handleDeleteBeat}
           itemListRequest={this.beatsItemListRequest}
         ></VerticalListPanel>
         <VerticalListPanel
@@ -281,6 +340,7 @@ class StudioPanel extends React.Component {
           itemList={this.state.loadedSamples}
           onAddClick={this.handleSampleAddClick}
           onItemClick={this.handleSampleItemClick}
+          onItemDelete={this.handleDeleteSample}
           itemListRequest={this.sampleItemListRequest}
         ></VerticalListPanel>
         <WorkstationPanel
@@ -302,6 +362,10 @@ class StudioPanel extends React.Component {
           setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}
           onSaveError={() => this.setState({ currentSavePromptInfo: ClosePromptInfo })}
         ></SaveBeatPromptWrapper>
+        <ItemContextPromptWrapper
+          promptInfo={this.state.currentItemContextPromptInfo}
+          setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}
+        ></ItemContextPromptWrapper>
       </div>
     )
   }
