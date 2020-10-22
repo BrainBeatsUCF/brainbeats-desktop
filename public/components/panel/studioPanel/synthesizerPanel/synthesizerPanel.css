@@ -1,0 +1,81 @@
+/* 
+DIV place above the synthesizer to prevent clicking out while 
+various background processes are running.
+*/
+.SynthesizerHeaderOverlay {
+  position: absolute;
+  background-color: var(--app-background-color);
+  animation: fadeInFromNone 0.2s ease-out;
+  width: 100%;
+  height: var(--app-header-height);
+}
+
+.Synthesizer {
+  display: grid;
+  position: absolute;
+  animation: fadeInFromNone 0.24s ease-out;
+  background-color: var(--app-background-color);
+  top: var(--app-header-height);
+  height: calc(100% - var(--app-header-height));
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  grid-template-rows: var(--app-header-height) auto;
+  grid-template-columns: 50% 50%;
+  grid-template-areas:
+    'synthesizerHeaderSection   synthesizerHeaderSection   '
+    'synthesizerLeftBodySection synthesizerRightBodySection';
+}
+
+.SynthesizerHeaderSection {
+  grid-area: synthesizerHeaderSection;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.SynthesizerLeftBodySection {
+  box-sizing: border-box;
+  grid-area: synthesizerLeftBodySection;
+  padding-bottom: 10px;
+}
+
+.SynthesizerRightBodySection {
+  box-sizing: border-box;
+  grid-area: synthesizerRightBodySection;
+  padding-bottom: 10px;
+}
+
+.SynthesizerFullBodySection {
+  grid-row-start: 2;
+  grid-row-end: -1;
+  grid-column-start: 1;
+  grid-column-end: -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding-bottom: 20px;
+}
+
+.SynthesizerHeaderTitle {
+  color: #fff;
+  font-size: 1em;
+  user-select: none;
+  margin: auto 10px;
+}
+
+@keyframes fadeInFromNone {
+  0% {
+    display: none;
+    opacity: 0;
+  }
+  1% {
+    display: grid;
+    opacity: 0;
+  }
+  100% {
+    display: grid;
+    opacity: 1;
+  }
+}

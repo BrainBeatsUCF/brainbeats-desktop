@@ -3,7 +3,11 @@ import { Navigation, NavigationPage } from '../navigation/navigation'
 import { VerifiedUserInfo } from '../requestService/authRequestService'
 import { HomePanel } from '../panel/homePanel/homePanel'
 import { StudioPanel } from '../panel/studioPanel/studioPanel'
+import { GridBeatObject } from '../panel/workstationPanel/gridObjects'
 import './appDelegate.css'
+
+let DefaultGridObject = GridBeatObject
+DefaultGridObject.samples = []
 
 /**
  * @param {{
@@ -14,6 +18,7 @@ import './appDelegate.css'
 const AppDelegate = props => {
   const [navigationPage, setNavigationPage] = useState(NavigationPage.Studio)
   const [isMakingNetworkActivity, setIsMakingNetworkActivity] = useState(false)
+  const [currentGridItem, setCurrentGridItem] = useState(DefaultGridObject)
 
   const handleLogout = () => {
     if (navigationPage == NavigationPage.Logout) {
@@ -35,8 +40,10 @@ const AppDelegate = props => {
         return (
           <StudioPanel
             customClass="AppBody"
+            currentGridItem={currentGridItem}
             userInfo={props.userInfo}
             setIsMakingNetworkActivity={setIsMakingNetworkActivity}
+            setCurrentGridItem={setCurrentGridItem}
           ></StudioPanel>
         )
       default:

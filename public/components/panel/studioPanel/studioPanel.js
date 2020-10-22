@@ -5,7 +5,7 @@ import { SampleDownloader } from './sampleDownloader'
 import { SaveBeatPromptWrapper, ClosePromptInfo } from './saveBeatPrompt'
 import { ItemContextPromptWrapper, CloseContextPromptInfo } from './itemContextPrompt'
 import { RequestUserBeatItems, RequestUserSampleItems } from '../../requestService/requestService'
-import { SampleSynthesizer, SynthesizingStage } from '../sampleSynthesizerPanel/sampleSynthesizerPanel'
+import { SynthesizerWrapper, HideSynthesizerInfo } from './synthesizerPanel/synthesizerPanel'
 import {
   GridBeatObject,
   GridSampleObject,
@@ -27,8 +27,10 @@ class StudioPanel extends React.Component {
   /**
    * @param {{
    * customClass: String?
+   * currentGridItem: GridBeatObject,
    * userInfo: VerifiedUserInfo,
    * setIsMakingNetworkActivity: (Boolean) => void
+   * setCurrentGridItem: (GridBeatObject) => void
    * }} props
    */
   constructor(props) {
@@ -36,17 +38,15 @@ class StudioPanel extends React.Component {
     this.state = {
       customClass: props.customClass ?? '',
       downloadSamples: null,
-      isSynthesizingSample: false,
       currentSavePromptInfo: ClosePromptInfo,
       currentItemContextPromptInfo: CloseContextPromptInfo,
+      currentSynthesizerInfo: HideSynthesizerInfo,
       loadedBeats: [],
       loadedSamples: [GridSampleObject],
-      currentGridItem: GridBeatObject,
     }
 
     // Hacky way of adding autocomplete to state through VSCode intellisense
     this.state.loadedSamples = []
-    this.state.currentGridItem.samples = []
   }
 
   // MARK : Life Cycle
@@ -85,10 +85,8 @@ class StudioPanel extends React.Component {
         shouldShowPrompt: true,
         onSaveComplete: savedGridObject => {
           this.beatsItemListRequest()
-          this.setState({
-            currentGridItem: savedGridObject,
-            currentSavePromptInfo: ClosePromptInfo,
-          })
+          this.setState({ currentSavePromptInfo: ClosePromptInfo })
+          this.props.setCurrentGridItem(savedGridObject)
         },
       },
     })
@@ -100,7 +98,7 @@ class StudioPanel extends React.Component {
    * cleared if and only if the user saves their previous work..
    */
   handleBeatsAddClick = () => {
-    const { currentGridItem } = this.state
+    const { currentGridItem } = this.props
     if (currentGridItem.isWorthSaving) {
       this.setState({
         currentSavePromptInfo: {
@@ -108,15 +106,13 @@ class StudioPanel extends React.Component {
           shouldShowPrompt: true,
           onSaveComplete: _ => {
             this.beatsItemListRequest()
-            this.setState({
-              currentGridItem: getEmptyBeat(),
-              currentSavePromptInfo: ClosePromptInfo,
-            })
+            this.setState({ currentSavePromptInfo: ClosePromptInfo })
+            this.props.setCurrentGridItem(getEmptyBeat())
           },
         },
       })
     } else {
-      this.setState({ currentGridItem: getEmptyBeat() })
+      this.props.setCurrentGridItem(getEmptyBeat())
     }
   }
 
@@ -124,8 +120,14 @@ class StudioPanel extends React.Component {
    * Opens up synthesizer component to start EEG -> Sample flow
    */
   handleSampleAddClick = () => {
-    const { isSynthesizingSample } = this.state
-    this.setIsSynthesizingSample(!isSynthesizingSample)
+    this.setState({
+      currentSynthesizerInfo: {
+        shouldShowSynthesizer: true,
+        onSynthesizerClose: _ => {
+          this.setState({ currentSynthesizerInfo: HideSynthesizerInfo })
+        },
+      },
+    })
   }
 
   /**
@@ -144,12 +146,12 @@ class StudioPanel extends React.Component {
           this.closeContextPromptInfo()
         },
         onItemDeleted: _ => {
-          // clear out current grid if it was the item deleted
-          if (selectedBeatObject.beatID === this.state.currentGridItem.beatID) {
-            this.setState({ currentGridItem: getEmptyBeat() })
-          }
           this.beatsItemListRequest()
           this.closeContextPromptInfo()
+          // clear out current grid if it was the item deleted
+          if (selectedBeatObject.beatID === this.props.currentGridItem.beatID) {
+            this.props.setCurrentGridItem(getEmptyBeat())
+          }
         },
         onCancel: _ => this.closeContextPromptInfo(),
       },
@@ -163,7 +165,7 @@ class StudioPanel extends React.Component {
    * @param {GridBeatObject} selectedBeatObject
    */
   shouldLoadBeatObject = selectedBeatObject => {
-    const { currentGridItem } = this.state
+    const { currentGridItem } = this.props
     if (currentGridItem.beatID === selectedBeatObject.beatID) {
       return
     }
@@ -197,10 +199,8 @@ class StudioPanel extends React.Component {
     const samplesToDownload = beatsObject.samples
     beatsObject.samples = []
     beatsObject.isWorthSaving = true
-    this.setState({
-      currentGridItem: beatsObject,
-      downloadSamples: samplesToDownload,
-    })
+    this.props.setCurrentGridItem(beatsObject)
+    this.setState({ downloadSamples: samplesToDownload })
   }
 
   /**
@@ -235,7 +235,7 @@ class StudioPanel extends React.Component {
     // Sample are copied to overcome default pass-by-reference behavior in javascript
     let copySampleObject = {}
     Object.assign(copySampleObject, sampleObject)
-    this.state.currentGridItem.isWorthSaving = true
+    this.props.currentGridItem.isWorthSaving = true
     this.setState({ downloadSamples: [copySampleObject] })
   }
 
@@ -246,12 +246,10 @@ class StudioPanel extends React.Component {
    * @param {[GridSampleObject]} newSamples
    */
   handleSampleItemDownloaded = newSamples => {
-    const { currentGridItem } = this.state
+    const { currentGridItem } = this.props
     currentGridItem.isWorthSaving = true
-    this.setState({
-      downloadSamples: null,
-      currentGridItem: appendSamplesToBeat(newSamples, currentGridItem),
-    })
+    this.setState({ downloadSamples: null })
+    this.props.setCurrentGridItem(appendSamplesToBeat(newSamples, currentGridItem))
   }
 
   /**
@@ -283,13 +281,6 @@ class StudioPanel extends React.Component {
 
   // MARK : Helpers
 
-  /**
-   * @param {Boolean} isSynthesizingSample
-   */
-  setIsSynthesizingSample = isSynthesizingSample => {
-    this.setState({ isSynthesizingSample: isSynthesizingSample })
-  }
-
   renderSampleDownloader = () => {
     const { downloadSamples } = this.state
     if (downloadSamples == null) {
@@ -306,23 +297,7 @@ class StudioPanel extends React.Component {
     }
   }
 
-  renderSynthesizer = () => {
-    const { isSynthesizingSample } = this.state
-    if (!isSynthesizingSample) {
-      return <></>
-    } else {
-      return (
-        <SampleSynthesizer
-          customClassname={`${isSynthesizingSample ? '' : 'HideFullCover'}`}
-          startSynthesizingStage={SynthesizingStage.Selecting}
-          didSelectFinalSample={this.handleSaveSampleToDatabase}
-        ></SampleSynthesizer>
-      )
-    }
-  }
-
   render() {
-    const { isSynthesizingSample } = this.state
     return (
       <div className={`StudioPanel ${this.state.customClass}`}>
         <VerticalListPanel
@@ -346,19 +321,19 @@ class StudioPanel extends React.Component {
         <WorkstationPanel
           customClassname="RightColumn"
           title={WorkstationTitle}
-          currentGridBeat={this.state.currentGridItem}
+          currentGridBeat={this.props.currentGridItem}
           setLoadedSampleList={newGridSamples => {
-            const { currentGridItem } = this.state
-            this.setState({ currentGridItem: updateBeatSamples(newGridSamples, currentGridItem) })
+            const { currentGridItem } = this.props
+            this.props.setCurrentGridItem(updateBeatSamples(newGridSamples, currentGridItem))
           }}
           onSaveCurrentGridBeat={this.handleSaveBeatToDatabase}
           setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}
         ></WorkstationPanel>
-        {this.renderSynthesizer()}
+        <SynthesizerWrapper {...this.state.currentSynthesizerInfo}></SynthesizerWrapper>
         {this.renderSampleDownloader()}
         <SaveBeatPromptWrapper
           promptInfo={this.state.currentSavePromptInfo}
-          currentGridItem={this.state.currentGridItem}
+          currentGridItem={this.props.currentGridItem}
           setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}
           onSaveError={() => this.setState({ currentSavePromptInfo: ClosePromptInfo })}
         ></SaveBeatPromptWrapper>
