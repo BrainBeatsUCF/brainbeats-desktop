@@ -6,9 +6,24 @@ import { SynthSelectionStagePanel, SynthProcessingStagePanel } from './synthesiz
 import SynthesizerModels from './synthesizerModels.json'
 import './synthesizerPanel.css'
 
+const timeToCloseSocketOnMessage = 500 // 0.5 seconds
+
 const StageTitle = {
   Selecting: 'Select Sample Synthesizer',
   Default: 'Sample Creator Processing',
+}
+
+const PredictedEmotions = {
+  Happy: 'happy',
+  Melancholy: 'melancholy',
+  Surprised: 'surprised',
+  Calm: 'calm',
+}
+
+const HideSynthesizerInfo = {
+  customClassname: '',
+  shouldShowSynthesizer: false,
+  onSynthesizerClose: null,
 }
 
 const lengthForModelCount = count => {
@@ -19,12 +34,6 @@ const lengthForModelCount = count => {
     length += lengthWithMargin
   }
   return length
-}
-
-const HideSynthesizerInfo = {
-  customClassname: '',
-  shouldShowSynthesizer: false,
-  onSynthesizerClose: null,
 }
 
 class Synthesizer extends React.Component {
@@ -39,6 +48,8 @@ class Synthesizer extends React.Component {
     super(props)
     this.state = {
       hasConnectedToEEG: false,
+      hasBegunFetchingSamples: false,
+      predictedEmotion: PredictedEmotions.Melancholy,
       synthesizingModel: SynthesizerModels[0],
       synthesizingStage: SynthesizingStage.Selecting,
       modelContainerLength: lengthForModelCount(SynthesizerModels.length),
@@ -48,9 +59,12 @@ class Synthesizer extends React.Component {
   // MARK: Life Cycle
 
   componentDidUpdate() {
-    const { synthesizingStage, hasConnectedToEEG } = this.state
+    const { synthesizingStage, hasConnectedToEEG, hasBegunFetchingSamples } = this.state
     if (synthesizingStage == SynthesizingStage.Connecting && !hasConnectedToEEG) {
       this.handleConnectingToHardware()
+    } else if (synthesizingStage == SynthesizingStage.Modeling && !hasBegunFetchingSamples) {
+      // call fetch handler
+      console.log(`call ${this.state.synthesizingModel} API with ${this.state.predictedEmotion}`)
     }
   }
 
@@ -60,14 +74,20 @@ class Synthesizer extends React.Component {
     this.setState({ hasConnectedToEEG: true })
     startHardwareSocket(
       message => {
-        console.log('Message recieved', message)
+        setTimeout(_ => {
+          closeHardwareSocket()
+          this.setState({
+            predictedEmotion: message[window.process.env['BRAINBEATS_DATA_EMOTION']],
+            synthesizingStage: SynthesizingStage.Modeling,
+          })
+        }, timeToCloseSocketOnMessage)
       },
       errorMessage => {
         console.error('EEG Error', errorMessage)
         this.handleAbortEEG()
       },
+      // callback recieved when EEG successfully connects
       _ => {
-        // callback recieved when EEG successfully connects
         this.setState({
           synthesizingStage: SynthesizingStage.Recording,
         })
@@ -91,7 +111,7 @@ class Synthesizer extends React.Component {
    */
   handleShouldAbortSynthesizing = _ => {
     // cleanup background processes
-    this.setState({ hasConnectedToEEG: false })
+    this.handleAbortEEG()
     this.props.shouldCloseSynthesizer()
   }
 

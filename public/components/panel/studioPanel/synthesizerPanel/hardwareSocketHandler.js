@@ -32,7 +32,6 @@ function establishConnection(handleData, handleError, handleConfirmation) {
     })
     socket.on(window.process.env['BRAINBEATS_DATA_EVENT'], message => {
       handleData(message)
-      closeHardwareSocket()
     })
     socket.on(window.process.env['BRAINBEATS_ERROR_EVENT'], message => {
       handleError(message)
@@ -55,21 +54,25 @@ const startHardwareSocket = (handleData, handleError, handleConfirmation) => {
   child.on('exit', code => {
     if (socket != null && socket != undefined) {
       socket.disconnect()
+      socket = null
     }
     closeHardwareSocket()
     console.log(`${ChildProcessMessages.Exit}: ${code}`)
   })
 
+  // message sent to stdout from python. Example: a print statement
   child.stdout.on('data', data => {
     const message = new TextDecoder('utf-8').decode(data)
     console.log(`${ChildProcessMessages.Alert}: ${message}`)
   })
 
+  // message sent to standard error from python code
   child.stderr.on('data', data => {
     const message = new TextDecoder('utf-8').decode(data)
     console.log(`${ChildProcessMessages.Alert}: ${message}`)
   })
 
+  // miscellaneous to catch other broadcast messages from the actual process
   child.on('message', message => {
     console.log(`${ChildProcessMessages.Alert}: ${message}`)
   })
@@ -80,10 +83,12 @@ const startHardwareSocket = (handleData, handleError, handleConfirmation) => {
 
 const closeHardwareSocket = () => {
   if (socket != null && socket !== undefined) {
+    console.log('calling socket disconnect')
     socket.disconnect()
     socket = null
   }
   if (child != null && child !== undefined) {
+    console.log('killing child process')
     child.kill('SIGINT')
     child = null
   }

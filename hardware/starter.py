@@ -29,7 +29,7 @@ def deliverEvent(data=[]):
   sio.emit(getSharedVariable('BRAINBEATS_DATA_EVENT'), data)
 
 def deliverError(data=[]):
-  # Call this function to sent back some error to the client
+  # Call this function to send back some error to the client
   # Note: on getting this event, client will shut server down
   sio.emit(getSharedVariable('BRAINBEATS_ERROR_EVENT'), {""})
 
@@ -43,11 +43,12 @@ def connect(sid, environ):
   confirmationEvent()
 
   # IMPORTANT: Use double quotes for hardtyped strings!
-  # example list of 0-255 strings sent
-  randomTestMessage = []
-  for num in range(0, 3500):
-    randomTestMessage.append(str(random.randint(0, 255)))
-  deliverEvent(randomTestMessage)
+  # example of sending back "happy" as the emotion
+  deliverEvent(
+    {
+      sharedVariables.get('BRAINBEATS_DATA_EMOTION', "emotion"): "happy"
+    }
+  )
 
 @sio.on('my status')
 def my_message(sid, data):
