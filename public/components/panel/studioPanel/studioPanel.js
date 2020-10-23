@@ -122,6 +122,7 @@ class StudioPanel extends React.Component {
   handleSampleAddClick = () => {
     this.setState({
       currentSynthesizerInfo: {
+        userInfo: this.props.userInfo,
         shouldShowSynthesizer: true,
         onSynthesizerClose: _ => {
           this.setState({ currentSynthesizerInfo: HideSynthesizerInfo })

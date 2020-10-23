@@ -1,27 +1,22 @@
 [
   {
     "modelImageName": "dummyPath",
-    "modelName": "Piano",
-    "modelRequestURL": ""
+    "modelName": "Piano"
   },
   {
     "modelImageName": "dummyPath",
-    "modelName": "Guitar",
-    "modelRequestURL": ""
+    "modelName": "Guitar"
   },
   {
     "modelImageName": "dummyPath",
-    "modelName": "Mario",
-    "modelRequestURL": ""
+    "modelName": "Mario"
   },
   {
     "modelImageName": "dummyPath",
-    "modelName": "Tetris",
-    "modelRequestURL": ""
+    "modelName": "Tetris"
   },
   {
     "modelImageName": "dummyPath",
-    "modelName": "Drums",
-    "modelRequestURL": ""
+    "modelName": "Drums"
   }
 ]

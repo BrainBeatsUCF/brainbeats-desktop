@@ -1,9 +1,12 @@
 import React from 'react'
-import { startHardwareSocket, closeHardwareSocket } from './hardwareSocketHandler'
-import { MenuButton, MenuButtonColor } from '../../../input/input'
-import { MODEL_CELL_LENGTH_IN_PIXELS, SynthesizingStage } from './synthesizerComponents'
-import { SynthSelectionStagePanel, SynthProcessingStagePanel } from './synthesizerComponents'
 import SynthesizerModels from './synthesizerModels.json'
+import { startHardwareSocket, closeHardwareSocket } from './hardwareSocketHandler'
+import { MODEL_CELL_LENGTH_IN_PIXELS, SynthesizingStage } from './synthesizerComponents'
+import { MenuButton, MenuButtonColor } from '../../../input/input'
+import { GridSampleObject } from '../../workstationPanel/gridObjects'
+import { RequestGenerateSamples, GenerationInfo } from '../../../requestService/modelRequestService'
+import { ResultStatus, VerifiedUserInfo } from '../../../requestService/authRequestService'
+import { SynthSelectionStagePanel, SynthProcessingStagePanel, SynthCompletedStagePanel } from './synthesizerComponents'
 import './synthesizerPanel.css'
 
 const timeToCloseSocketOnMessage = 500 // 0.5 seconds
@@ -22,6 +25,7 @@ const PredictedEmotions = {
 
 const HideSynthesizerInfo = {
   customClassname: '',
+  userInfo: VerifiedUserInfo,
   shouldShowSynthesizer: false,
   onSynthesizerClose: null,
 }
@@ -38,8 +42,8 @@ const lengthForModelCount = count => {
 
 class Synthesizer extends React.Component {
   /**
-   *
    * @param {{
+   * userInfo: VerifiedUserInfo,
    * customClassname: String?,
    * shouldCloseSynthesizer: () => void
    * }} props
@@ -49,11 +53,15 @@ class Synthesizer extends React.Component {
     this.state = {
       hasConnectedToEEG: false,
       hasBegunFetchingSamples: false,
+      errorMessage: null,
       predictedEmotion: PredictedEmotions.Melancholy,
+      predictedSamples: [GridSampleObject],
       synthesizingModel: SynthesizerModels[0],
       synthesizingStage: SynthesizingStage.Selecting,
       modelContainerLength: lengthForModelCount(SynthesizerModels.length),
     }
+    // Adding autocomplete to javascript with intellisense
+    this.state.predictedSamples = []
   }
 
   // MARK: Life Cycle
@@ -63,8 +71,7 @@ class Synthesizer extends React.Component {
     if (synthesizingStage == SynthesizingStage.Connecting && !hasConnectedToEEG) {
       this.handleConnectingToHardware()
     } else if (synthesizingStage == SynthesizingStage.Modeling && !hasBegunFetchingSamples) {
-      // call fetch handler
-      console.log(`call ${this.state.synthesizingModel} API with ${this.state.predictedEmotion}`)
+      this.handleShouldRequestSamples()
     }
   }
 
@@ -115,6 +122,45 @@ class Synthesizer extends React.Component {
     this.props.shouldCloseSynthesizer()
   }
 
+  handleShouldRequestSamples = _ => {
+    const { userInfo } = this.props
+    const { predictedEmotion } = this.state
+    this.setState({ hasBegunFetchingSamples: true })
+    console.log(userInfo)
+    RequestGenerateSamples(
+      userInfo,
+      {
+        emotion: predictedEmotion,
+      },
+      (samples, status) => {
+        if (status === ResultStatus.Error) {
+          this.setState({
+            synthesizingStage: SynthesizingStage.Selecting,
+            errorMessage: 'Something went wrong. Please try again',
+          })
+        } else {
+          this.setState({
+            synthesizingStage: SynthesizingStage.Completed,
+            predictedSamples: samples,
+          })
+        }
+      }
+    )
+  }
+
+  /**
+   * @param {[GridSampleObject]} selectedSamples
+   */
+  handleShouldSaveSamples = selectedSamples => {
+    // make network request to create samples for selected items
+    // close synthesizer on completion
+    // POI: uploading samples recursively will take time and needs some visual
+    // indicator of progress
+    setTimeout(() => {
+      this.props.shouldCloseSynthesizer()
+    }, 300)
+  }
+
   // MARK: Render
 
   /**
@@ -122,6 +168,7 @@ class Synthesizer extends React.Component {
    * @param {SynthesizingStage} synthesizingStage
    */
   handleStageRender = (modelContainerLength, synthesizingStage) => {
+    // Selecting Stage
     if (synthesizingStage === SynthesizingStage.Selecting) {
       return (
         <SynthSelectionStagePanel
@@ -135,6 +182,18 @@ class Synthesizer extends React.Component {
             })
           }}
         ></SynthSelectionStagePanel>
+      )
+      // Completed Stage
+    } else if (synthesizingStage === SynthesizingStage.Completed) {
+      return (
+        <SynthCompletedStagePanel
+          leftSectionClassname="SynthesizerLeftBodySection"
+          rightSectionClassname="SynthesizerRightBodySection"
+          synthesizingStage={synthesizingStage}
+          sampleOptions={this.state.predictedSamples}
+          saveSamples={selectedSamples => this.handleShouldSaveSamples(selectedSamples)}
+          restartGenerator={_ => this.setState({ synthesizingStage: SynthesizingStage.Selecting })}
+        ></SynthCompletedStagePanel>
       )
       // Connecting | Recording | Modeling
     } else {
@@ -179,11 +238,17 @@ class Synthesizer extends React.Component {
  * @param {HideSynthesizerInfo} props
  */
 const SynthesizerWrapper = props => {
-  const { customClassname, shouldShowSynthesizer, onSynthesizerClose } = props
+  const { customClassname, userInfo, shouldShowSynthesizer, onSynthesizerClose } = props
   if (!shouldShowSynthesizer) {
     return <></>
   } else {
-    return <Synthesizer customClassname={customClassname} shouldCloseSynthesizer={onSynthesizerClose}></Synthesizer>
+    return (
+      <Synthesizer
+        userInfo={userInfo}
+        customClassname={customClassname}
+        shouldCloseSynthesizer={onSynthesizerClose}
+      ></Synthesizer>
+    )
   }
 }
 

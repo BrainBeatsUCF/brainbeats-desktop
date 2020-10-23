@@ -76,3 +76,64 @@
   animation: synthAnimate 1s infinite alternate;
   transition: border 1s linear, box-shadow 1s linear;
 }
+
+.SynthResultsContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.SynthResultsContainerTitle {
+  margin: 7px 0px;
+  font-size: 1.4em;
+}
+
+.SynthSampleCard {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  max-width: 275px;
+  width: 275px;
+  padding: 8px;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgb(44, 45, 51);
+  border: solid 0.8px rgb(164, 181, 199);
+  border-radius: 8px;
+  box-shadow: 0 0 2px rgb(200, 205, 211);
+  box-sizing: border-box;
+  margin: 5px 0px;
+}
+
+.SynthSampleCardSelected {
+  background-color: rgb(64, 82, 57);
+}
+
+.SynthSampleCardTitle {
+  background-color: rgba(0, 0, 0, 0);
+  color: #fff;
+  border: none;
+  font-size: 0.9em;
+  box-sizing: border-box;
+}
+
+.SynthSampleCardButton {
+  max-width: 30px;
+  max-height: 30px;
+}
+
+.SynthSamplesActionInput {
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1em;
+  box-sizing: border-box;
+  margin: 5px 0px;
+  width: 275px;
+  height: 36px;
+}
+
+.SynthSamplesActionInput:hover {
+  filter: brightness(0.6);
+  cursor: pointer;
+}
