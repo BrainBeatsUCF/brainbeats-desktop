@@ -61,11 +61,7 @@
 }
 
 .GridContainer {
-  position: absolute;
-  left: var(--section-combined-width);
-  top: var(--header-combined-height);
-  height: calc(100% - var(--header-combined-height));
-  width: calc(100% - var(--section-combined-width));
+  position: relative;
   display: flex;
   flex-direction: row;
   overflow: scroll;
