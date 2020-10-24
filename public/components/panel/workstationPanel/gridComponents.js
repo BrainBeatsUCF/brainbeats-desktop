@@ -24,12 +24,6 @@ const backgroundCellWidth = `
     #707070 ${Constants.CELL_WIDTH_IN_PIXELS}px, 
     #707070 ${Constants.CELL_WIDTH_IN_PIXELS + 1}px)`
 
-const PlaybackTrackLineInfo = {
-  shouldShow: false,
-  transitionDuration: 0,
-  transitionEndPosition: 0,
-}
-
 /**
  * @param {{
  * activatorStates: [GridSampleObject],
@@ -61,7 +55,6 @@ const GridActivator = props => {
 
 /**
  * @param {{
- * playbackTrackLineInfo: PlaybackTrackLineInfo,
  * trackLinePosition: Number,
  * loadedGridSampleItems: [GridSampleObject]
  * numberOfRows: Number,
@@ -101,13 +94,6 @@ const GridSampleMatrix = props => {
           />
         </svg>
       )
-    }
-  }
-
-  const renderPlaybackTrackLine = () => {
-    const { playbackTrackLineInfo } = props
-    if (!playbackTrackLineInfo.shouldShow) {
-      return <></>
     }
   }
 

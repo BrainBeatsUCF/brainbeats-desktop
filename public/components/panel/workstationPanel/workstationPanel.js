@@ -10,7 +10,7 @@ import './workstationPanel.css'
 
 // Dictates how many times the tracker is redrawn, this value can be changed to suite
 // performance vs. smooth animation needs
-const TrackLineFrameRate = 200
+const TrackLineFrameRate = 100
 
 const PlayAudioContext = new AudioContext()
 let tracklineIntervalID = null
