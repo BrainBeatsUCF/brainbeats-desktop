@@ -36,6 +36,8 @@
   position: relative;
 }
 
+/* Style for timeline tracker */
+
 .GridTimelineTrack {
   z-index: 2147483647;
   position: relative;
@@ -44,4 +46,35 @@
 .GridTimelineTrackLine {
   stroke: rgb(144, 119, 237);
   stroke-width: 1.2;
+}
+
+/* Style for time ruler */
+.GridTimeRuler {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+}
+
+.GridTimeItemContainer {
+  position: relative;
+  box-sizing: border-box;
+}
+
+.GridTimeItem {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.GridTimeText {
+  color: #fff;
+  margin: 0px;
+}
+
+.GridTimePointer {
+  width: 1px;
+  height: 8px;
+  background-color: #fff;
 }

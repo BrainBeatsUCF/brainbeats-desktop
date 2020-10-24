@@ -24,6 +24,12 @@ const backgroundCellWidth = `
     #707070 ${Constants.CELL_WIDTH_IN_PIXELS}px, 
     #707070 ${Constants.CELL_WIDTH_IN_PIXELS + 1}px)`
 
+const PlaybackTrackLineInfo = {
+  shouldShow: false,
+  transitionDuration: 0,
+  transitionEndPosition: 0,
+}
+
 /**
  * @param {{
  * activatorStates: [GridSampleObject],
@@ -55,6 +61,7 @@ const GridActivator = props => {
 
 /**
  * @param {{
+ * playbackTrackLineInfo: PlaybackTrackLineInfo,
  * trackLinePosition: Number,
  * loadedGridSampleItems: [GridSampleObject]
  * numberOfRows: Number,
@@ -96,6 +103,8 @@ const GridSampleMatrix = props => {
       )
     }
   }
+
+  const renderPlaybackTrackLine = () => {}
 
   const renderSampleGridItems = () => {
     return props.loadedGridSampleItems.map((gridSampleItem, index) => {
@@ -145,21 +154,100 @@ const GridSampleMatrix = props => {
   }
 
   return (
-    <div
-      className="GridMatrix"
-      style={{
-        minHeight: Constants.CELL_HEIGHT_IN_PIXELS * props.numberOfRows,
-        minWidth: Constants.CELL_WIDTH_IN_PIXELS * props.numberOfCols,
-        height: Constants.CELL_HEIGHT_IN_PIXELS * props.numberOfRows,
-        width: Constants.CELL_WIDTH_IN_PIXELS * props.numberOfCols,
-        backgroundSize: `${Constants.CELL_WIDTH_IN_PIXELS}px ${Constants.CELL_HEIGHT_IN_PIXELS}px`,
-        backgroundImage: `${backgroundCellWidth}, ${backgroundCellHeight}`,
-      }}
-    >
-      {renderSampleGridItems()}
-      {renderTrackLine()}
+    <div className="GridMatrixContainer">
+      <div
+        className="GridMatrix"
+        style={{
+          minHeight: Constants.CELL_HEIGHT_IN_PIXELS * props.numberOfRows,
+          minWidth: Constants.CELL_WIDTH_IN_PIXELS * props.numberOfCols,
+          height: Constants.CELL_HEIGHT_IN_PIXELS * props.numberOfRows,
+          width: Constants.CELL_WIDTH_IN_PIXELS * props.numberOfCols,
+          backgroundSize: `${Constants.CELL_WIDTH_IN_PIXELS}px ${Constants.CELL_HEIGHT_IN_PIXELS}px`,
+          backgroundImage: `${backgroundCellWidth}, ${backgroundCellHeight}`,
+        }}
+      >
+        {renderSampleGridItems()}
+        {renderTrackLine()}
+      </div>
     </div>
   )
 }
 
-export { GridSampleObject, GridSampleMatrix, GridActivator }
+/**
+ * @param {{
+ * isHidden: Boolean,
+ * numberOfCols: number,
+ * columnWidth: number,
+ * unit: number
+ * }} props
+ */
+const GridTimeRuler = props => {
+  const gridTimeRulerItemKey = 'gridTimeRulerItem'
+  const rulerHeightInPixels = 30
+  const spaceBeforeStartInPixels = 40
+  const { isHidden, numberOfCols, columnWidth, unit } = props
+
+  /// Don't render if hidden
+  if (isHidden) {
+    return <></>
+  }
+
+  /** Assumes we aren't handling hour long audio
+   * @param {Number} column
+   */
+  const getTimeFormat = column => {
+    const totalSeconds = (column + 1) * unit
+    const minutes = Math.floor(totalSeconds / 60)
+    const seconds = totalSeconds % 60
+    let result = minutes < 10 ? '0' + minutes : minutes
+    result += ':' + (seconds < 10 ? '0' + seconds : seconds)
+    return result
+  }
+
+  /// Create individual time stamps
+  const timeRulerItems = Array.from(new Array(numberOfCols), (x, i) => i).map(value => {
+    return (
+      <div
+        key={gridTimeRulerItemKey + value}
+        className="GridTimeItemContainer"
+        style={{
+          minWidth: columnWidth,
+          maxWidth: columnWidth,
+          height: rulerHeightInPixels,
+        }}
+      >
+        <div
+          className="GridTimeItem"
+          style={{
+            maxWidth: 50,
+            width: 50,
+            height: rulerHeightInPixels,
+            left: columnWidth - 25.25,
+          }}
+        >
+          <p className="GridTimeText">{getTimeFormat(value)}</p>
+          <div className="GridTimePointer"></div>
+        </div>
+      </div>
+    )
+  })
+
+  return (
+    <div
+      className="GridTimeRuler"
+      style={{
+        width: columnWidth * numberOfCols,
+      }}
+    >
+      <div
+        style={{
+          maxWidth: spaceBeforeStartInPixels,
+          minWidth: spaceBeforeStartInPixels,
+        }}
+      ></div>
+      {timeRulerItems}
+    </div>
+  )
+}
+
+export { GridSampleObject, GridSampleMatrix, GridActivator, GridTimeRuler }

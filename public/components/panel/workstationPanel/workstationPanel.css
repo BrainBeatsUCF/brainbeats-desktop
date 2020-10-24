@@ -63,8 +63,14 @@
 .GridContainer {
   position: relative;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   overflow: scroll;
+}
+
+.GridComponentsContainer {
+  position: relative;
+  display: flex;
+  flex-direction: row;
 }
 
 .GridActivators {
@@ -72,4 +78,10 @@
   flex-direction: column;
   height: 100%;
   width: 40px;
+}
+
+.GridMatrixContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }

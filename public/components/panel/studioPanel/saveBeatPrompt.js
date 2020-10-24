@@ -32,14 +32,18 @@ const ClosePromptInfo = {
  * }} props
  */
 const SaveBeatPrompt = props => {
-  const placeHolder = props.currentGridItem.sampleTitle !== '' ? props.currentGridItem.sampleTitle : 'Beat Title...'
+  const placeHolderText = 'Beat Title...'
+  const placeHolder = props.currentGridItem.sampleTitle !== '' ? props.currentGridItem.sampleTitle : placeHolderText
   const [beatTitle, setBeatTitle] = useState(placeHolder)
   const [beatImage, setBeatImage] = useState(null)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [uploadStarted, setUploadStarted] = useState(false)
 
   const startUpload = () => {
-    if (props.currentGridItem.sampleTitle == '') {
+    if (
+      beatTitle === placeHolderText ||
+      (props.currentGridItem.image === '' && (beatImage == null || beatImage == undefined))
+    ) {
       return
     }
     setUploadStarted(true)
