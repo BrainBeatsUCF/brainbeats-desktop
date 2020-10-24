@@ -2,6 +2,7 @@ import hash from 'object-hash'
 
 const GridSampleObject = {
   sampleSource: '',
+  sampleColor: '',
   sampleTitle: '',
   sampleSubtitle: '',
   sampleIsActive: true,
