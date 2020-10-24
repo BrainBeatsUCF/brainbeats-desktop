@@ -25,6 +25,9 @@
 }
 
 .WorkstationPanelMenuTitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: #fff;
   font-size: 1.1em;
   user-select: none;
