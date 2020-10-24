@@ -104,7 +104,12 @@ const GridSampleMatrix = props => {
     }
   }
 
-  const renderPlaybackTrackLine = () => {}
+  const renderPlaybackTrackLine = () => {
+    const { playbackTrackLineInfo } = props
+    if (!playbackTrackLineInfo.shouldShow) {
+      return <></>
+    }
+  }
 
   const renderSampleGridItems = () => {
     return props.loadedGridSampleItems.map((gridSampleItem, index) => {
