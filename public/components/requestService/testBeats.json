@@ -2,7 +2,7 @@
   {
     "sampleTitle": "Reflex",
     "sampleSubtitle": "Drum Funk, Rap Harp",
-    "beatID": 1241351542,
+    "beatID": "1241351542",
     "image": "https://i.pinimg.com/originals/cc/18/8c/cc188c604e58cffd36e1d183c7198d21.jpg",
     "samples" : [
       {
@@ -40,7 +40,7 @@
   {
     "sampleTitle": "Spongebob",
     "sampleSubtitle": "Guitar Rock",
-    "beatID": 21652453425,
+    "beatID": "21652453425",
     "image": "https://images.pexels.com/photos/68147/waterfall-thac-dray-nur-buon-me-thuot-daklak-68147.jpeg",
     "samples" : [
       {

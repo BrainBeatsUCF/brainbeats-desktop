@@ -1,4 +1,6 @@
 import hash from 'object-hash'
+import { calculateRenderDuration } from './sampleSequencePlayer'
+import { VerifiedUserInfo } from '../../requestService/authRequestService'
 
 const GridSampleObject = {
   sampleSource: '',
@@ -10,16 +12,44 @@ const GridSampleObject = {
   sampleAudioStart: 0,
   sampleAudioLength: -1,
   sampleAudioBuffer: AudioBuffer,
+  isPrivate: false,
 }
 
 const GridBeatObject = {
   isWorthSaving: false,
   sampleTitle: '',
   sampleSubTitle: '',
+  isPrivate: false,
   beatID: 0,
   image: '',
   commit: '',
   samples: [GridSampleObject],
+}
+
+/// Representation of beat object when being sent to backend
+const EncodedBeatObject = {
+  email: '',
+  name: '',
+  id: '',
+  isPrivate: false,
+  instrumentList: '',
+  attributes: '',
+  duration: 0,
+  audio: new ArrayBuffer(0),
+  image: new File([], 'empty'),
+}
+
+/// Representation of beat object when recieved from backend
+const DecodableBeatObject = {
+  email: '',
+  name: '',
+  id: 0,
+  isPrivate: false,
+  instrumentList: '',
+  attributes: '',
+  duration: 0,
+  audio: '',
+  image: '',
 }
 
 // Todo: update to parse some request body
@@ -132,13 +162,106 @@ const commitBeatIfNecessary = beatObject => {
   return false
 }
 
+/**
+ * @param {GridBeatObject} beatObject
+ * @return {[String]}
+ */
+const generateBeatInstrumentList = beatObject => {
+  return beatObject.samples.map(sample => {
+    return sample.sampleSubtitle
+  })
+}
+
+const convertInstrumentListToSubtitle = instrumentList => {
+  const instruments = JSON.parse(instrumentList)
+  const retval = instruments.reduce((prev, curr, index) => {
+    return index == 0 ? curr : prev + ', ' + curr
+  }, '')
+  return retval
+}
+
+/**
+ * @param {GridBeatObject} beatObject
+ */
+const generateBeatAttributes = beatObject => {
+  return beatObject.samples.map(sample => {
+    return {
+      sampleTitle: sample.sampleTitle,
+      sampleSubTitle: sample.sampleSubtitle,
+      sampleSource: sample.sampleSource,
+      sampleIsActive: sample.sampleIsActive,
+      sampleAudioStart: sample.sampleAudioStart,
+      sampleAudioLength: sample.sampleAudioLength,
+      sampleAudioDelay: sample.sampleAudioDelay,
+    }
+  })
+}
+
+/**
+ * @param {String} beatAttributes
+ */
+const convertBeatAttributesToSamples = beatAttributes => {
+  return JSON.parse(beatAttributes).map(sample => {
+    sample.sampleAudioBuffer = null
+    sample.sampleColor = ''
+  })
+}
+
+/**
+ * @param {VerifiedUserInfo} userInfo
+ * @param {GridBeatObject} beatObject
+ * @param {File?} newBeatImage
+ * @param {ArrayBuffer} newBeatAudio
+ * @return {EncodedBeatObject}
+ */
+const encodeBeatObject = (userInfo, beatObject, newBeatImage, newBeatAudio) => {
+  let encodedBeatObject = {
+    id: beatObject.beatID,
+    email: userInfo.email,
+    name: beatObject.sampleTitle,
+    isPrivate: beatObject.isPrivate,
+    instrumentList: JSON.stringify(generateBeatInstrumentList(beatObject)),
+    attributes: JSON.stringify(generateBeatAttributes(beatObject)),
+    duration: calculateRenderDuration(beatObject.samples),
+  }
+  if (newBeatAudio != null && newBeatAudio != undefined) {
+    encodedBeatObject.audio = newBeatAudio
+  }
+  if (newBeatImage != null && newBeatImage != undefined) {
+    encodedBeatObject.image = newBeatImage
+  }
+  return encodedBeatObject
+}
+
+/**
+ * @param {DecodableBeatObject} encodedBeatObject
+ */
+const decodeBeatObject = encodedBeatObject => {
+  let gridBeatObject = {
+    isWorthSaving: true,
+    sampleTitle: encodedBeatObject.name,
+    sampleSubTitle: convertInstrumentListToSubtitle(encodedBeatObject.instrumentList),
+    isPrivate: encodedBeatObject.isPrivate,
+    beatID: encodedBeatObject.id,
+    image: encodedBeatObject.image,
+    commit: 0,
+    samples: convertBeatAttributesToSamples(encodedBeatObject.attributes),
+  }
+  commitBeatIfNecessary(gridBeatObject)
+  return gridBeatObject
+}
+
 export {
   GridSampleObject,
   GridBeatObject,
+  EncodedBeatObject,
+  DecodableBeatObject,
   commitBeatIfNecessary,
   createNewBeat,
   updateBeatSamples,
   appendSamplesToBeat,
   fixResizeOverCorrections,
+  encodeBeatObject,
+  decodeBeatObject,
   getEmptyBeat,
 }
