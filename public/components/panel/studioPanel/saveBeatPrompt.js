@@ -2,10 +2,10 @@ import React, { useState } from 'react'
 import ImageUploader from 'react-images-upload'
 import { BeatUploader } from './beatUploader'
 import { GridBeatObject } from '../workstationPanel/gridObjects'
+import { VerifiedUserInfo } from '../../requestService/authRequestService'
 
 const maximumImageUploadSize = 5242880 // 5mb
-const acceptedImageFormats = ['.jpg', '.gif', '.png', '.jpeg']
-let timeoutId = null
+const acceptedImageFormats = ['.jpg', '.png']
 
 /// Generic info for displaying the save dialog
 const SavePromptInfo = {
@@ -24,6 +24,7 @@ const ClosePromptInfo = {
 /**
  * A dialog component that's customizable with `PromptInfo` objects.
  * @param {{
+ * userInfo: VerifiedUserInfo,
  * promptTitle: String?,
  * currentGridItem: GridBeatObject,
  * setIsMakingNetworkActivity: (Boolean) => void
@@ -48,7 +49,8 @@ const SaveBeatPrompt = props => {
     }
     setUploadStarted(true)
     setUploadProgress(2)
-    timeoutId = BeatUploader(
+    BeatUploader(
+      props.userInfo,
       beatTitle,
       beatImage,
       props.currentGridItem,
@@ -93,7 +95,7 @@ const SaveBeatPrompt = props => {
           singleImage={true}
           buttonClassName="PromptUploadButton"
           buttonText="Choose Beat Background"
-          label="Maximum file size: 5mb, accepted: jpg, gif, png, jpeg"
+          label="Maximum file size: 5mb, accepted: jpg, png"
         />
         {getProgressIndicator()}
         <div className="SaveBeatPromptButtons">
@@ -102,10 +104,6 @@ const SaveBeatPrompt = props => {
             type="button"
             value="Cancel"
             onClick={_ => {
-              const cachedTimeout = timeoutId
-              if (cachedTimeout != null) {
-                clearTimeout(cachedTimeout)
-              }
               const prevSaveCancel =
                 props.currentGridItem.prevSaveCancel == undefined ? 0 : props.currentGridItem.prevSaveCancel
               props.currentGridItem.prevSaveCancel = prevSaveCancel + 1
@@ -128,6 +126,7 @@ const SaveBeatPrompt = props => {
 /**
  * A wrapper to abstract hiding/showing the save dialog
  * @param {{
+ * userInfo: VerifiedUserInfo,
  * promptInfo: SavePromptInfo,
  * currentGridItem: GridBeatObject,
  * setIsMakingNetworkActivity: (Boolean) => void,
@@ -135,12 +134,13 @@ const SaveBeatPrompt = props => {
  * }} props
  */
 const SaveBeatPromptWrapper = props => {
-  const { currentGridItem, promptInfo } = props
+  const { currentGridItem, userInfo, promptInfo } = props
   if (!promptInfo.shouldShowPrompt) {
     return <></>
   } else {
     return (
       <SaveBeatPrompt
+        userInfo={userInfo}
         promptTitle={promptInfo.title}
         currentGridItem={currentGridItem}
         setIsMakingNetworkActivity={props.setIsMakingNetworkActivity}

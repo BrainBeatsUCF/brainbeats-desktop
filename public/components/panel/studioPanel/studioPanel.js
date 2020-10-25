@@ -86,6 +86,10 @@ class StudioPanel extends React.Component {
         onSaveComplete: savedGridObject => {
           this.beatsItemListRequest()
           this.setState({ currentSavePromptInfo: ClosePromptInfo })
+          /// Important! Replace buffers since we lose them after decoding-encoding
+          beatObject.samples.forEach((sample, index) => {
+            savedGridObject.samples[index].sampleAudioBuffer = sample.sampleAudioBuffer
+          })
           this.props.setCurrentGridItem(savedGridObject)
         },
       },
@@ -333,6 +337,7 @@ class StudioPanel extends React.Component {
         <SynthesizerWrapper {...this.state.currentSynthesizerInfo}></SynthesizerWrapper>
         {this.renderSampleDownloader()}
         <SaveBeatPromptWrapper
+          userInfo={this.props.userInfo}
           promptInfo={this.state.currentSavePromptInfo}
           currentGridItem={this.props.currentGridItem}
           setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}

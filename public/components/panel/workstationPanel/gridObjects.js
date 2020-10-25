@@ -36,7 +36,7 @@ const EncodedBeatObject = {
   attributes: '',
   duration: 0,
   audio: new ArrayBuffer(0),
-  image: new File([], 'empty'),
+  image: new ArrayBuffer(0),
 }
 
 /// Representation of beat object when recieved from backend
@@ -204,14 +204,15 @@ const convertBeatAttributesToSamples = beatAttributes => {
   return JSON.parse(beatAttributes).map(sample => {
     sample.sampleAudioBuffer = null
     sample.sampleColor = ''
+    return sample
   })
 }
 
 /**
  * @param {VerifiedUserInfo} userInfo
  * @param {GridBeatObject} beatObject
- * @param {File?} newBeatImage
- * @param {ArrayBuffer} newBeatAudio
+ * @param {ArrayBuffer?} newBeatImage
+ * @param {ArrayBuffer?} newBeatAudio
  * @return {EncodedBeatObject}
  */
 const encodeBeatObject = (userInfo, beatObject, newBeatImage, newBeatAudio) => {
@@ -235,6 +236,7 @@ const encodeBeatObject = (userInfo, beatObject, newBeatImage, newBeatAudio) => {
 
 /**
  * @param {DecodableBeatObject} encodedBeatObject
+ * @return {GridBeatObject}
  */
 const decodeBeatObject = encodedBeatObject => {
   let gridBeatObject = {
