@@ -18,6 +18,7 @@ import { VerifiedUserInfo } from '../../requestService/authRequestService'
  */
 const UploadEncodedBeat = (encodedBeat, onUploadProgress, onUploadComplete, onError) => {
   /// Todo: replace with actual request
+  /// If beat id is -1, use create, otherwise use update
   onUploadProgress(40)
   setTimeout(_ => {
     console.log('encoded To:::', encodedBeat)
@@ -26,6 +27,7 @@ const UploadEncodedBeat = (encodedBeat, onUploadProgress, onUploadComplete, onEr
     decodableBeat.image = 'something'
     decodableBeat.audio = 'something'
     let retrievedBeat = decodeBeatObject(decodableBeat)
+    commitBeatIfNecessary(retrievedBeat)
     onUploadComplete(retrievedBeat)
   }, 1000)
 }
