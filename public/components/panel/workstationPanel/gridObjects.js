@@ -3,6 +3,8 @@ import { calculateRenderDuration } from './sampleSequencePlayer'
 import { VerifiedUserInfo } from '../../requestService/authRequestService'
 
 const GridSampleObject = {
+  sampleID: '',
+  sampleImage: '',
   sampleSource: '',
   sampleColor: '',
   sampleTitle: '',
@@ -20,7 +22,7 @@ const GridBeatObject = {
   sampleTitle: '',
   sampleSubTitle: '',
   isPrivate: false,
-  beatID: 0,
+  beatID: '',
   image: '',
   commit: '',
   samples: [GridSampleObject],
@@ -43,11 +45,33 @@ const EncodedBeatObject = {
 const DecodableBeatObject = {
   email: '',
   name: '',
-  id: 0,
+  id: '',
   isPrivate: false,
   instrumentList: '',
   attributes: '',
   duration: 0,
+  audio: '',
+  image: '',
+}
+
+/// Representation of a sample object when being sent to backend
+const EncodedSampleObject = {
+  id: '',
+  email: '',
+  name: '',
+  isPrivate: false,
+  attributes: '',
+  audio: new ArrayBuffer(0),
+  image: '',
+}
+
+/// Representation of a sample object when recieved from backend
+const DecodableSampleObject = {
+  id: '',
+  email: '',
+  name: '',
+  isPrivate: false,
+  attributes: '',
   audio: '',
   image: '',
 }
@@ -156,7 +180,6 @@ const commitBeatIfNecessary = beatObject => {
   const hashValue = hash(commitObject)
   if (beatObject.commit != hashValue) {
     beatObject.commit = hashValue
-    console.log(hashValue)
     return true
   }
   return false
@@ -181,18 +204,22 @@ const convertInstrumentListToSubtitle = instrumentList => {
 }
 
 /**
- * @param {GridBeatObject} beatObject
+ * @param {[GridSampleObject]} samples
  */
-const generateBeatAttributes = beatObject => {
-  return beatObject.samples.map(sample => {
+const generateAttributesFromSamples = samples => {
+  return samples.map(sample => {
     return {
+      sampleID: sample.sampleID,
       sampleTitle: sample.sampleTitle,
       sampleSubTitle: sample.sampleSubtitle,
+      sampleImage: sample.sampleImage,
+      sampleColor: sample.sampleColor,
       sampleSource: sample.sampleSource,
       sampleIsActive: sample.sampleIsActive,
       sampleAudioStart: sample.sampleAudioStart,
       sampleAudioLength: sample.sampleAudioLength,
       sampleAudioDelay: sample.sampleAudioDelay,
+      isPrivate: sample.isPrivate,
     }
   })
 }
@@ -200,10 +227,9 @@ const generateBeatAttributes = beatObject => {
 /**
  * @param {String} beatAttributes
  */
-const convertBeatAttributesToSamples = beatAttributes => {
+const convertAttributesToSamples = beatAttributes => {
   return JSON.parse(beatAttributes).map(sample => {
     sample.sampleAudioBuffer = null
-    sample.sampleColor = ''
     return sample
   })
 }
@@ -222,7 +248,7 @@ const encodeBeatObject = (userInfo, beatObject, newBeatImage, newBeatAudio) => {
     name: beatObject.sampleTitle,
     isPrivate: beatObject.isPrivate,
     instrumentList: JSON.stringify(generateBeatInstrumentList(beatObject)),
-    attributes: JSON.stringify(generateBeatAttributes(beatObject)),
+    attributes: JSON.stringify(generateAttributesFromSamples(beatObject.samples)),
     duration: calculateRenderDuration(beatObject.samples),
   }
   if (newBeatAudio != null && newBeatAudio != undefined) {
@@ -247,10 +273,50 @@ const decodeBeatObject = encodedBeatObject => {
     beatID: encodedBeatObject.id,
     image: encodedBeatObject.image,
     commit: 0,
-    samples: convertBeatAttributesToSamples(encodedBeatObject.attributes),
+    samples: convertAttributesToSamples(encodedBeatObject.attributes),
   }
   commitBeatIfNecessary(gridBeatObject)
   return gridBeatObject
+}
+
+/**
+ * @param {VerifiedUserInfo} userInfo
+ * @param {GridSampleObject} sampleObject
+ * @param {ArrayBuffer} sampleAudio
+ * @return {EncodedSampleObject}
+ */
+const encodeSampleObject = (userInfo, sampleObject, sampleAudio) => {
+  return {
+    id: sampleObject.sampleID,
+    email: userInfo.email,
+    name: sampleObject.sampleTitle,
+    isPrivate: sampleObject.isPrivate,
+    attributes: JSON.stringify(generateAttributesFromSamples([sampleObject])),
+    audio: sampleAudio,
+    image: sampleObject.sampleImage,
+  }
+}
+
+/**
+ * @param {DecodableSampleObject} decodableSample
+ * @return {GridSampleObject}
+ */
+const decodeSampleObject = decodableSample => {
+  const decodedAttributes = convertAttributesToSamples(decodableSample.attributes)
+  return {
+    sampleID: decodableSample.id,
+    sampleImage: decodableSample.image,
+    sampleSource: decodableSample.audio,
+    sampleColor: decodedAttributes.sampleColor,
+    sampleTitle: decodableSample.name,
+    sampleSubtitle: decodedAttributes.sampleSubTitle,
+    sampleIsActive: true,
+    sampleAudioDelay: decodedAttributes.sampleAudioDelay,
+    sampleAudioStart: decodedAttributes.sampleAudioStart,
+    sampleAudioLength: decodedAttributes.sampleAudioLength,
+    sampleAudioBuffer: null,
+    isPrivate: decodableSample.isPrivate,
+  }
 }
 
 export {
@@ -258,6 +324,8 @@ export {
   GridBeatObject,
   EncodedBeatObject,
   DecodableBeatObject,
+  EncodedSampleObject,
+  DecodableSampleObject,
   commitBeatIfNecessary,
   createNewBeat,
   updateBeatSamples,
@@ -265,5 +333,7 @@ export {
   fixResizeOverCorrections,
   encodeBeatObject,
   decodeBeatObject,
+  encodeSampleObject,
+  decodeSampleObject,
   getEmptyBeat,
 }

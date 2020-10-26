@@ -1,4 +1,6 @@
 import bufferToWav from 'audiobuffer-to-wav'
+import { SampleSequenceRenderer } from '../workstationPanel/sampleSequencePlayer'
+import { VerifiedUserInfo } from '../../requestService/authRequestService'
 import {
   GridBeatObject,
   EncodedBeatObject,
@@ -6,8 +8,6 @@ import {
   encodeBeatObject,
   decodeBeatObject,
 } from '../workstationPanel/gridObjects'
-import { SampleSequenceRenderer } from '../workstationPanel/sampleSequencePlayer'
-import { VerifiedUserInfo } from '../../requestService/authRequestService'
 
 /**
  *
@@ -22,7 +22,6 @@ const UploadEncodedBeat = (encodedBeat, onUploadProgress, onUploadComplete, onEr
   onUploadProgress(40)
   setTimeout(_ => {
     console.log('encoded To:::', encodedBeat)
-    console.log(encodedBeat.attributes)
     let decodableBeat = { ...encodedBeat }
     decodableBeat.image = 'something'
     decodableBeat.audio = 'something'
