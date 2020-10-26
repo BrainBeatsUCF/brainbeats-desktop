@@ -1,22 +1,47 @@
-[
+[ 
   {
-    "modelImageName": "dummyPath",
-    "modelName": "Piano"
+    "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/classical_piano.png",
+    "modelName": "Classical Piano"
   },
   {
-    "modelImageName": "dummyPath",
+    "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/drums.png",
+    "modelName": "Drums"
+  },
+  {
+    "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/folk.png",
+    "modelName": "Folk"
+  },
+  {
+    "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/guitar.png",
     "modelName": "Guitar"
   },
   {
-    "modelImageName": "dummyPath",
-    "modelName": "Mario"
+    "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/jazz_drums.png",
+    "modelName": "Jazz Drums"
   },
   {
-    "modelImageName": "dummyPath",
-    "modelName": "Tetris"
+    "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/lakh_subset.png",
+    "modelName": "Lakh Subset"
   },
   {
-    "modelImageName": "dummyPath",
-    "modelName": "Drums"
+    "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/music_vae.png",
+    "modelName": "Music VAE"
+  },
+  {
+    "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/performance_rnn.png",
+    "modelName": "Performance RNN"
+  },
+  {
+    "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/funk_drums.png",
+    "modelName": "Funk Drums"
+  },
+  {
+    "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/animal_crossing.png",
+    "modelName": "Animal Crossing"
+  },
+  {
+    "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/super_mario.png",
+    "modelName": "Super Mario",
+    "modelBackgroundColor": "#ccc"
   }
 ]

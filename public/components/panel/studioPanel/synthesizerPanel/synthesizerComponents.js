@@ -15,7 +15,7 @@ let currentAudioBufferIndex = -1
 const SynthModelObject = {
   modelImageName: '',
   modelName: '',
-  modelRequestURL: '',
+  modelBackgroundColor: '',
 }
 
 const SynthesizingStage = {
@@ -41,6 +41,10 @@ const ProcessingStageInfo = {
  */
 const SynthModelCards = props => {
   return props.modelObjects.map((modelObject, index) => {
+    const modelBackgroundColor =
+      modelObject.modelBackgroundColor == null || modelObject.modelBackgroundColor == undefined
+        ? 'rgb(10, 48, 89)'
+        : modelObject.modelBackgroundColor
     return (
       <div
         className="SynthModelCard Tooltip"
@@ -48,9 +52,11 @@ const SynthModelCards = props => {
         style={{
           height: MODEL_CELL_LENGTH_IN_PIXELS,
           width: MODEL_CELL_LENGTH_IN_PIXELS,
+          backgroundColor: modelBackgroundColor,
         }}
         onClick={() => props.onModelClick(modelObject)}
       >
+        <img className="SynthModelCardImage" src={modelObject.modelImageName} alt={modelObject.modelName}></img>
         <span className="TooltipText">{modelObject.modelName}</span>
       </div>
     )
