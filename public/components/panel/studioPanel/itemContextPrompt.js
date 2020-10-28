@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import bufferToWav from 'audiobuffer-to-wav'
+import audioEncoder from 'audio-encoder'
 import { ListObjectType } from '../verticalListPanel/verticalListPanel'
 import { GridBeatObject, GridSampleObject } from '../workstationPanel/gridObjects'
 import {
@@ -33,6 +34,7 @@ const CloseContextPromptInfo = {
 }
 
 const errorMessageDisplayDuration = 1500 // milliseconds
+let downloadProgress = 0
 
 /**
  * @param {{
@@ -67,16 +69,20 @@ const ItemContextPrompt = props => {
    * @param {() => void} onComplete
    */
   const downloadSampleAudio = (sample, onComplete) => {
-    const tempAudioContext = new AudioContext()
+    const tempAudioContext = new AudioContext({ sampleRate: 44100 })
     axios({
       responseType: 'arraybuffer',
       url: 'https://cors-anywhere.herokuapp.com/' + sample.sampleSource,
       onDownloadProgress(progressEvent) {
         const progress = Math.round((progressEvent.loaded / progressEvent.total) * 100)
+        downloadProgress = progress
         setActivityMessage(`Sample download progress... ${progress}%`)
       },
     })
-      .then(response => tempAudioContext.decodeAudioData(response.data))
+      .then(response => {
+        setActivityMessage('Preparing sample')
+        return tempAudioContext.decodeAudioData(response.data)
+      })
       .then(audioBuffer => {
         const wavData = bufferToWav(audioBuffer)
         const blob = new window.Blob([new DataView(wavData)], {
@@ -192,18 +198,20 @@ const ItemContextPrompt = props => {
  * A wrapper to abstract hiding/showing the context prompt
  * Also handles breaking out prompt info to keys
  * @param {{
+ * userInfo: VerifiedUserInfo,
  * promptInfo: CloseContextPromptInfo,
  * setIsMakingNetworkActivity: (Boolean) => void
  * }} props
  */
 const ItemContextPromptWrapper = props => {
-  const { promptInfo } = props
+  const { promptInfo, userInfo } = props
   if (!promptInfo.shouldShowPrompt) {
     return <></>
   } else {
     return (
       <ItemContextPrompt
         promptTitle={promptInfo.title ?? ''}
+        userInfo={userInfo}
         value={promptInfo.value}
         type={promptInfo.type}
         setIsMakingNetworkActivity={props.setIsMakingNetworkActivity}

@@ -1,6 +1,7 @@
 import bufferToWav from 'audiobuffer-to-wav'
 import { SampleSequenceRenderer } from '../workstationPanel/sampleSequencePlayer'
 import { VerifiedUserInfo } from '../../requestService/authRequestService'
+import { RequestCreateBeat, RequestUpdateBeat } from '../../requestService/itemRequestService'
 import {
   GridBeatObject,
   EncodedBeatObject,
@@ -10,70 +11,47 @@ import {
 } from '../workstationPanel/gridObjects'
 
 /**
- *
- * @param {EncodedBeatObject} encodedBeat
- * @param {(progress: Number) => void} onUploadProgress
- * @param {(savedGridObject: GridBeatObject) => void} onUploadComplete
- * @param {() => void} onError
- */
-const UploadEncodedBeat = (encodedBeat, onUploadProgress, onUploadComplete, onError) => {
-  /// Todo: replace with actual request
-  /// If beat id is -1, use create, otherwise use update
-  onUploadProgress(40)
-  setTimeout(_ => {
-    console.log('encoded To:::', encodedBeat)
-    let decodableBeat = { ...encodedBeat }
-    decodableBeat.image = 'something'
-    decodableBeat.audio = 'something'
-    let retrievedBeat = decodeBeatObject(decodableBeat)
-    commitBeatIfNecessary(retrievedBeat)
-    onUploadComplete(retrievedBeat)
-  }, 1000)
-}
-
-/**
  * @param {VerifiedUserInfo} userInfo
  * @param {String} beatTitle
  * @param {File} beatImageFile
+ * @param {Boolean} beatIsPrivate
  * @param {GridBeatObject} beatObject
- * @param {(progress: Number) => void} onUploadProgress
+ * @param {(progress: String) => void} onUploadProgress
  * @param {(savedGridObject: GridBeatObject) => void} onUploadComplete
  * @param {() => void} onError
  */
-const BeatUploader = (userInfo, beatTitle, beatImageFile, beatObject, onUploadProgress, onUploadComplete, onError) => {
-  onUploadProgress(0)
+const BeatUploader = (
+  userInfo,
+  beatTitle,
+  beatImageFile,
+  beatIsPrivate,
+  beatObject,
+  onUploadProgress,
+  onUploadComplete,
+  onError
+) => {
   let newBeatObject = { ...beatObject }
   newBeatObject.sampleTitle = beatTitle
+  newBeatObject.isPrivate = beatIsPrivate
+  onUploadProgress('Preparing Beat for Upload...')
   SampleSequenceRenderer(
     beatObject.samples,
     renderedAudioBuffer => {
+      /// Convert audio binary to file
       const retrievedWavBuffer = bufferToWav(renderedAudioBuffer)
-      if (beatImageFile != null && beatImageFile != undefined) {
-        beatImageFile
-          .arrayBuffer()
-          .then(retrievedImageBuffer => {
-            UploadEncodedBeat(
-              encodeBeatObject(userInfo, newBeatObject, retrievedImageBuffer, retrievedWavBuffer),
-              onUploadProgress,
-              onUploadComplete,
-              onError
-            )
-          })
-          .catch(error => {
-            console.error.log('Error retrieving image', error)
-            onError()
-          })
+      const retrievedWavBlob = new window.Blob([new DataView(retrievedWavBuffer)], { type: 'audio/wav' })
+      const retrievedWavFile = new File([retrievedWavBlob], beatTitle + '.wav')
+      /// Start upload process
+      const encodedBeat = encodeBeatObject(userInfo, newBeatObject, beatImageFile, retrievedWavFile)
+      /// Create a new beat if theres no ID, otherwise update using ID
+      if (encodedBeat.id === '') {
+        RequestCreateBeat(userInfo, encodedBeat, onUploadProgress, onUploadComplete, onError)
       } else {
-        UploadEncodedBeat(
-          encodeBeatObject(userInfo, newBeatObject, null, retrievedWavBuffer),
-          onUploadProgress,
-          onUploadComplete,
-          onError
-        )
+        RequestUpdateBeat(userInfo, encodedBeat, onUploadProgress, onUploadComplete, onError)
       }
     },
     _ => {
-      console.error.log('Error rendering audio')
+      console.error('Error rendering audio')
       onError()
     }
   )

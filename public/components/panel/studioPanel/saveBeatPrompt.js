@@ -35,24 +35,27 @@ const ClosePromptInfo = {
 const SaveBeatPrompt = props => {
   const placeHolderText = 'Beat Title...'
   const placeHolder = props.currentGridItem.sampleTitle !== '' ? props.currentGridItem.sampleTitle : placeHolderText
+  const [isBeatPrivate, setIsBeatPrivate] = useState(props.currentGridItem.isPrivate)
   const [beatTitle, setBeatTitle] = useState(placeHolder)
   const [beatImage, setBeatImage] = useState(null)
-  const [uploadProgress, setUploadProgress] = useState(0)
+  const [uploadProgress, setUploadProgress] = useState('')
   const [uploadStarted, setUploadStarted] = useState(false)
 
   const startUpload = () => {
+    /// Prevent upload if no image is available or beat title hasn't been set
     if (
       beatTitle === placeHolderText ||
       (props.currentGridItem.image === '' && (beatImage == null || beatImage == undefined))
     ) {
+      setUploadProgress('Missing title or image')
       return
     }
     setUploadStarted(true)
-    setUploadProgress(2)
     BeatUploader(
       props.userInfo,
       beatTitle,
       beatImage,
+      isBeatPrivate,
       props.currentGridItem,
       progress => setUploadProgress(progress),
       savedGridItem => props.onSaveComplete(savedGridItem),
@@ -69,10 +72,10 @@ const SaveBeatPrompt = props => {
   }
 
   const getProgressIndicator = () => {
-    if (uploadProgress === 0) {
+    if (uploadProgress === '') {
       return <></>
     } else {
-      return <h4 className="SaveBeatPromptText">Upload progress... {uploadProgress}%</h4>
+      return <h4 className="SaveBeatPromptText">{uploadProgress}</h4>
     }
   }
 
@@ -86,6 +89,15 @@ const SaveBeatPrompt = props => {
           placeholder={placeHolder}
           onChange={event => setBeatTitle(event.target.value)}
         ></input>
+        <div className="PrivateCheckboxContainer">
+          <label className="LoginInput PrivateCheckboxLabel">Make Beat Private</label>
+          <input
+            className="PrivateCheckbox"
+            type="checkbox"
+            defaultChecked={isBeatPrivate}
+            onChange={event => setIsBeatPrivate(event.target.checked)}
+          ></input>
+        </div>
         <ImageUploader
           withPreview={true}
           withIcon={false}
@@ -94,7 +106,7 @@ const SaveBeatPrompt = props => {
           maxFileSize={maximumImageUploadSize}
           singleImage={true}
           buttonClassName="PromptUploadButton"
-          buttonText="Choose Beat Background"
+          buttonText={`${props.currentGridItem.image === '' ? 'Choose' : 'Change'} Beat Background`}
           label="Maximum file size: 5mb, accepted: jpg, png"
         />
         {getProgressIndicator()}

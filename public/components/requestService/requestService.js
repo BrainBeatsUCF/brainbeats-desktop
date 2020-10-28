@@ -30,7 +30,7 @@ const RequestHomeData = (userInfo, didCompleteRequest) => {
  */
 const RequestUserSampleItems = (userInfo, didCompleteRequest) => {
   setTimeout(() => {
-    console.log(userInfo)
+    console.log('Refresh Studio Sample List')
     didCompleteRequest(testSampleAudioBuffer)
   }, mockNetworkDelayMillisecond)
 }
@@ -41,7 +41,7 @@ const RequestUserSampleItems = (userInfo, didCompleteRequest) => {
  */
 const RequestUserBeatItems = (userInfo, didCompleteRequest) => {
   setTimeout(() => {
-    console.log(userInfo)
+    console.log('Refresh Studio Beat List')
     didCompleteRequest(testBeatDataSet)
   }, mockNetworkDelayMillisecond)
 }

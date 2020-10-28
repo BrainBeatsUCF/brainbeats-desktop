@@ -5,6 +5,7 @@ import { SampleDownloader } from './sampleDownloader'
 import { SaveBeatPromptWrapper, ClosePromptInfo } from './saveBeatPrompt'
 import { ItemContextPromptWrapper, CloseContextPromptInfo } from './itemContextPrompt'
 import { RequestUserBeatItems, RequestUserSampleItems } from '../../requestService/requestService'
+import { RequestGetOwnedBeats } from '../../requestService/itemRequestService'
 import { SynthesizerWrapper, HideSynthesizerInfo } from './synthesizerPanel/synthesizerPanel'
 import {
   GridBeatObject,
@@ -16,7 +17,7 @@ import {
 import './studioPanel.css'
 
 let StudioPanelComponentMounted = false
-const StudioAudioContext = new AudioContext()
+const StudioAudioContext = new AudioContext({ sampleRate: 44100 })
 const WorkstationTitle = 'WorkStation'
 const VerticalListTitles = {
   Beats: 'Beats',
@@ -263,12 +264,18 @@ class StudioPanel extends React.Component {
    */
   beatsItemListRequest = () => {
     this.props.setIsMakingNetworkActivity(true)
-    RequestUserBeatItems(this.props.userInfo, data => {
-      if (StudioPanelComponentMounted) {
-        this.props.setIsMakingNetworkActivity(false)
-        this.setState({ loadedBeats: data })
+    RequestGetOwnedBeats(
+      this.props.userInfo,
+      data => {
+        if (StudioPanelComponentMounted) {
+          this.props.setIsMakingNetworkActivity(false)
+          this.setState({ loadedBeats: data })
+        }
+      },
+      _ => {
+        // Request Error
       }
-    })
+    )
   }
 
   /**
@@ -344,6 +351,7 @@ class StudioPanel extends React.Component {
           onSaveError={() => this.setState({ currentSavePromptInfo: ClosePromptInfo })}
         ></SaveBeatPromptWrapper>
         <ItemContextPromptWrapper
+          userInfo={this.props.userInfo}
           promptInfo={this.state.currentItemContextPromptInfo}
           setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}
         ></ItemContextPromptWrapper>

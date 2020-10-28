@@ -4,7 +4,7 @@ const fakeNetworkDelayMilliseconds = 1250
 
 const fakeAcceptedUsers = [
   {
-    UserEmail: 'test@test.com',
+    UserEmail: 'lloyd@lloyddapaah@gmail.com',
     UserPassword: '1234',
   },
 ]
@@ -36,6 +36,8 @@ const AuthenticateUserInfo = (email, password) => {
  */
 const VerifiedUserInfo = {
   email: '',
+  authToken: '',
+  refreshToken: '',
   authCode: '',
   uuid: '',
 }

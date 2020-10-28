@@ -37,8 +37,8 @@ const EncodedBeatObject = {
   instrumentList: '',
   attributes: '',
   duration: 0,
-  audio: new ArrayBuffer(0),
-  image: new ArrayBuffer(0),
+  audio: new File([], ''),
+  image: new File([], ''),
 }
 
 /// Representation of beat object when recieved from backend
@@ -190,9 +190,11 @@ const commitBeatIfNecessary = beatObject => {
  * @return {[String]}
  */
 const generateBeatInstrumentList = beatObject => {
-  return beatObject.samples.map(sample => {
-    return sample.sampleSubtitle
-  })
+  let seenModels = new Set()
+  beatObject.samples.forEach(sample => seenModels.add(sample.sampleSubtitle))
+  let retval = []
+  seenModels.forEach(model => retval.push(model))
+  return retval
 }
 
 const convertInstrumentListToSubtitle = instrumentList => {
@@ -211,7 +213,7 @@ const generateAttributesFromSamples = samples => {
     return {
       sampleID: sample.sampleID,
       sampleTitle: sample.sampleTitle,
-      sampleSubTitle: sample.sampleSubtitle,
+      sampleSubtitle: sample.sampleSubtitle,
       sampleImage: sample.sampleImage,
       sampleColor: sample.sampleColor,
       sampleSource: sample.sampleSource,
@@ -237,8 +239,8 @@ const convertAttributesToSamples = beatAttributes => {
 /**
  * @param {VerifiedUserInfo} userInfo
  * @param {GridBeatObject} beatObject
- * @param {ArrayBuffer?} newBeatImage
- * @param {ArrayBuffer?} newBeatAudio
+ * @param {File?} newBeatImage
+ * @param {File?} newBeatAudio
  * @return {EncodedBeatObject}
  */
 const encodeBeatObject = (userInfo, beatObject, newBeatImage, newBeatAudio) => {
@@ -268,7 +270,7 @@ const decodeBeatObject = encodedBeatObject => {
   let gridBeatObject = {
     isWorthSaving: true,
     sampleTitle: encodedBeatObject.name,
-    sampleSubTitle: convertInstrumentListToSubtitle(encodedBeatObject.instrumentList),
+    sampleSubtitle: convertInstrumentListToSubtitle(encodedBeatObject.instrumentList),
     isPrivate: encodedBeatObject.isPrivate,
     beatID: encodedBeatObject.id,
     image: encodedBeatObject.image,

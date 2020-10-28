@@ -2,9 +2,9 @@
   {
     "sampleTitle": "Reflex",
     "sampleSubtitle": "Drum Funk, Rap Harp",
-    "beatID": "1241351542",
-    "isPrivate": true,
-    "image": "https://i.pinimg.com/originals/cc/18/8c/cc188c604e58cffd36e1d183c7198d21.jpg",
+    "beatID": "6cc23813-64c0-4b19-a741-7389131cec9d",
+    "isPrivate": false,
+    "image": "https://brainbeatsstorage.blob.core.windows.net/beat/6cc23813-64c0-4b19-a741-7389131cec9d_image.png",
     "samples" : [
       {
         "sampleSource": "https://tribeofnoisestorage.blob.core.windows.net/music/30b3d365e7b15b0b6d2e6ba270dc2142.mp3",
@@ -41,7 +41,7 @@
   {
     "sampleTitle": "Spongebob",
     "sampleSubtitle": "Guitar Rock",
-    "beatID": "21652453425",
+    "beatID": "c9d7cbf1-ee17-4855-87c9-37d45949c188",
     "isPrivate": false,
     "image": "https://images.pexels.com/photos/68147/waterfall-thac-dray-nur-buon-me-thuot-daklak-68147.jpeg",
     "samples" : [
@@ -60,7 +60,7 @@
         "sampleTitle": "Dance Mood",
         "sampleSubtitle": "Drum Funk",
         "sampleIsActive": true,
-        "sampleAudioDelay": 3.5,
+        "sampleAudioDelay": 3,
         "sampleAudioStart": 0,
         "sampleAudioLength": 4,
         "sampleAudioBuffer": null
@@ -70,7 +70,7 @@
         "sampleTitle": "Harpiness",
         "sampleSubtitle": "Rap Harp",
         "sampleIsActive": true,
-        "sampleAudioDelay": 6.2,
+        "sampleAudioDelay": 6,
         "sampleAudioStart": 0,
         "sampleAudioLength": 4,
         "sampleAudioBuffer": null

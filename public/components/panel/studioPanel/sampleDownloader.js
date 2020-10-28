@@ -84,7 +84,8 @@ class SampleDownloader extends React.Component {
     if (cachedBuffer != null && cachedBuffer != undefined) {
       sample.sampleColor = assignedSampleColor[sample.sampleSource]
       sample.sampleAudioBuffer = cachedBuffer
-      sample.sampleAudioLength = sample.sampleAudioLength === -1 ? cachedBuffer.duration : sample.sampleAudioLength
+      sample.sampleAudioLength =
+        sample.sampleAudioLength === -1 ? Math.round(cachedBuffer.duration) : sample.sampleAudioLength
       prevResults.push(sample)
       downloadedSampleCache[sample.sampleSource] = cachedBuffer
       this.startDownload(prevResults, downloadIndex + 1)
@@ -109,7 +110,8 @@ class SampleDownloader extends React.Component {
                 : cachedBackgroundColor
             sample.sampleColor = backgroundColor
             sample.sampleAudioBuffer = audioBuffer
-            sample.sampleAudioLength = sample.sampleAudioLength === -1 ? audioBuffer.duration : sample.sampleAudioLength
+            sample.sampleAudioLength =
+              sample.sampleAudioLength === -1 ? Math.round(audioBuffer.duration) : sample.sampleAudioLength
             prevResults.push(sample)
             downloadedSampleCache[sample.sampleSource] = audioBuffer
             assignedSampleColor[sample.sampleSource] = backgroundColor

@@ -21,6 +21,7 @@
   "author": "Lloyd Dapaah",
   "license": "MIT",
   "dependencies": {
+    "audio-encoder": "^1.0.2",
     "audiobuffer-to-wav": "^1.0.0",
     "axios": "^0.20.0",
     "canvas": "^2.6.1",

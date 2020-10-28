@@ -100,3 +100,26 @@
 .ContextButton {
   width: 80%;
 }
+
+/* Style for "isPrivate" checkbox */
+.PrivateCheckboxContainer {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  border: solid #707070 1px;
+  border-radius: 4px;
+}
+
+.PrivateCheckboxLabel {
+  border: none;
+  margin: auto 0px;
+}
+
+.PrivateCheckbox {
+  margin: auto;
+  margin-right: 15px;
+  transform: scale(1.5);
+  padding: 10px;
+}
