@@ -37,17 +37,6 @@ const RequestUserSampleItems = (userInfo, didCompleteRequest) => {
 
 /**
  * @param {VerifiedUserInfo} userInfo
- * @param {(data: [GridBeatObject]) => void} didCompleteRequest
- */
-const RequestUserBeatItems = (userInfo, didCompleteRequest) => {
-  setTimeout(() => {
-    console.log('Refresh Studio Beat List')
-    didCompleteRequest(testBeatDataSet)
-  }, mockNetworkDelayMillisecond)
-}
-
-/**
- * @param {VerifiedUserInfo} userInfo
  * @return {String}
  */
 const RequestUserProfileImage = userInfo => {
@@ -62,4 +51,4 @@ const RequestUserProfileImage = userInfo => {
   return pattern.toCanvas().toDataURL()
 }
 
-export { RequestHomeData, RequestUserProfileImage, RequestUserBeatItems, RequestUserSampleItems, ResultStatus }
+export { RequestHomeData, RequestUserProfileImage, RequestUserSampleItems, ResultStatus }

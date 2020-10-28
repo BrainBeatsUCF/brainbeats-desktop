@@ -4,7 +4,7 @@ import { WorkstationPanel } from '../workstationPanel/workstationPanel'
 import { SampleDownloader } from './sampleDownloader'
 import { SaveBeatPromptWrapper, ClosePromptInfo } from './saveBeatPrompt'
 import { ItemContextPromptWrapper, CloseContextPromptInfo } from './itemContextPrompt'
-import { RequestUserBeatItems, RequestUserSampleItems } from '../../requestService/requestService'
+import { RequestUserSampleItems } from '../../requestService/requestService'
 import { RequestGetOwnedBeats } from '../../requestService/itemRequestService'
 import { SynthesizerWrapper, HideSynthesizerInfo } from './synthesizerPanel/synthesizerPanel'
 import {
