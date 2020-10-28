@@ -1,6 +1,5 @@
 import trianglify from 'trianglify'
 import secondTestDataSet from './testHomeData2.json'
-import testBeatDataSet from './testBeats.json'
 import testSampleAudioBuffer from './testSampleAudioBuffer.json'
 import { VerifiedUserInfo } from './authRequestService'
 import { ListObjectType } from '../panel/verticalListPanel/verticalListPanel'
