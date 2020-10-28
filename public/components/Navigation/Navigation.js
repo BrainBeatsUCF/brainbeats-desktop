@@ -4,6 +4,7 @@ import LogoutImage from '../../images/LogoutImage.png'
 import StudioImage from '../../images/StudioImage.png'
 import NetworkActivityAnimation from '../../images/network_activity.gif'
 import { MenuButton, MenuButtonColor, MenuButtonSelectionState } from '../input/input'
+import { ClearUserAuthInfo } from '../requestService/authRequestService'
 import './navigation.css'
 
 const NavigationPage = {
@@ -69,7 +70,10 @@ const Navigation = props => {
           imageSource: LogoutImage,
           imageHeight: '18px',
           imageWidth: '19px',
-          onMenuButtonClick: () => props.onPageChange(NavigationPage.Logout),
+          onMenuButtonClick: () => {
+            ClearUserAuthInfo()
+            props.onPageChange(NavigationPage.Logout)
+          },
         }}
       ></MenuButton>
     </div>

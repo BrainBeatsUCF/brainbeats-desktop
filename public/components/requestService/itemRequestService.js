@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { VerifiedUserInfo } from './authRequestService'
+import { VerifiedUserInfo, RequestUserRefreshAuthentication, GetUserAuthInfo } from './authRequestService'
 import { ResultStatus } from './requestService'
 import {
   GridBeatObject,
@@ -28,6 +28,9 @@ const createBeatRoute = '/beat/create_beat'
 const updateBeatRoute = '/beat/update_beat'
 const deleteBeatRoute = '/beat/delete_beat'
 const getOwnedBeatRoute = '/user/get_owned_beats'
+
+/// Request Error Messages
+const expiredAuthorizationToken = 'The token is expired'
 
 /**
  * @param {String} email
@@ -78,6 +81,7 @@ const ParseBeatVertices = (email, responseData) => {
  * @param {(progress: String) => void} onProgress
  * @param {(savedObject: GridBeatObject) => void} onComplete
  * @param {() => void} onError
+ * @param {Boolean?} limit
  */
 const RequestCreateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, onError) => {
   /// Create form
@@ -116,13 +120,20 @@ const RequestCreateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, 
       } else {
         const decodableBeatObject = ParseBeatVertex(encodedBeatObject.email, responseData)
         const savedBeatObject = decodeBeatObject(decodableBeatObject)
-        console.log('OUTPUT BEAT:', savedBeatObject)
         onComplete(savedBeatObject)
       }
     })
     .catch(error => {
-      console.error(error)
-      onError()
+      if (error.response.data.includes(expiredAuthorizationToken) && (limit == undefined || limit == false)) {
+        RequestUserRefreshAuthentication(
+          userInfo,
+          _ => RequestCreateBeat(GetUserAuthInfo(), encodedBeatObject, onProgress, onComplete, onError, limit),
+          onError
+        )
+      } else {
+        console.error(error.response)
+        onError()
+      }
     })
 }
 
@@ -132,8 +143,9 @@ const RequestCreateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, 
  * @param {(progress: String) => void} onProgress
  * @param {(savedObject: GridBeatObject) => void} onComplete
  * @param {() => void} onError
+ * @param {Boolean?} limit
  */
-const RequestUpdateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, onError) => {
+const RequestUpdateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, onError, limit) => {
   /// Create form
   let formData = new FormData()
   formData.append(idKey, encodedBeatObject.id)
@@ -181,8 +193,16 @@ const RequestUpdateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, 
       }
     })
     .catch(error => {
-      console.error(error)
-      onError()
+      if (error.response.data.includes(expiredAuthorizationToken) && (limit == undefined || limit == false)) {
+        RequestUserRefreshAuthentication(
+          userInfo,
+          _ => RequestUpdateBeat(GetUserAuthInfo(), encodedBeatObject, onProgress, onComplete, onError, limit),
+          onError
+        )
+      } else {
+        console.error(error.response)
+        onError()
+      }
     })
 }
 
@@ -190,8 +210,9 @@ const RequestUpdateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, 
  * @param {VerifiedUserInfo} userInfo
  * @param {(savedObject: GridBeatObject) => void} onComplete
  * @param {() => void} onError
+ * @param {Boolean?} limit
  */
-const RequestGetOwnedBeats = (userInfo, onComplete, onError) => {
+const RequestGetOwnedBeats = (userInfo, onComplete, onError, limit) => {
   const url = window.process.env[azureRouteKey] + getOwnedBeatRoute
   const requestBody = {
     email: userInfo.email,
@@ -211,8 +232,16 @@ const RequestGetOwnedBeats = (userInfo, onComplete, onError) => {
       onComplete(retrievedBeatObjects)
     })
     .catch(error => {
-      console.error(error)
-      onError()
+      if (error.response.data.includes(expiredAuthorizationToken) && (limit == undefined || limit == false)) {
+        RequestUserRefreshAuthentication(
+          userInfo,
+          _ => RequestGetOwnedBeats(GetUserAuthInfo(), onComplete, onError, true),
+          onError
+        )
+      } else {
+        console.error(error.response)
+        onError()
+      }
     })
 }
 
@@ -220,8 +249,9 @@ const RequestGetOwnedBeats = (userInfo, onComplete, onError) => {
  * @param {VerifiedUserInfo} userInfo
  * @param {GridBeatObject} beatObject
  * @param {(status: ResultStatus) => void} onComplete
+ * @param {Boolean?} limit
  */
-const RequestDeleteBeat = (userInfo, beatObject, onComplete) => {
+const RequestDeleteBeat = (userInfo, beatObject, onComplete, limit) => {
   const url = window.process.env[azureRouteKey] + deleteBeatRoute
   const requestBody = {
     email: userInfo.email,
@@ -237,8 +267,16 @@ const RequestDeleteBeat = (userInfo, beatObject, onComplete) => {
       }
     })
     .catch(error => {
-      console.error(error)
-      onComplete(ResultStatus.Error)
+      if (error.response.data.includes(expiredAuthorizationToken) && (limit == undefined || limit == false)) {
+        RequestUserRefreshAuthentication(
+          userInfo,
+          _ => RequestDeleteBeat(GetUserAuthInfo(), beatObject, onComplete, true),
+          _ => onComplete(ResultStatus.Error)
+        )
+      } else {
+        console.error(error.response)
+        onComplete(ResultStatus.Error)
+      }
     })
 }
 

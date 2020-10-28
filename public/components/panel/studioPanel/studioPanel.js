@@ -4,6 +4,7 @@ import { WorkstationPanel } from '../workstationPanel/workstationPanel'
 import { SampleDownloader } from './sampleDownloader'
 import { SaveBeatPromptWrapper, ClosePromptInfo } from './saveBeatPrompt'
 import { ItemContextPromptWrapper, CloseContextPromptInfo } from './itemContextPrompt'
+import { GetUserAuthInfo } from '../../requestService/authRequestService'
 import { RequestUserSampleItems } from '../../requestService/requestService'
 import { RequestGetOwnedBeats } from '../../requestService/itemRequestService'
 import { SynthesizerWrapper, HideSynthesizerInfo } from './synthesizerPanel/synthesizerPanel'
@@ -29,7 +30,6 @@ class StudioPanel extends React.Component {
    * @param {{
    * customClass: String?
    * currentGridItem: GridBeatObject,
-   * userInfo: VerifiedUserInfo,
    * setIsMakingNetworkActivity: (Boolean) => void
    * setCurrentGridItem: (GridBeatObject) => void
    * }} props
@@ -127,7 +127,7 @@ class StudioPanel extends React.Component {
   handleSampleAddClick = () => {
     this.setState({
       currentSynthesizerInfo: {
-        userInfo: this.props.userInfo,
+        userInfo: GetUserAuthInfo(),
         shouldShowSynthesizer: true,
         onSynthesizerClose: _ => {
           this.setState({ currentSynthesizerInfo: HideSynthesizerInfo })
@@ -265,7 +265,7 @@ class StudioPanel extends React.Component {
   beatsItemListRequest = () => {
     this.props.setIsMakingNetworkActivity(true)
     RequestGetOwnedBeats(
-      this.props.userInfo,
+      GetUserAuthInfo(),
       data => {
         if (StudioPanelComponentMounted) {
           this.props.setIsMakingNetworkActivity(false)
@@ -283,7 +283,7 @@ class StudioPanel extends React.Component {
    */
   sampleItemListRequest = () => {
     this.props.setIsMakingNetworkActivity(true)
-    RequestUserSampleItems(this.props.userInfo, data => {
+    RequestUserSampleItems(GetUserAuthInfo(), data => {
       if (StudioPanelComponentMounted) {
         this.props.setIsMakingNetworkActivity(false)
         this.setState({ loadedSamples: data })
@@ -344,14 +344,14 @@ class StudioPanel extends React.Component {
         <SynthesizerWrapper {...this.state.currentSynthesizerInfo}></SynthesizerWrapper>
         {this.renderSampleDownloader()}
         <SaveBeatPromptWrapper
-          userInfo={this.props.userInfo}
+          userInfo={GetUserAuthInfo()}
           promptInfo={this.state.currentSavePromptInfo}
           currentGridItem={this.props.currentGridItem}
           setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}
           onSaveError={() => this.setState({ currentSavePromptInfo: ClosePromptInfo })}
         ></SaveBeatPromptWrapper>
         <ItemContextPromptWrapper
-          userInfo={this.props.userInfo}
+          userInfo={GetUserAuthInfo()}
           promptInfo={this.state.currentItemContextPromptInfo}
           setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}
         ></ItemContextPromptWrapper>
