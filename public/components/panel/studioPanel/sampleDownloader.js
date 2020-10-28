@@ -1,8 +1,14 @@
 import React from 'react'
 import Color from 'color'
 import axios from 'axios'
-import { CELL_COLOR_SATURATION, CELL_COLOR_BRIGHTNESS } from '../workstationPanel/constants'
 import { GridSampleObject } from '../workstationPanel/gridComponents'
+import {
+  CELL_COLOR_SATURATION,
+  CELL_COLOR_BRIGHTNESS,
+  MAXIMUM_GRID_COLUMN_COUNT,
+  CELL_WIDTH_IN_PIXELS,
+  PIXELS_PER_SECOND,
+} from '../workstationPanel/constants'
 import './studioPanel.css'
 
 let SampleDownloaderMounted = false
@@ -104,6 +110,7 @@ class SampleDownloader extends React.Component {
         .then(audioBuffer => {
           if (SampleDownloaderMounted) {
             const cachedBackgroundColor = assignedSampleColor[sample.sampleSource]
+            const maximumAudioLength = MAXIMUM_GRID_COLUMN_COUNT * (CELL_WIDTH_IN_PIXELS / PIXELS_PER_SECOND)
             const backgroundColor =
               cachedBackgroundColor == null || cachedBackgroundColor == undefined
                 ? RandomDarkColor()
@@ -111,7 +118,10 @@ class SampleDownloader extends React.Component {
             sample.sampleColor = backgroundColor
             sample.sampleAudioBuffer = audioBuffer
             sample.sampleAudioLength =
-              sample.sampleAudioLength === -1 ? Math.round(audioBuffer.duration) : sample.sampleAudioLength
+              sample.sampleAudioLength === -1 ? Math.floor(audioBuffer.duration) : sample.sampleAudioLength
+            if (sample.sampleAudioLength > maximumAudioLength) {
+              sample.sampleAudioLength = maximumAudioLength
+            }
             prevResults.push(sample)
             downloadedSampleCache[sample.sampleSource] = audioBuffer
             assignedSampleColor[sample.sampleSource] = backgroundColor
