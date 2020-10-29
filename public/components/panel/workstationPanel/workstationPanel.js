@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { DEFAULT_GRID_COLUMN_COUNT, PIXELS_PER_SECOND } from './constants'
-import { GridSampleObject, GridSampleMatrix, GridActivator } from './gridComponents'
+import { DEFAULT_GRID_COLUMN_COUNT, PIXELS_PER_SECOND, CELL_WIDTH_IN_PIXELS } from './constants'
+import { GridSampleObject, GridSampleMatrix, GridActivator, GridTimeRuler } from './gridComponents'
 import { MenuButton, MenuButtonColor, MenuButtonSelectionState } from '../../input/input'
 import { GridBeatObject, fixResizeOverCorrections } from './gridObjects'
 import { SampleSequenceRenderer } from './sampleSequencePlayer'
@@ -10,7 +10,7 @@ import './workstationPanel.css'
 
 // Dictates how many times the tracker is redrawn, this value can be changed to suite
 // performance vs. smooth animation needs
-const TrackLineFrameRate = 200
+const TrackLineFrameRate = 100
 
 const PlayAudioContext = new AudioContext()
 let tracklineIntervalID = null
@@ -227,20 +227,28 @@ class WorkstationPanel extends React.Component {
           ></MenuButton>
         </div>
         <div className="GridContainer">
-          <div className="GridActivators">
-            <GridActivator
-              activatorStates={this.props.currentGridBeat.samples}
-              onActivatorClick={this.handleActivatorToggle}
-            ></GridActivator>
-          </div>
-          <GridSampleMatrix
-            loadedGridSampleItems={this.props.currentGridBeat.samples}
-            trackLinePosition={trackLinePosition}
+          <GridTimeRuler
+            isHidden={numberOfRows <= 0}
             numberOfCols={DEFAULT_GRID_COLUMN_COUNT}
-            numberOfRows={numberOfRows}
-            onItemDragStop={this.handleGridSampleDragEnd}
-            onItemResizeStop={this.handleGridSampleResizeEnd}
-          ></GridSampleMatrix>
+            columnWidth={CELL_WIDTH_IN_PIXELS}
+            unit={CELL_WIDTH_IN_PIXELS / PIXELS_PER_SECOND}
+          ></GridTimeRuler>
+          <div className="GridComponentsContainer">
+            <div className="GridActivators">
+              <GridActivator
+                activatorStates={this.props.currentGridBeat.samples}
+                onActivatorClick={this.handleActivatorToggle}
+              ></GridActivator>
+            </div>
+            <GridSampleMatrix
+              loadedGridSampleItems={this.props.currentGridBeat.samples}
+              trackLinePosition={trackLinePosition}
+              numberOfCols={DEFAULT_GRID_COLUMN_COUNT}
+              numberOfRows={numberOfRows}
+              onItemDragStop={this.handleGridSampleDragEnd}
+              onItemResizeStop={this.handleGridSampleResizeEnd}
+            ></GridSampleMatrix>
+          </div>
         </div>
       </div>
     )

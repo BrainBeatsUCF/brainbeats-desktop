@@ -1,0 +1,139 @@
+:root {
+  --synth-visualizer-length: 275px;
+  --synth-visualizer-radius: 137.5px;
+}
+
+.SynthModelsContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.SynthModelCard {
+  background-color: rgb(10, 48, 89);
+  box-sizing: border-box;
+  margin: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Tooltip text */
+.Tooltip .TooltipText {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 1;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.Tooltip:hover .TooltipText {
+  visibility: visible;
+}
+
+/* Styles for Processing Stages */
+
+.FlexWithCenteredContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.SynthProcessingMessage {
+  color: #fff;
+  font-size: 1em;
+  user-select: none;
+  margin: auto 10px;
+}
+
+.SynthVisualizer {
+  min-width: var(--synth-visualizer-length);
+  max-width: var(--synth-visualizer-length);
+  min-height: var(--synth-visualizer-length);
+  max-height: var(--synth-visualizer-length);
+  border-radius: var(--synth-visualizer-radius);
+  background-color: rgb(2, 52, 104);
+  border: solid 1px rgba(68, 68, 76, 0.5);
+}
+
+@keyframes synthAnimate {
+  to {
+    border-color: rgb(139, 125, 230);
+    box-shadow: 0 0 40px #7eb1e8;
+  }
+}
+
+.SynthAnimationStyle {
+  border: 1px solid transparent;
+  border-color: rgba(68, 68, 76, 0.5);
+  animation: synthAnimate 1s infinite alternate;
+  transition: border 1s linear, box-shadow 1s linear;
+}
+
+.SynthResultsContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.SynthResultsContainerTitle {
+  margin: 7px 0px;
+  font-size: 1.4em;
+}
+
+.SynthSampleCard {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  max-width: 275px;
+  width: 275px;
+  padding: 8px;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgb(44, 45, 51);
+  border: solid 0.8px rgb(164, 181, 199);
+  border-radius: 8px;
+  box-shadow: 0 0 2px rgb(200, 205, 211);
+  box-sizing: border-box;
+  margin: 5px 0px;
+}
+
+.SynthSampleCardSelected {
+  background-color: rgb(64, 82, 57);
+}
+
+.SynthSampleCardTitle {
+  background-color: rgba(0, 0, 0, 0);
+  color: #fff;
+  border: none;
+  font-size: 0.9em;
+  box-sizing: border-box;
+}
+
+.SynthSampleCardButton {
+  max-width: 30px;
+  max-height: 30px;
+}
+
+.SynthSamplesActionInput {
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1em;
+  box-sizing: border-box;
+  margin: 5px 0px;
+  width: 275px;
+  height: 36px;
+}
+
+.SynthSamplesActionInput:hover {
+  filter: brightness(0.6);
+  cursor: pointer;
+}

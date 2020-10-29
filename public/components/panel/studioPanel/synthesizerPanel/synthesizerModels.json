@@ -1,0 +1,22 @@
+[
+  {
+    "modelImageName": "dummyPath",
+    "modelName": "Piano"
+  },
+  {
+    "modelImageName": "dummyPath",
+    "modelName": "Guitar"
+  },
+  {
+    "modelImageName": "dummyPath",
+    "modelName": "Mario"
+  },
+  {
+    "modelImageName": "dummyPath",
+    "modelName": "Tetris"
+  },
+  {
+    "modelImageName": "dummyPath",
+    "modelName": "Drums"
+  }
+]

@@ -27,19 +27,34 @@ const MenuButtonSelectionState = {
 const MenuButton = props => {
   props = props.props
   const imageCustomClass = props.imageCustomClass ?? ''
+  const buttonColor = props.color == null || props.color == undefined ? MenuButtonColor.Blue : props.color
+  const selectionState =
+    props.selectionState == null || props.selectionState == undefined
+      ? MenuButtonSelectionState.Active
+      : props.selectionState
+  const getButtonImage = _ => {
+    if (props.imageSource == null || props.imageSource == undefined) {
+      return <></>
+    } else {
+      return (
+        <img
+          className={imageCustomClass}
+          alt={props.title}
+          src={props.imageSource}
+          height={props.imageHeight}
+          width={props.imageWidth}
+        ></img>
+      )
+    }
+  }
+
   return (
     <div
-      className={`InputMenuButton ${props.color} ${props.selectionState} ${props.customClass}`}
+      className={`InputMenuButton ${buttonColor} ${selectionState} ${props.customClass}`}
       onClick={() => props.onMenuButtonClick()}
     >
       <label style={{ cursor: 'pointer' }}>{props.title}</label>
-      <img
-        className={imageCustomClass}
-        alt={props.title}
-        src={props.imageSource}
-        height={props.imageHeight}
-        width={props.imageWidth}
-      ></img>
+      {getButtonImage()}
     </div>
   )
 }

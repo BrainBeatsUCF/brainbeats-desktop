@@ -79,12 +79,16 @@ const HomePanel = props => {
       default:
         audioPlaybackList = []
     }
-    setAudioPlaybackList(audioPlaybackList)
-    setAudioPlaybackListIndex(chosenIndex)
+    if (HomePanelMounted) {
+      setAudioPlaybackList(audioPlaybackList)
+      setAudioPlaybackListIndex(chosenIndex)
+    }
   }
 
   const hasStartedPlayingItem = (item, index) => {
-    setCurrentSelectedItemHash(item.audioSourceURL)
+    if (HomePanelMounted) {
+      setCurrentSelectedItemHash(item.audioSourceURL)
+    }
   }
 
   // MARK : Audio Stopped
@@ -99,9 +103,11 @@ const HomePanel = props => {
   }
 
   const removeAudioPlaybackInputs = () => {
-    setAudioPlaybackListIndex(null)
-    setAudioPlaybackList([])
-    setCurrentSelectedItemHash(null)
+    if (HomePanelMounted) {
+      setAudioPlaybackListIndex(null)
+      setAudioPlaybackList([])
+      setCurrentSelectedItemHash(null)
+    }
   }
 
   const hasStoppedPlayingItem = (item, index) => {
@@ -111,7 +117,9 @@ const HomePanel = props => {
   // MARK : Audio Pause
 
   const hasPausedPlayingItem = (item, index) => {
-    setCurrentSelectedItemHash(null)
+    if (HomePanelMounted) {
+      setCurrentSelectedItemHash(null)
+    }
   }
 
   // MARK : Audio Next
@@ -122,8 +130,10 @@ const HomePanel = props => {
     if (currentPlaybackList.length <= 0 || currentPlaybackList != audioPlaybackList) {
       return
     }
-    setAudioPlaybackList(currentPlaybackList)
-    setAudioPlaybackListIndex(index)
+    if (HomePanelMounted) {
+      setAudioPlaybackList(currentPlaybackList)
+      setAudioPlaybackListIndex(index)
+    }
   }
 
   // MARK : Audio Previous
@@ -134,8 +144,10 @@ const HomePanel = props => {
     if (currentPlaybackList.length <= 0 || currentPlaybackList != audioPlaybackList) {
       return
     }
-    setAudioPlaybackList(currentPlaybackList)
-    setAudioPlaybackListIndex(index)
+    if (HomePanelMounted) {
+      setAudioPlaybackList(currentPlaybackList)
+      setAudioPlaybackListIndex(index)
+    }
   }
 
   // MARK : Life Cycle
@@ -155,7 +167,7 @@ const HomePanel = props => {
     return function cleanup() {
       HomePanelMounted = false
     }
-  })
+  }, [])
 
   return (
     <div className={`HomePanel ${props.customClass}`}>

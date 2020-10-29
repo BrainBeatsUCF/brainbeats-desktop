@@ -61,14 +61,16 @@
 }
 
 .GridContainer {
-  position: absolute;
-  left: var(--section-combined-width);
-  top: var(--header-combined-height);
-  height: calc(100% - var(--header-combined-height));
-  width: calc(100% - var(--section-combined-width));
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+}
+
+.GridComponentsContainer {
+  position: relative;
   display: flex;
   flex-direction: row;
-  overflow: scroll;
 }
 
 .GridActivators {
@@ -76,4 +78,10 @@
   flex-direction: column;
   height: 100%;
   width: 40px;
+}
+
+.GridMatrixContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
