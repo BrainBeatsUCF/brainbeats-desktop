@@ -1,43 +1,53 @@
 [ 
   {
     "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/classical_piano.png",
-    "modelName": "Classical Piano"
+    "modelName": "Classical Piano",
+    "modelBackgroundColor": "#28252b"
   },
   {
     "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/drums.png",
-    "modelName": "Drums"
+    "modelName": "Drums",
+    "modelBackgroundColor": "#28252b"
   },
   {
     "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/folk.png",
-    "modelName": "Folk"
+    "modelName": "Folk",
+    "modelBackgroundColor": "#28252b"
   },
   {
     "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/guitar.png",
-    "modelName": "Guitar"
+    "modelName": "Guitar",
+    "modelBackgroundColor": "#28252b"
   },
   {
     "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/jazz_drums.png",
-    "modelName": "Jazz Drums"
+    "modelName": "Jazz Drums",
+    "modelBackgroundColor": "#28252b"
   },
   {
     "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/lakh_subset.png",
-    "modelName": "Lakh Subset"
+    "modelName": "Lakh Subset",
+    "modelBackgroundColor": "#28252b"
   },
   {
     "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/music_vae.png",
-    "modelName": "Music VAE"
+    "modelName": "Music VAE",
+    "modelBackgroundColor": "#28252b"
   },
   {
     "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/performance_rnn.png",
-    "modelName": "Performance RNN"
+    "modelName": "Performance RNN",
+    "modelBackgroundColor": "#28252b"
   },
   {
     "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/funk_drums.png",
-    "modelName": "Funk Drums"
+    "modelName": "Funk Drums",
+    "modelBackgroundColor": "#28252b"
   },
   {
     "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/animal_crossing.png",
-    "modelName": "Animal Crossing"
+    "modelName": "Animal Crossing",
+    "modelBackgroundColor": "#28252b"
   },
   {
     "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/super_mario.png",
