@@ -12,6 +12,36 @@ const ResultStatus = {
   Error: 'error',
 }
 
+const AvailableColorSpace = [
+  'YlGn',
+  'YlGnBu',
+  'GnBu',
+  'BuGn',
+  'PuBuGn',
+  'PuBu',
+  'BuPu',
+  'RdPu',
+  'PuRd',
+  'OrRd',
+  'YlOrRd',
+  'YlOrBr',
+  'Purples',
+  'Blues',
+  'Greens',
+  'Oranges',
+  'Reds',
+  'Greys',
+  'PuOr',
+  'BrBG',
+  'PRGn',
+  'PiYG',
+  'RdBu',
+  'RdGy',
+  'RdYlBu',
+  'Spectral',
+  'RdYlGn',
+]
+
 /**
  * @param {VerifiedUserInfo} userInfo
  * @param {(data: any, status: String) => void} didCompleteRequest
@@ -39,14 +69,18 @@ const RequestUserSampleItems = (userInfo, didCompleteRequest) => {
  * @return {String}
  */
 const RequestUserProfileImage = userInfo => {
-  console.log('Refresh Profile Image')
-  const options = {
+  const convertToNumber = email => {
+    const emailArray = [...email]
+    const convertedNumber = emailArray.map(char => char.charCodeAt(0)).reduce((current, previous) => previous + current)
+    return convertedNumber
+  }
+  const pattern = trianglify({
     height: 120,
     width: 120,
     cellSize: 25,
     seed: userInfo.uuid,
-  }
-  const pattern = trianglify(options)
+    xColors: AvailableColorSpace[convertToNumber(userInfo.email) % AvailableColorSpace.length],
+  })
   return pattern.toCanvas().toDataURL()
 }
 
