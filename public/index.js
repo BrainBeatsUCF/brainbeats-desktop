@@ -2,14 +2,20 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { Authentication } from './components/authentication/authentication'
 import { AppDelegate } from './components/appDelegate/appDelegate'
-import { GetUserAuthInfo, SaveUserAuthInfo } from './components/requestService/authRequestService'
+import { ClearUserAuthInfo, GetUserAuthInfo, SaveUserAuthInfo } from './components/requestService/authRequestService'
 
 import './index.css'
 import './scrollbar.css'
 
 const PreloadUserInfo = _ => {
   const userInfo = GetUserAuthInfo()
-  if ((userInfo != null && userInfo != undefined && userInfo.authToken != null) || userInfo.authToken != undefined) {
+  if (
+    userInfo != null &&
+    userInfo != undefined &&
+    userInfo.authToken != null &&
+    userInfo.authToken != undefined &&
+    userInfo.authToken != ''
+  ) {
     return userInfo
   } else {
     return null
@@ -38,7 +44,11 @@ class App extends React.Component {
 
   setUserInfo = userInfo => {
     this.setState({ userInfo: userInfo })
-    SaveUserAuthInfo(this.state.userInfo)
+    if (userInfo == null || userInfo == undefined) {
+      ClearUserAuthInfo()
+    } else {
+      SaveUserAuthInfo(userInfo)
+    }
   }
 
   isUserDefined = () => {

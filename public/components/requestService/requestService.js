@@ -18,7 +18,7 @@ const ResultStatus = {
  */
 const RequestHomeData = (userInfo, didCompleteRequest) => {
   setTimeout(() => {
-    console.log(userInfo)
+    console.log('Refreshes Home Items')
     didCompleteRequest(secondTestDataSet, ResultStatus.Success)
   }, 2500)
 }
@@ -39,7 +39,7 @@ const RequestUserSampleItems = (userInfo, didCompleteRequest) => {
  * @return {String}
  */
 const RequestUserProfileImage = userInfo => {
-  console.log(userInfo.email)
+  console.log('Refresh Profile Image')
   const options = {
     height: 120,
     width: 120,

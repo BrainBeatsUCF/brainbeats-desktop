@@ -2,16 +2,13 @@ import React, { useState } from 'react'
 import loadingAnimation from '../../images/loading_animation.gif'
 import {
   RequestUserLoginAuthentication,
-  RequestUserRegisterAuthentication,
   AuthenticateUserInfo,
   ResultStatus,
 } from '../requestService/authRequestService'
 import './authentication.css'
 
-const loginText = 'Sign In'
-const registerText = 'Sign Up'
-const toggleToLoginText = 'Already Have An Account'
-const toggleToRegisterText = 'Create An Account'
+const registerationURL =
+  'https://ucfbrainbeats.b2clogin.com/ucfbrainbeats.onmicrosoft.com/oauth2/v2.0/authorize?p=B2C_1_signup&client_id=037bbefc-958e-489d-ba61-8c0823284010&nonce=defaultNonce&redirect_uri=https%3A%2F%2Fbrain-beats-server-docker.azurewebsites.net%2F.auth%2Flogin%2Faad%2Fcallback&scope=openid&response_type=id_token&prompt=login'
 
 /**
  * @param {{
@@ -22,7 +19,6 @@ const toggleToRegisterText = 'Create An Account'
 const Authentication = props => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [hasAnAccount, setHasAnAccount] = useState(true)
   const [isMakingRequest, setIsMakingRequest] = useState(false)
   const [authenticationError, setAuthenticationError] = useState(null)
 
@@ -31,18 +27,11 @@ const Authentication = props => {
     if (isMakingRequest) {
       return
     }
-
     setIsMakingRequest(true)
     setAuthenticationError(null)
-    if (hasAnAccount) {
-      RequestUserLoginAuthentication(AuthenticateUserInfo(username, password), (userData, status, message) => {
-        onRequestCompletion(status, status == ResultStatus.Success ? userData : message)
-      })
-    } else {
-      RequestUserRegisterAuthentication(AuthenticateUserInfo(username, password), (userData, status, message) => {
-        onRequestCompletion(status, status == ResultStatus.Success ? userData : message)
-      })
-    }
+    RequestUserLoginAuthentication(AuthenticateUserInfo(username, password), (userData, status, message) => {
+      onRequestCompletion(status, status == ResultStatus.Success ? userData : message)
+    })
   }
 
   const onRequestCompletion = (result, message) => {
@@ -53,10 +42,6 @@ const Authentication = props => {
       setAuthenticationError(message)
       props.onError(message)
     }
-  }
-
-  const toggleRegisterAndLogin = () => {
-    setHasAnAccount(!hasAnAccount)
   }
 
   const renderAuthenticationErrorIfNeeded = () => {
@@ -97,12 +82,14 @@ const Authentication = props => {
           placeholder="password"
           onChange={event => setPassword(event.target.value)}
         ></input>
-        <input className="LoginInput" type="submit" value={hasAnAccount ? loginText : registerText}></input>
+        <input className="LoginInput LoginAddonInput" type="submit" value="Sign In"></input>
         <input
-          className="LoginInput"
+          className="LoginInput LoginAddonInput"
           type="button"
-          value={hasAnAccount ? toggleToRegisterText : toggleToLoginText}
-          onClick={_ => toggleRegisterAndLogin()}
+          value="Create An Account"
+          onClick={_ => {
+            window.open(registerationURL, '_blank', 'nodeIntegration=no')
+          }}
         ></input>
       </form>
     </div>

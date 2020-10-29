@@ -24,6 +24,10 @@
   font-size: 1em;
 }
 
+.LoginAddonInput {
+  cursor: pointer;
+}
+
 .LoginAuthenticationError {
   color: #fff;
   font-size: 1em;
