@@ -35,6 +35,7 @@ const deleteBeatRoute = '/beat/delete_beat'
 const getOwnedBeatRoute = '/user/get_owned_beats'
 const createSampleRoute = '/sample/create_sample'
 const getOwnedSampleRoute = '/user/get_owned_samples'
+const deleteSampleRoute = '/sample/delete_sample'
 
 /// Request Error Messages
 const expiredAuthorizationToken = 'The token is expired'
@@ -452,26 +453,48 @@ const RequestGetOwnedSamples = (userInfo, onComplete, onError, limit) => {
 }
 
 /**
- *
  * @param {VerifiedUserInfo} userInfo
  * @param {GridSampleObject} sampleObject
- * @param {(status: ResultStatus) => void} didCompleteRequest
+ * @param {(status: ResultStatus) => void} onComplete
+ * @param {Boolean?} limit
  */
-const RequestDeleteSample = (userInfo, sampleObject, didCompleteRequest) => {
-  // placeholder for request handler
-  setTimeout(() => {
-    didCompleteRequest(ResultStatus.Success)
-  }, mockNetworkDelayMillisecond)
+const RequestDeleteSample = (userInfo, sampleObject, onComplete, limit) => {
+  const url = window.process.env[azureRouteKey] + deleteSampleRoute
+  const requestBody = {
+    email: userInfo.email,
+    id: sampleObject.sampleID,
+  }
+  axios
+    .post(url, requestBody, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
+    .then(response => {
+      if (response.status !== 200) {
+        onComplete(ResultStatus.Error)
+      } else {
+        onComplete(ResultStatus.Success)
+      }
+    })
+    .catch(error => {
+      if (error.response.data.includes(expiredAuthorizationToken) && (limit == undefined || limit == false)) {
+        RequestUserRefreshAuthentication(
+          userInfo,
+          _ => RequestDeleteSample(GetUserAuthInfo(), sampleObject, onComplete, true),
+          _ => onComplete(ResultStatus.Error)
+        )
+      } else {
+        onComplete(ResultStatus.Error)
+        console.error(error.response)
+      }
+    })
 }
 
 export {
   RequestUpdateBeat,
   RequestCreateBeat,
   RequestDeleteBeat,
-  RequestDeleteSample,
   RequestGetOwnedBeats,
   RequestCreateSamples,
   RequestGetOwnedSamples,
+  RequestDeleteSample,
   VerifiedUserInfo,
   ResultStatus,
 }

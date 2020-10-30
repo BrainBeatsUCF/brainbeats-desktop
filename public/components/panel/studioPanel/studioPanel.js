@@ -67,15 +67,6 @@ class StudioPanel extends React.Component {
   // MARK : Event Handlers
 
   /**
-   * @param {GridSampleObject} sampleObject
-   */
-  handleSaveSampleToDatabase = sampleObject => {
-    // TODO: save sample to database
-    // start refreshing samples
-    // turn off synthesizer
-  }
-
-  /**
    * Responds to the event of clicking the save button in workstation
    * @param {GridBeatObject} beatObject
    */
