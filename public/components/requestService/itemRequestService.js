@@ -132,7 +132,11 @@ const RequestCreateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, 
       }
     })
     .catch(error => {
-      if (error.response.data.includes(expiredAuthorizationToken) && (limit == undefined || limit == false)) {
+      if (
+        error.response != undefined &&
+        error.response.data.includes(expiredAuthorizationToken) &&
+        (limit == undefined || limit == false)
+      ) {
         RequestUserRefreshAuthentication(
           userInfo,
           _ => RequestCreateBeat(GetUserAuthInfo(), encodedBeatObject, onProgress, onComplete, onError, true),
@@ -201,7 +205,11 @@ const RequestUpdateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, 
       }
     })
     .catch(error => {
-      if (error.response.data.includes(expiredAuthorizationToken) && (limit == undefined || limit == false)) {
+      if (
+        error.response != undefined &&
+        error.response.data.includes(expiredAuthorizationToken) &&
+        (limit == undefined || limit == false)
+      ) {
         RequestUserRefreshAuthentication(
           userInfo,
           _ => RequestUpdateBeat(GetUserAuthInfo(), encodedBeatObject, onProgress, onComplete, onError, true),
@@ -240,7 +248,11 @@ const RequestGetOwnedBeats = (userInfo, onComplete, onError, limit) => {
       onComplete(retrievedBeatObjects)
     })
     .catch(error => {
-      if (error.response.data.includes(expiredAuthorizationToken) && (limit == undefined || limit == false)) {
+      if (
+        error.response != undefined &&
+        error.response.data.includes(expiredAuthorizationToken) &&
+        (limit == undefined || limit == false)
+      ) {
         RequestUserRefreshAuthentication(
           userInfo,
           _ => RequestGetOwnedBeats(GetUserAuthInfo(), onComplete, onError, true),
@@ -275,7 +287,11 @@ const RequestDeleteBeat = (userInfo, beatObject, onComplete, limit) => {
       }
     })
     .catch(error => {
-      if (error.response.data.includes(expiredAuthorizationToken) && (limit == undefined || limit == false)) {
+      if (
+        error.response != undefined &&
+        error.response.data.includes(expiredAuthorizationToken) &&
+        (limit == undefined || limit == false)
+      ) {
         RequestUserRefreshAuthentication(
           userInfo,
           _ => RequestDeleteBeat(GetUserAuthInfo(), beatObject, onComplete, true),
@@ -400,7 +416,11 @@ const RequestCreateSample = (userInfo, encodedSampleObject, onProgress, onComple
       onComplete(savedSampleObject)
     })
     .catch(error => {
-      if (error.response.data.includes(expiredAuthorizationToken) && (limit == undefined || limit == false)) {
+      if (
+        error.response != undefined &&
+        error.response.data.includes(expiredAuthorizationToken) &&
+        (limit == undefined || limit == false)
+      ) {
         RequestUserRefreshAuthentication(
           userInfo,
           _ => RequestCreateSample(GetUserAuthInfo(), encodedSampleObject, onProgress, onComplete, onError, true),
@@ -439,7 +459,11 @@ const RequestGetOwnedSamples = (userInfo, onComplete, onError, limit) => {
       onComplete(retrievedSampleObjects)
     })
     .catch(error => {
-      if (error.response.data.includes(expiredAuthorizationToken) && (limit == undefined || limit == false)) {
+      if (
+        error.response != undefined &&
+        error.response.data.includes(expiredAuthorizationToken) &&
+        (limit == undefined || limit == false)
+      ) {
         RequestUserRefreshAuthentication(
           userInfo,
           _ => RequestGetOwnedSamples(GetUserAuthInfo(), onComplete, onError, true),
@@ -474,7 +498,11 @@ const RequestDeleteSample = (userInfo, sampleObject, onComplete, limit) => {
       }
     })
     .catch(error => {
-      if (error.response.data.includes(expiredAuthorizationToken) && (limit == undefined || limit == false)) {
+      if (
+        error.response != undefined &&
+        error.response.data.includes(expiredAuthorizationToken) &&
+        (limit == undefined || limit == false)
+      ) {
         RequestUserRefreshAuthentication(
           userInfo,
           _ => RequestDeleteSample(GetUserAuthInfo(), sampleObject, onComplete, true),

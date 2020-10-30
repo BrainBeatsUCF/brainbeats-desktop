@@ -25,7 +25,7 @@ const PublicBeatObject = {
  */
 const PublicBeatCard = props => {
   const { ownerProfileImage, displayImage, displayTitle, displayOwner } = props.item
-  const { sampleCount, playTime } = props.item
+  const { sampleCount, formattedPlayTime } = props.item
   const overrideClassName = props.customClass ?? ''
 
   const style = {
@@ -49,7 +49,7 @@ const PublicBeatCard = props => {
             ></img>
             <div className="PublicBeatPlayInfo">
               <h5 className="PublicBeatInfoDesc">{displayOwner}</h5>
-              <h5 className="PublicBeatInfoDesc">{`${sampleCount} samples, ${playTime}`}</h5>
+              <h5 className="PublicBeatInfoDesc">{`${sampleCount} samples, ${formattedPlayTime}`}</h5>
             </div>
           </div>
           <div className="PublicBeatVerticalSpacer"></div>
