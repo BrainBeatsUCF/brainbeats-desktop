@@ -11,6 +11,10 @@ import './synthesizerPanel.css'
 
 const timeToCloseSocketOnMessage = 500 // 0.5 seconds
 
+/// Cancel Token for monitering axios request
+/// TODO: Store cancel token for axios call here and cancel if disrupt
+const SampleSynthAudioContext = new AudioContext({ sampleRate: 44100 })
+
 const StageTitle = {
   Selecting: 'Select Sample Synthesizer',
   Default: 'Sample Creator Processing',
@@ -126,26 +130,21 @@ class Synthesizer extends React.Component {
     const { userInfo } = this.props
     const { predictedEmotion } = this.state
     this.setState({ hasBegunFetchingSamples: true })
-    console.log(userInfo)
-    RequestGenerateSamples(
-      userInfo,
-      {
-        emotion: predictedEmotion,
-      },
-      (samples, status) => {
-        if (status === ResultStatus.Error) {
-          this.setState({
-            synthesizingStage: SynthesizingStage.Selecting,
-            errorMessage: 'Something went wrong. Please try again',
-          })
-        } else {
-          this.setState({
-            synthesizingStage: SynthesizingStage.Completed,
-            predictedSamples: samples,
-          })
-        }
+    RequestGenerateSamples(SampleSynthAudioContext, userInfo, { emotion: predictedEmotion }, (samples, status) => {
+      if (status === ResultStatus.Error) {
+        this.setState({
+          synthesizingStage: SynthesizingStage.Selecting,
+          hasConnectedToEEG: false,
+          hasBegunFetchingSamples: false,
+          errorMessage: 'Something went wrong. Please try again',
+        })
+      } else {
+        this.setState({
+          synthesizingStage: SynthesizingStage.Completed,
+          predictedSamples: samples,
+        })
       }
-    )
+    })
   }
 
   /**
@@ -189,10 +188,17 @@ class Synthesizer extends React.Component {
         <SynthCompletedStagePanel
           leftSectionClassname="SynthesizerLeftBodySection"
           rightSectionClassname="SynthesizerRightBodySection"
+          audioContext={SampleSynthAudioContext}
           synthesizingStage={synthesizingStage}
           sampleOptions={this.state.predictedSamples}
           saveSamples={selectedSamples => this.handleShouldSaveSamples(selectedSamples)}
-          restartGenerator={_ => this.setState({ synthesizingStage: SynthesizingStage.Selecting })}
+          restartGenerator={_ =>
+            this.setState({
+              hasConnectedToEEG: false,
+              hasBegunFetchingSamples: false,
+              synthesizingStage: SynthesizingStage.Selecting,
+            })
+          }
         ></SynthCompletedStagePanel>
       )
       // Connecting | Recording | Modeling

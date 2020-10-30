@@ -3,13 +3,13 @@ import { GridSampleObject } from '../../workstationPanel/gridObjects'
 import PlayButton from '../../../../images/whitePlayButton.png'
 import PauseButton from '../../../../images/pauseButton.png'
 import './synthesizerComponents.css'
+import { lab } from 'color'
 
 const MODEL_CARD_KEY_PREFIX = 'synthModelCard'
 const MODEL_CELL_LENGTH_IN_PIXELS = 100
 
-const SynthPreviewAudioContext = new AudioContext()
 let SynthSamplesMounted = false
-let currentAudioSource = SynthPreviewAudioContext.createBufferSource()
+let currentAudioSource = null
 let currentAudioBufferIndex = -1
 
 const SynthModelObject = {
@@ -127,10 +127,14 @@ const SynthProcessingStagePanel = props => {
   )
 }
 
+/// Kept out of the component to prevent unexpected state from component updates
+let sampleIsPlaying = [false]
+
 /**
  * @param {{
  * leftSectionClassname: String?,
  * rightSectionClassname: String?,
+ * audioContext: AudioContext,
  * sampleOptions: [GridSampleObject],
  * saveSamples: (samples: [GridSampleObject]) => void,
  * restartGenerator: () => void
@@ -144,36 +148,35 @@ const SynthCompletedStagePanel = props => {
       return 'Sample ' + (index + 1)
     })
   )
-  const [isPlaying, setIsPlaying] = useState(
+  const [isSelected, setIsSelected] = useState(
     sampleOptions.map(_ => {
       return false
     })
   )
-  const [isSelected, setIsSelected] = useState(isPlaying)
+  const [isPrivate, setIsPrivate] = useState(isSelected)
 
   useEffect(_ => {
     SynthSamplesMounted = true
+    sampleIsPlaying = isSelected
     return function cleanup() {
       SynthSamplesMounted = false
       stopSynthPreview(currentAudioBufferIndex)
     }
   }, [])
 
+  const respondToAudioDidEnd = _ => {
+    stopSynthPreview(currentAudioBufferIndex)
+  }
+
   const stopSynthPreview = index => {
     if (index < 0 || index >= sampleOptions.length) {
       return
     }
-
-    currentAudioSource.removeEventListener('ended', null)
+    currentAudioSource.removeEventListener('ended', respondToAudioDidEnd)
     currentAudioSource.stop()
-    currentAudioSource.disconnect(SynthPreviewAudioContext)
+    currentAudioSource.disconnect(props.audioContext)
     currentAudioBufferIndex = -1
-
-    let newIsPlaying = [...isPlaying]
-    newIsPlaying[index] = false
-    if (SynthSamplesMounted) {
-      setIsPlaying(newIsPlaying)
-    }
+    sampleIsPlaying[index] = false
   }
 
   const startSynthPreview = index => {
@@ -181,62 +184,78 @@ const SynthCompletedStagePanel = props => {
       return
     }
 
-    const buffer = sampleOptions[index].sampleAudioBuffer
-    if (buffer == null || buffer == undefined) {
+    const sampleAudioBuffer = sampleOptions[index].sampleAudioBuffer
+    if (sampleAudioBuffer == null || sampleAudioBuffer == undefined) {
       return
     }
-
-    currentAudioSource.buffer = buffer
-    currentAudioSource.connect(SynthPreviewAudioContext)
-    currentAudioSource.addEventListener('ended', _ => stopSynthPreview(index))
+    currentAudioSource = props.audioContext.createBufferSource()
+    currentAudioSource.buffer = sampleAudioBuffer
+    currentAudioSource.connect(props.audioContext.destination)
+    currentAudioSource.addEventListener('ended', respondToAudioDidEnd)
     currentAudioSource.start()
-
-    let newIsPlaying = [...isPlaying]
-    newIsPlaying[index] = true
-    if (SynthSamplesMounted) {
-      setIsPlaying(newIsPlaying)
-    }
+    currentAudioBufferIndex = index
+    sampleIsPlaying[index] = true
   }
 
   const sampleCards = _ => {
     return titles.map((title, index) => {
       return (
-        <div
-          key={SampleCardKey + index}
-          className={`SynthSampleCard ${isSelected[index] ? 'SynthSampleCardSelected' : ''}`}
-          onClick={_ => {
-            let newIsSelected = [...isSelected]
-            newIsSelected[index] = !newIsSelected[index]
-            if (SynthSamplesMounted) {
-              setIsSelected(newIsSelected)
-            }
-          }}
-        >
-          <input
-            className="SynthSampleCardTitle"
-            value={title}
-            type="text"
-            onChange={event => {
-              let newTitles = titles
-              newTitles[index] = event.target.value
-              setTitles([...newTitles])
-            }}
-          ></input>
-          <img
-            className="SynthSampleCardButton"
-            src={isPlaying[index] ? PauseButton : PlayButton}
-            onClick={_ => {
-              if (isPlaying[index]) {
-                // stop this preview
-                stopSynthPreview(index)
-              } else {
-                // stop current preview
-                stopSynthPreview(currentAudioBufferIndex)
-                // load and play this preview
-                startSynthPreview(index)
-              }
-            }}
-          ></img>
+        <div key={SampleCardKey + index} className="SynthSampleCardContainer">
+          <div className={`SynthSampleCard ${isSelected[index] ? 'SynthSampleCardSelected' : ''}`}>
+            <input
+              className="SynthSampleCardTitle"
+              value={title}
+              type="text"
+              onChange={event => {
+                let newTitles = titles
+                newTitles[index] = event.target.value
+                setTitles([...newTitles])
+              }}
+            ></input>
+            <img
+              className="SynthSampleCardButton"
+              src={PlayButton}
+              onClick={_ => {
+                if (sampleIsPlaying[index]) {
+                  // stop this preview
+                  stopSynthPreview(index)
+                } else {
+                  // stop current preview
+                  stopSynthPreview(currentAudioBufferIndex)
+                  // load and play this preview
+                  startSynthPreview(index)
+                }
+              }}
+            ></img>
+          </div>
+          <div className="CheckmarkContainer">
+            <label className="container">
+              <input
+                type="checkbox"
+                defaultChecked={isSelected[index]}
+                onChange={event => {
+                  let newSelected = [...isSelected]
+                  newSelected[index] = event.target.checked
+                  setIsSelected(newSelected)
+                }}
+              ></input>
+              <span className="checkmark"></span>
+            </label>
+          </div>
+          <div className="CheckmarkContainer">
+            <label className="container">
+              <input
+                type="checkbox"
+                defaultChecked={isPrivate[index]}
+                onChange={event => {
+                  let newPrivate = [...isSelected]
+                  newPrivate[index] = event.target.checked
+                  setIsPrivate(newPrivate)
+                }}
+              ></input>
+              <span className="checkmark"></span>
+            </label>
+          </div>
         </div>
       )
     })
@@ -264,6 +283,11 @@ const SynthCompletedStagePanel = props => {
           <h4 className="SynthProcessingMessage SynthResultsContainerTitle">
             {ProcessingStageInfo[SynthesizingStage.Completed]}
           </h4>
+          <div className="SynthSubtitleContainer">
+            <h5 className="SynthSubtitle">Generated Sample</h5>
+            <h5 className="SynthSubtitle SynthSubtitleShort">Selected</h5>
+            <h5 className="SynthSubtitle SynthSubtitleShort">Private</h5>
+          </div>
           {sampleCards()}
           {actionInput('Restart Generator', '#5A3232', _ => {
             props.restartGenerator()
