@@ -34,6 +34,7 @@ const updateBeatRoute = '/beat/update_beat'
 const deleteBeatRoute = '/beat/delete_beat'
 const getOwnedBeatRoute = '/user/get_owned_beats'
 const createSampleRoute = '/sample/create_sample'
+const getOwnedSampleRoute = '/user/get_owned_samples'
 
 /// Request Error Messages
 const expiredAuthorizationToken = 'The token is expired'
@@ -412,6 +413,45 @@ const RequestCreateSample = (userInfo, encodedSampleObject, onProgress, onComple
 }
 
 /**
+ * @param {VerifiedUserInfo} userInfo
+ * @param {(ownedSamples: [GridSampleObject]) => void} onComplete
+ * @param {() => void} onError
+ * @param {Boolean?} limit
+ */
+const RequestGetOwnedSamples = (userInfo, onComplete, onError, limit) => {
+  const url = window.process.env[azureRouteKey] + getOwnedSampleRoute
+  const requestBody = {
+    email: userInfo.email,
+  }
+  axios
+    .post(url, requestBody, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
+    .then(response => {
+      if (response.status !== 200) {
+        onError()
+      } else {
+        return response.data
+      }
+    })
+    .then(responseData => {
+      const decodableSampleObjects = ParseSampleVertices(userInfo.email, responseData)
+      const retrievedSampleObjects = decodableSampleObjects.map(decodableSample => decodeSampleObject(decodableSample))
+      onComplete(retrievedSampleObjects)
+    })
+    .catch(error => {
+      if (error.response.data.includes(expiredAuthorizationToken) && (limit == undefined || limit == false)) {
+        RequestUserRefreshAuthentication(
+          userInfo,
+          _ => RequestGetOwnedSamples(GetUserAuthInfo(), onComplete, onError, true),
+          onError
+        )
+      } else {
+        onError()
+        console.error(error.response)
+      }
+    })
+}
+
+/**
  *
  * @param {VerifiedUserInfo} userInfo
  * @param {GridSampleObject} sampleObject
@@ -431,6 +471,7 @@ export {
   RequestDeleteSample,
   RequestGetOwnedBeats,
   RequestCreateSamples,
+  RequestGetOwnedSamples,
   VerifiedUserInfo,
   ResultStatus,
 }

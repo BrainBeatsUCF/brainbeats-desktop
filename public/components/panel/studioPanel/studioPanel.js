@@ -6,7 +6,7 @@ import { SaveBeatPromptWrapper, ClosePromptInfo } from './saveBeatPrompt'
 import { ItemContextPromptWrapper, CloseContextPromptInfo } from './itemContextPrompt'
 import { GetUserAuthInfo } from '../../requestService/authRequestService'
 import { RequestUserSampleItems } from '../../requestService/requestService'
-import { RequestGetOwnedBeats } from '../../requestService/itemRequestService'
+import { RequestGetOwnedBeats, RequestGetOwnedSamples } from '../../requestService/itemRequestService'
 import { SynthesizerWrapper, HideSynthesizerInfo } from './synthesizerPanel/synthesizerPanel'
 import {
   GridBeatObject,
@@ -274,7 +274,7 @@ class StudioPanel extends React.Component {
         }
       },
       _ => {
-        // Request Error
+        /* Request Error */
       }
     )
   }
@@ -284,12 +284,18 @@ class StudioPanel extends React.Component {
    */
   sampleItemListRequest = () => {
     this.props.setIsMakingNetworkActivity(true)
-    RequestUserSampleItems(GetUserAuthInfo(), data => {
-      if (StudioPanelComponentMounted) {
-        this.props.setIsMakingNetworkActivity(false)
-        this.setState({ loadedSamples: data })
+    RequestGetOwnedSamples(
+      GetUserAuthInfo(),
+      data => {
+        if (StudioPanelComponentMounted) {
+          this.props.setIsMakingNetworkActivity(false)
+          this.setState({ loadedSamples: data })
+        }
+      },
+      _ => {
+        /* Error Callback */
       }
-    })
+    )
   }
 
   // MARK : Helpers
