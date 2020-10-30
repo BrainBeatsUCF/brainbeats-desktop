@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { GridSampleObject } from '../../workstationPanel/gridObjects'
 import PlayButton from '../../../../images/whitePlayButton.png'
-import PauseButton from '../../../../images/pauseButton.png'
 import './synthesizerComponents.css'
 import { lab } from 'color'
 
@@ -248,7 +247,7 @@ const SynthCompletedStagePanel = props => {
                 type="checkbox"
                 defaultChecked={isPrivate[index]}
                 onChange={event => {
-                  let newPrivate = [...isSelected]
+                  let newPrivate = [...isPrivate]
                   newPrivate[index] = event.target.checked
                   setIsPrivate(newPrivate)
                 }}
@@ -293,11 +292,13 @@ const SynthCompletedStagePanel = props => {
             props.restartGenerator()
           })}
           {actionInput('Save Selected Samples', '#415F36', _ => {
-            let selectedSamples = isSelected.map((sampleSelected, index) => {
+            let selectedSamples = []
+            isSelected.forEach((sampleSelected, index) => {
               if (sampleSelected) {
                 let selectedSample = sampleOptions[index]
                 selectedSample.sampleTitle = titles[index]
-                return selectedSample
+                selectedSample.isPrivate = isPrivate[index]
+                selectedSamples.push(selectedSample)
               }
             })
             props.saveSamples(selectedSamples)

@@ -5,6 +5,8 @@ import { ResultStatus } from './requestService'
 
 const GenerationInfo = {
   emotion: '',
+  modelImageSource: '',
+  modelName: '',
 }
 
 const testSampleRoutes = [
@@ -47,9 +49,11 @@ const RequestGenerateSingleSample = (audioContext, userInfo, count, generationIn
     .then(response => audioContext.decodeAudioData(response.data))
     .then(decodedAudioBuffer => {
       let newSample = { ...GridSampleObject }
-      newSample.sampleSource = requestURL
       newSample.sampleAudioLength = -1
       newSample.sampleAudioBuffer = decodedAudioBuffer
+      newSample.sampleSubtitle = generationInfo.modelName
+      newSample.sampleImage = generationInfo.modelImageSource
+      newSample.sampleIsActive = true
       generatedSamples.push(newSample)
       RequestGenerateSingleSample(audioContext, userInfo, count - 1, generationInfo, didCompleteRequest)
     })

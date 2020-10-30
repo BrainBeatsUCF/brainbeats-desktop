@@ -128,23 +128,32 @@ class Synthesizer extends React.Component {
 
   handleShouldRequestSamples = _ => {
     const { userInfo } = this.props
-    const { predictedEmotion } = this.state
+    const { predictedEmotion, synthesizingModel } = this.state
     this.setState({ hasBegunFetchingSamples: true })
-    RequestGenerateSamples(SampleSynthAudioContext, userInfo, { emotion: predictedEmotion }, (samples, status) => {
-      if (status === ResultStatus.Error) {
-        this.setState({
-          synthesizingStage: SynthesizingStage.Selecting,
-          hasConnectedToEEG: false,
-          hasBegunFetchingSamples: false,
-          errorMessage: 'Something went wrong. Please try again',
-        })
-      } else {
-        this.setState({
-          synthesizingStage: SynthesizingStage.Completed,
-          predictedSamples: samples,
-        })
+    RequestGenerateSamples(
+      SampleSynthAudioContext,
+      userInfo,
+      {
+        emotion: predictedEmotion,
+        modelImageSource: synthesizingModel.modelImageName,
+        modelName: synthesizingModel.modelName,
+      },
+      (samples, status) => {
+        if (status === ResultStatus.Error) {
+          this.setState({
+            synthesizingStage: SynthesizingStage.Selecting,
+            hasConnectedToEEG: false,
+            hasBegunFetchingSamples: false,
+            errorMessage: 'Something went wrong. Please try again',
+          })
+        } else {
+          this.setState({
+            synthesizingStage: SynthesizingStage.Completed,
+            predictedSamples: samples,
+          })
+        }
       }
-    })
+    )
   }
 
   /**
@@ -155,9 +164,16 @@ class Synthesizer extends React.Component {
     // close synthesizer on completion
     // POI: uploading samples recursively will take time and needs some visual
     // indicator of progress
-    setTimeout(() => {
-      this.props.shouldCloseSynthesizer()
-    }, 300)
+    // setTimeout(() => {
+    //   this.props.shouldCloseSynthesizer()
+    // }, 300)
+    console.log(selectedSamples)
+    /**
+     * id,
+     * email, name, isPrivate,
+     * attributes [],
+     * audio, image
+     */
   }
 
   // MARK: Render
