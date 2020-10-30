@@ -1,4 +1,5 @@
 import axios from 'axios'
+import bufferToWav from 'audiobuffer-to-wav'
 import { VerifiedUserInfo, RequestUserRefreshAuthentication, GetUserAuthInfo } from './authRequestService'
 import { ResultStatus } from './requestService'
 import {
@@ -6,7 +7,11 @@ import {
   GridSampleObject,
   EncodedBeatObject,
   DecodableBeatObject,
+  EncodedSampleObject,
+  DecodableSampleObject,
   decodeBeatObject,
+  decodeSampleObject,
+  encodeSampleObject,
 } from '../panel/workstationPanel/gridObjects'
 
 const mockNetworkDelayMillisecond = 2000
@@ -28,6 +33,7 @@ const createBeatRoute = '/beat/create_beat'
 const updateBeatRoute = '/beat/update_beat'
 const deleteBeatRoute = '/beat/delete_beat'
 const getOwnedBeatRoute = '/user/get_owned_beats'
+const createSampleRoute = '/sample/create_sample'
 
 /// Request Error Messages
 const expiredAuthorizationToken = 'The token is expired'
@@ -127,12 +133,12 @@ const RequestCreateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, 
       if (error.response.data.includes(expiredAuthorizationToken) && (limit == undefined || limit == false)) {
         RequestUserRefreshAuthentication(
           userInfo,
-          _ => RequestCreateBeat(GetUserAuthInfo(), encodedBeatObject, onProgress, onComplete, onError, limit),
+          _ => RequestCreateBeat(GetUserAuthInfo(), encodedBeatObject, onProgress, onComplete, onError, true),
           onError
         )
       } else {
-        console.error(error.response)
         onError()
+        console.error(error.response)
       }
     })
 }
@@ -196,12 +202,12 @@ const RequestUpdateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, 
       if (error.response.data.includes(expiredAuthorizationToken) && (limit == undefined || limit == false)) {
         RequestUserRefreshAuthentication(
           userInfo,
-          _ => RequestUpdateBeat(GetUserAuthInfo(), encodedBeatObject, onProgress, onComplete, onError, limit),
+          _ => RequestUpdateBeat(GetUserAuthInfo(), encodedBeatObject, onProgress, onComplete, onError, true),
           onError
         )
       } else {
-        console.error(error.response)
         onError()
+        console.error(error.response)
       }
     })
 }
@@ -239,8 +245,8 @@ const RequestGetOwnedBeats = (userInfo, onComplete, onError, limit) => {
           onError
         )
       } else {
-        console.error(error.response)
         onError()
+        console.error(error.response)
       }
     })
 }
@@ -274,8 +280,133 @@ const RequestDeleteBeat = (userInfo, beatObject, onComplete, limit) => {
           _ => onComplete(ResultStatus.Error)
         )
       } else {
-        console.error(error.response)
         onComplete(ResultStatus.Error)
+        console.error(error.response)
+      }
+    })
+}
+
+/// Sample Requests
+
+/**
+ * @param {[Dict]} sampleVertices
+ * @return {[DecodableSampleObject]}
+ */
+const ParseSampleVertices = (email, sampleVertices) => {
+  return sampleVertices.map(singleVertex => {
+    const properties = singleVertex.properties
+    return {
+      id: singleVertex.id,
+      email: email,
+      name: properties.name[0].value,
+      isPrivate: properties.isPrivate[0].value === 'False' ? false : true,
+      attributes: properties.attributes[0].value,
+      audio: properties.audio[0].value,
+      image: properties.image[0].value,
+    }
+  })
+}
+
+/**
+ * @param {VerifiedUserInfo} userInfo
+ * @param {Number} index
+ * @param {[GridSampleObject]} previousSamples
+ * @param {[GridSampleObject]} gridSampleObjects
+ * @param {(progress: String) => void} onProgress
+ * @param {(savedSamples: [GridSampleObject]) => void} onComplete
+ * @param {() => void} onError
+ */
+const RequestCreateSamples = (userInfo, index, gridSampleObjects, previousSamples, onProgress, onComplete, onError) => {
+  if (index >= gridSampleObjects.length) {
+    onComplete(previousSamples)
+    return
+  }
+
+  /// Convert audio binary to file
+  const currentSampleObject = gridSampleObjects[index]
+  onProgress(`Preparing (${currentSampleObject.sampleTitle}) ...`)
+  const retrievedWavBuffer = bufferToWav(currentSampleObject.sampleAudioBuffer)
+  const retrievedWavBlob = new window.Blob([new DataView(retrievedWavBuffer)], { type: 'audio/wav' })
+  const retrievedWavFile = new File([retrievedWavBlob], currentSampleObject.sampleTitle + '.wav')
+  const encodedSampleObject = encodeSampleObject(userInfo, currentSampleObject, retrievedWavFile)
+
+  /// Start upload process
+  /// Important to always get the latest user auth info because one of these could fail due to
+  /// an expired token and we want this recursion to be able to self recover
+  RequestCreateSample(
+    GetUserAuthInfo(),
+    encodedSampleObject,
+    onProgress,
+    newSavedSample => {
+      previousSamples.push(newSavedSample)
+      RequestCreateSamples(
+        GetUserAuthInfo(),
+        index + 1,
+        gridSampleObjects,
+        previousSamples,
+        onProgress,
+        onComplete,
+        onError
+      )
+    },
+    onError,
+    false
+  )
+}
+
+/**
+ *
+ * @param {VerifiedUserInfo} userInfo
+ * @param {EncodedSampleObject} encodedSampleObject
+ * @param {(progress: String) => void} onProgress
+ * @param {(savedSample: GridSampleObject) => void} onComplete
+ * @param {() => void} onError
+ * @param {Boolean?} limit
+ */
+const RequestCreateSample = (userInfo, encodedSampleObject, onProgress, onComplete, onError, limit) => {
+  /// Create form data
+  let formData = new FormData()
+  formData.append(emailKey, encodedSampleObject.email)
+  formData.append(nameKey, encodedSampleObject.name)
+  formData.append(privacyKey, encodedSampleObject.isPrivate)
+  formData.append(attributesKey, encodedSampleObject.attributes)
+  formData.append(audioKey, encodedSampleObject.audio, encodedSampleObject.audio.name)
+  formData.append(imageKey, encodedSampleObject.image)
+
+  /// Make Request
+  const url = window.process.env[azureRouteKey] + createSampleRoute
+  axios
+    .post(url, formData, {
+      onUploadProgress(progressEvent) {
+        const progress = ((progressEvent.loaded / progressEvent.total) * 100).toFixed(2)
+        onProgress(`Upload Progress (${encodedSampleObject.name}) ... ${progress}%`)
+      },
+      headers: {
+        Authorization: `Bearer ${userInfo.authToken}`,
+      },
+    })
+    .then(response => {
+      if (response.status !== 200) {
+        onError()
+      } else {
+        return response.data
+      }
+    })
+    .then(responseData => {
+      const decodableSampleObjects = ParseSampleVertices(encodedSampleObject.email, responseData)
+      let savedSampleObject = decodeSampleObject(decodableSampleObjects[0])
+      onComplete(savedSampleObject)
+    })
+    .catch(error => {
+      if (error.response.data.includes(expiredAuthorizationToken) && (limit == undefined || limit == false)) {
+        RequestUserRefreshAuthentication(
+          userInfo,
+          _ => RequestCreateSample(GetUserAuthInfo(), encodedSampleObject, onProgress, onComplete, onError, true),
+          onError
+        )
+      } else {
+        onError()
+        console.log(error.response)
       }
     })
 }
@@ -299,6 +430,7 @@ export {
   RequestDeleteBeat,
   RequestDeleteSample,
   RequestGetOwnedBeats,
+  RequestCreateSamples,
   VerifiedUserInfo,
   ResultStatus,
 }

@@ -130,6 +130,7 @@ class StudioPanel extends React.Component {
         userInfo: GetUserAuthInfo(),
         shouldShowSynthesizer: true,
         onSynthesizerClose: _ => {
+          this.sampleItemListRequest()
           this.setState({ currentSynthesizerInfo: HideSynthesizerInfo })
         },
       },

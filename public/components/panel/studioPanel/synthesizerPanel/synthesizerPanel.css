@@ -65,6 +65,22 @@ various background processes are running.
   margin: auto 10px;
 }
 
+.SampleUploadOverlay {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.SampleUploadText {
+  font-size: 1.2em;
+  color: #fff;
+  margin: 0px;
+}
+
 @keyframes fadeInFromNone {
   0% {
     display: none;

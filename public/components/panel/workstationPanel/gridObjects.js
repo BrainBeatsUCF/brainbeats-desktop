@@ -61,7 +61,7 @@ const EncodedSampleObject = {
   name: '',
   isPrivate: false,
   attributes: '',
-  audio: new ArrayBuffer(0),
+  audio: new File([], ''),
   image: '',
 }
 
@@ -284,7 +284,7 @@ const decodeBeatObject = encodedBeatObject => {
 /**
  * @param {VerifiedUserInfo} userInfo
  * @param {GridSampleObject} sampleObject
- * @param {ArrayBuffer} sampleAudio
+ * @param {File} sampleAudio
  * @return {EncodedSampleObject}
  */
 const encodeSampleObject = (userInfo, sampleObject, sampleAudio) => {
@@ -307,15 +307,15 @@ const decodeSampleObject = decodableSample => {
   const decodedAttributes = convertAttributesToSamples(decodableSample.attributes)
   return {
     sampleID: decodableSample.id,
-    sampleImage: decodableSample.image,
+    sampleImage: decodedAttributes[0].sampleImage,
     sampleSource: decodableSample.audio,
-    sampleColor: decodedAttributes.sampleColor,
+    sampleColor: decodedAttributes[0].sampleColor,
     sampleTitle: decodableSample.name,
-    sampleSubtitle: decodedAttributes.sampleSubTitle,
-    sampleIsActive: true,
-    sampleAudioDelay: decodedAttributes.sampleAudioDelay,
-    sampleAudioStart: decodedAttributes.sampleAudioStart,
-    sampleAudioLength: decodedAttributes.sampleAudioLength,
+    sampleSubtitle: decodedAttributes[0].sampleSubtitle,
+    sampleIsActive: decodedAttributes[0].sampleIsActive,
+    sampleAudioDelay: decodedAttributes[0].sampleAudioDelay,
+    sampleAudioStart: decodedAttributes[0].sampleAudioStart,
+    sampleAudioLength: decodedAttributes[0].sampleAudioLength,
     sampleAudioBuffer: null,
     isPrivate: decodableSample.isPrivate,
   }
