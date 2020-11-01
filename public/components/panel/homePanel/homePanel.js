@@ -2,8 +2,14 @@ import React, { useState, useEffect } from 'react'
 import { LibraryPanel, ListKey } from '../libraryPanel/libraryPanel'
 import { ProfilePanel } from '../profilePanel/profilePanel'
 import { AudioPanel } from '../audioPanel/audioPanel'
+import { GridBeatObject } from '../workstationPanel/gridObjects'
 import { GetUserAuthInfo, VerifiedUserInfo } from '../../requestService/authRequestService'
-import { RequestGetAllBeats, RequestGetAllSamples, RequestGetOwnedBeats } from '../../requestService/itemRequestService'
+import {
+  RequestGetAllBeats,
+  RequestGetAllSamples,
+  RequestGetOwnedBeats,
+  RequestGetRecommendedBeats,
+} from '../../requestService/itemRequestService'
 import {
   CardType,
   PersonalBeatObject,
@@ -28,6 +34,7 @@ const HomePanel = props => {
   const [personalBeats, setPersonalBeats] = useState([]) /// Type is PersonalBeatObject
   const [publicBeats, setPublicBeats] = useState([]) /// Type is PublicBeatObject
   const [publicSamples, setPublicSamples] = useState([]) /// Type is PublicSample
+  const [recommendedBeats, setRecommendedBeats] = useState([]) /// Type is PublicBeatObject
 
   // MARK: Audio Play
 
@@ -145,6 +152,9 @@ const HomePanel = props => {
 
   // MARK : Life Cycle
 
+  /// We fetch personal beats before other beats to prevent having multiple failed requests
+  /// due to congestion. This order also prevents multiple attempts to refresh an expired
+  /// user token
   const fetchBeats = _ => {
     RequestGetOwnedBeats(
       GetUserAuthInfo(),
@@ -164,6 +174,8 @@ const HomePanel = props => {
         let myBeatIds = new Set()
         myBeats.forEach(beatObject => myBeatIds.add(beatObject.id))
         fetchAllBeats(myBeatIds)
+        fetchSamples()
+        fetchRecommendedBeats()
       },
       _ => {}
     )
@@ -189,6 +201,23 @@ const HomePanel = props => {
   }
 
   /**
+   * @param {GridBeatObject} beatObject
+   * @return {PublicBeatObject}
+   */
+  const getPublicBeatObject = beatObject => {
+    return {
+      id: beatObject.beatID,
+      displayOwner: 'Username not available',
+      displayImage: beatObject.image,
+      displayTitle: beatObject.sampleTitle,
+      audioSource: beatObject.savedAudio,
+      sampleCount: beatObject.sampleSubtitle.split(',').length,
+      ownerProfileImage: '',
+      formattedPlayTime: getFormattedString(parseInt(beatObject.duration)),
+    }
+  }
+
+  /**
    * @param {Set} myBeatIds
    */
   const fetchAllBeats = myBeatIds => {
@@ -197,23 +226,25 @@ const HomePanel = props => {
       beatObjects => {
         const publicBeats = beatObjects
           .filter(beatObject => !myBeatIds.has(beatObject.beatID))
-          .map(beatObject => {
-            return {
-              id: beatObject.beatID,
-              displayOwner: 'Username not available',
-              displayImage: beatObject.image,
-              displayTitle: beatObject.sampleTitle,
-              audioSource: beatObject.savedAudio,
-              sampleCount: beatObject.sampleSubtitle.split(',').length,
-              ownerProfileImage: '',
-              formattedPlayTime: getFormattedString(parseInt(beatObject.duration)),
-            }
-          })
+          .map(beatObject => getPublicBeatObject(beatObject))
         if (HomePanelMounted) {
           setPublicBeats(publicBeats)
         }
       },
       _ => {}
+    )
+  }
+
+  const fetchRecommendedBeats = _ => {
+    RequestGetRecommendedBeats(
+      GetUserAuthInfo(),
+      beatObjects => {
+        const availableBeats = beatObjects.map(beatObject => getPublicBeatObject(beatObject))
+        if (HomePanelMounted) {
+          setRecommendedBeats(availableBeats)
+        }
+      },
+      () => {}
     )
   }
 
@@ -244,7 +275,6 @@ const HomePanel = props => {
   useEffect(() => {
     HomePanelMounted = true
     fetchBeats()
-    fetchSamples()
     return function cleanup() {
       HomePanelMounted = false
     }
@@ -258,6 +288,7 @@ const HomePanel = props => {
           PersonalBeatListKey: personalBeats,
           PublicBeatListKey: publicBeats,
           PublicSampleListKey: publicSamples,
+          RecommendedBeatListKey: recommendedBeats,
         }}
         isPlayingItem={isPlayingItem}
         shouldPlayItem={shouldPlayItem}

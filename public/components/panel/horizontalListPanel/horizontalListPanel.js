@@ -14,12 +14,14 @@ const ListTitle = {
   PersonalBeat: 'My Beats',
   PublicBeat: 'Public Beats',
   PublicSample: 'Public Samples',
+  RecommendedBeats: 'Recommended Beats',
 }
 
 const ListKey = {
   PersonalBeat: 'PersonalBeatListKey',
   PublicBeat: 'PublicBeatListKey',
   PublicSample: 'PublicSampleListKey',
+  RecommendedBeats: 'RecommendedBeatListKey',
 }
 
 /**
