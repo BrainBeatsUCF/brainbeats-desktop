@@ -63,12 +63,14 @@ const LibraryPanel = props => {
     return (
       <HorizontalListPanel
         key={ListKey.RecommendedBeats}
+        likedIDs={props.likedIds}
         items={props.items[ListKey.RecommendedBeats]}
         title={ListTitle.RecommendedBeats}
         itemType={CardType.PublicBeat}
         isPlayingItem={props.isPlayingItem}
         shouldPlayItem={props.shouldPlayItem}
         shouldStopItem={props.shouldStopItem}
+        shouldToggleLike={props.shouldToggleLike}
       ></HorizontalListPanel>
     )
   }
