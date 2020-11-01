@@ -20,6 +20,7 @@ import {
 import './homePanel.css'
 
 let HomePanelMounted = false
+let isInitialLoadup = true
 
 /**
  * @param {{
@@ -32,7 +33,7 @@ const HomePanel = props => {
   const [audioPlaybackList, setAudioPlaybackList] = useState([])
   const [audioPlaybackListIndex, setAudioPlaybackListIndex] = useState(null)
   const [currentSelectedItemHash, setCurrentSelectedItemHash] = useState(null)
-  const [showLoadingOverlay, setShowLoadingOverlay] = useState(true)
+  const [showLoadingOverlay, setShowLoadingOverlay] = useState(isInitialLoadup)
   const [personalBeats, setPersonalBeats] = useState([]) /// Type is PersonalBeatObject
   const [publicBeats, setPublicBeats] = useState([]) /// Type is PublicBeatObject
   const [publicSamples, setPublicSamples] = useState([]) /// Type is PublicSample
@@ -161,6 +162,7 @@ const HomePanel = props => {
     RequestGetOwnedBeats(
       GetUserAuthInfo(),
       beatObjects => {
+        isInitialLoadup = false
         setShowLoadingOverlay(false)
         const myBeats = beatObjects.map(beatObject => {
           return {
