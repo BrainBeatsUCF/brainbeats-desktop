@@ -5,7 +5,6 @@ import { SampleDownloader } from './sampleDownloader'
 import { SaveBeatPromptWrapper, ClosePromptInfo } from './saveBeatPrompt'
 import { ItemContextPromptWrapper, CloseContextPromptInfo } from './itemContextPrompt'
 import { GetUserAuthInfo } from '../../requestService/authRequestService'
-import { RequestUserSampleItems } from '../../requestService/requestService'
 import { RequestGetOwnedBeats, RequestGetOwnedSamples } from '../../requestService/itemRequestService'
 import { SynthesizerWrapper, HideSynthesizerInfo } from './synthesizerPanel/synthesizerPanel'
 import {

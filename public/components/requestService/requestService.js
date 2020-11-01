@@ -1,11 +1,7 @@
 import axios from 'axios'
 import trianglify from 'trianglify'
-import secondTestDataSet from './testHomeData2.json'
-import testSampleAudioBuffer from './testSampleAudioBuffer.json'
 import { GetUserAuthInfo, VerifiedUserInfo, RequestUserRefreshAuthentication } from './authRequestService'
 import { RequestGetOwnedBeats, RequestGetOwnedSamples } from './itemRequestService'
-import { ListObjectType } from '../panel/verticalListPanel/verticalListPanel'
-import { GridSampleObject, GridBeatObject } from '../panel/workstationPanel/gridObjects'
 
 const mockNetworkDelayMillisecond = 2000
 
@@ -51,28 +47,6 @@ const readUserRoute = '/user/read_user'
 
 /// Request Error Messages
 const expiredAuthorizationToken = 'The token is expired'
-
-/**
- * @param {VerifiedUserInfo} userInfo
- * @param {(data: any, status: String) => void} didCompleteRequest
- */
-const RequestHomeData = (userInfo, didCompleteRequest) => {
-  setTimeout(() => {
-    console.log('Refreshes Home Items')
-    didCompleteRequest(secondTestDataSet, ResultStatus.Success)
-  }, 2500)
-}
-
-/**
- * @param {VerifiedUserInfo} userInfo
- * @param {(data: [GridSampleObject]) => void} didCompleteRequest
- */
-const RequestUserSampleItems = (userInfo, didCompleteRequest) => {
-  setTimeout(() => {
-    console.log('Refresh Studio Sample List')
-    didCompleteRequest(testSampleAudioBuffer)
-  }, mockNetworkDelayMillisecond)
-}
 
 /**
  * @param {VerifiedUserInfo} userInfo
@@ -177,4 +151,4 @@ const RequestUserProfileInfo = (
   RequestGetUserStatistics(onBeatCountRecieved, onSampleCountRecieved, onBeatShared, onSampleShared)
 }
 
-export { RequestHomeData, RequestUserProfileImage, RequestUserSampleItems, RequestUserProfileInfo, ResultStatus }
+export { RequestUserProfileImage, RequestUserProfileInfo, ResultStatus }

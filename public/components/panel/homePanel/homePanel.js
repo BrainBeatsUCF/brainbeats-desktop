@@ -3,7 +3,6 @@ import { LibraryPanel, ListKey } from '../libraryPanel/libraryPanel'
 import { ProfilePanel } from '../profilePanel/profilePanel'
 import { AudioPanel } from '../audioPanel/audioPanel'
 import { GetUserAuthInfo, VerifiedUserInfo } from '../../requestService/authRequestService'
-import { RequestHomeData, ResultStatus } from '../../requestService/requestService'
 import { RequestGetAllBeats, RequestGetAllSamples, RequestGetOwnedBeats } from '../../requestService/itemRequestService'
 import {
   CardType,
@@ -26,11 +25,6 @@ const HomePanel = props => {
   const [audioPlaybackList, setAudioPlaybackList] = useState([])
   const [audioPlaybackListIndex, setAudioPlaybackListIndex] = useState(null)
   const [currentSelectedItemHash, setCurrentSelectedItemHash] = useState(null)
-  const [downloadedItems, setDownloadedItems] = useState({
-    [ListKey.PersonalBeat]: [],
-    [ListKey.PublicSample]: [],
-    [ListKey.PublicBeat]: [],
-  })
   const [personalBeats, setPersonalBeats] = useState([]) /// Type is PersonalBeatObject
   const [publicBeats, setPublicBeats] = useState([]) /// Type is PublicBeatObject
   const [publicSamples, setPublicSamples] = useState([]) /// Type is PublicSample
