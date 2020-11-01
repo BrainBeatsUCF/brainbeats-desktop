@@ -24,6 +24,7 @@ const GridBeatObject = {
   isPrivate: false,
   beatID: '',
   image: '',
+  savedAudio: '',
   commit: '',
   samples: [GridSampleObject],
 }
@@ -197,8 +198,15 @@ const generateBeatInstrumentList = beatObject => {
   return retval
 }
 
+/**
+ * @param {JSON} instrumentList
+ * @returns {String}
+ */
 const convertInstrumentListToSubtitle = instrumentList => {
   const instruments = JSON.parse(instrumentList)
+  if (!Array.isArray(instruments)) {
+    return ''
+  }
   const retval = instruments.reduce((prev, curr, index) => {
     return index == 0 ? curr : prev + ', ' + curr
   }, '')
@@ -230,7 +238,11 @@ const generateAttributesFromSamples = samples => {
  * @param {String} beatAttributes
  */
 const convertAttributesToSamples = beatAttributes => {
-  return JSON.parse(beatAttributes).map(sample => {
+  let beatAttributeList = JSON.parse(beatAttributes)
+  if (!Array.isArray(beatAttributeList)) {
+    return []
+  }
+  return beatAttributeList.map(sample => {
     sample.sampleAudioBuffer = null
     return sample
   })
@@ -274,8 +286,10 @@ const decodeBeatObject = encodedBeatObject => {
     isPrivate: encodedBeatObject.isPrivate,
     beatID: encodedBeatObject.id,
     image: encodedBeatObject.image,
+    savedAudio: encodedBeatObject.audio,
     commit: 0,
     samples: convertAttributesToSamples(encodedBeatObject.attributes),
+    duration: encodedBeatObject.duration,
   }
   commitBeatIfNecessary(gridBeatObject)
   return gridBeatObject
@@ -305,6 +319,9 @@ const encodeSampleObject = (userInfo, sampleObject, sampleAudio) => {
  */
 const decodeSampleObject = decodableSample => {
   const decodedAttributes = convertAttributesToSamples(decodableSample.attributes)
+  if (decodedAttributes.length == 0) {
+    return {}
+  }
   return {
     sampleID: decodableSample.id,
     sampleImage: decodedAttributes[0].sampleImage,

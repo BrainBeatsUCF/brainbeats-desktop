@@ -2,6 +2,7 @@ import React from 'react'
 import './personalBeatCard.css'
 
 const PersonalBeatObject = {
+  id: '',
   displayImage: '',
   displayTitle: '',
   audioSource: '',

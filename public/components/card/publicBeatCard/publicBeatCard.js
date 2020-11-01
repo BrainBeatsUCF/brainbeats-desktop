@@ -5,6 +5,7 @@ import pauseButton from './../../../images/pauseButton.png'
 import './publicBeatCard.css'
 
 const PublicBeatObject = {
+  id: '',
   ownerProfileImage: '',
   displayImage: '',
   displayTitle: '',
@@ -32,11 +33,19 @@ const PublicBeatCard = props => {
     backgroundImage: `url(${displayImage})`,
   }
 
+  const getProfileImage = _ => {
+    if (ownerProfileImage != null || ownerProfileImage !== '') {
+      return <img className="PublicBeatsOwnerImage" src={ownerProfileImage} height="60px" width="60px"></img>
+    } else {
+      return <img className="PublicBeatsOwnerImage" height="60px" width="60px"></img>
+    }
+  }
+
   return (
     <div key={displayTitle + props.index} className={`PublicBeatsContainer ${overrideClassName}`} style={style}>
       <div className="PublicBeatsContentOverlay"></div>
       <div className="PublicBeatsContent">
-        <img className="PublicBeatsOwnerImage" src={ownerProfileImage} height="60px" width="60px"></img>
+        {getProfileImage()}
         <div className="PublicBeatInfo">
           <h5 className="PublicBeatInfoLabel">{displayTitle}</h5>
           <div className="PublicBeatInfoContent">
@@ -49,7 +58,9 @@ const PublicBeatCard = props => {
             ></img>
             <div className="PublicBeatPlayInfo">
               <h5 className="PublicBeatInfoDesc">{displayOwner}</h5>
-              <h5 className="PublicBeatInfoDesc">{`${sampleCount} samples, ${formattedPlayTime}`}</h5>
+              <h5 className="PublicBeatInfoDesc">{`${sampleCount} ${
+                sampleCount === 1 ? 'sample' : 'samples'
+              }, ${formattedPlayTime}`}</h5>
             </div>
           </div>
           <div className="PublicBeatVerticalSpacer"></div>

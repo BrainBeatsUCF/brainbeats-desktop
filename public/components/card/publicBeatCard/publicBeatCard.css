@@ -9,7 +9,8 @@
   width: var(--large-card-width);
   min-width: var(--large-card-width);
   background-color: #fff;
-  background-size: var(--large-card-width) var(--large-card-height);
+  background-size: cover;
+  background-position: center;
   border: solid #000 1px;
   border-radius: 15px;
   position: relative;

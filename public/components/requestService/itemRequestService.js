@@ -33,9 +33,11 @@ const createBeatRoute = '/beat/create_beat'
 const updateBeatRoute = '/beat/update_beat'
 const deleteBeatRoute = '/beat/delete_beat'
 const getOwnedBeatRoute = '/user/get_owned_beats'
+const getAllBeatRoute = '/beat/get_all_beats'
 const createSampleRoute = '/sample/create_sample'
 const getOwnedSampleRoute = '/user/get_owned_samples'
 const deleteSampleRoute = '/sample/delete_sample'
+const getAllSampleRoute = '/sample/get_all_samples'
 
 /// Request Error Messages
 const expiredAuthorizationToken = 'The token is expired'
@@ -224,7 +226,7 @@ const RequestUpdateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, 
 
 /**
  * @param {VerifiedUserInfo} userInfo
- * @param {(savedObject: GridBeatObject) => void} onComplete
+ * @param {(savedObject: [GridBeatObject]) => void} onComplete
  * @param {() => void} onError
  * @param {Boolean?} limit
  */
@@ -256,6 +258,49 @@ const RequestGetOwnedBeats = (userInfo, onComplete, onError, limit) => {
         RequestUserRefreshAuthentication(
           userInfo,
           _ => RequestGetOwnedBeats(GetUserAuthInfo(), onComplete, onError, true),
+          onError
+        )
+      } else {
+        onError()
+        console.error(error.response)
+      }
+    })
+}
+
+/**
+ * @param {VerifiedUserInfo} userInfo
+ * @param {(savedObject: [GridBeatObject]) => void} onComplete
+ * @param {() => void} onError
+ * @param {Boolean?} limit
+ */
+const RequestGetAllBeats = (userInfo, onComplete, onError, limit) => {
+  const url = window.process.env[azureRouteKey] + getAllBeatRoute
+  const requestBody = {
+    email: userInfo.email,
+  }
+  axios
+    .post(url, requestBody, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
+    .then(response => {
+      if (response.status !== 200) {
+        onError()
+      } else {
+        return response.data
+      }
+    })
+    .then(responseData => {
+      const decodableBeatObjects = ParseBeatVertices(userInfo.email, responseData)
+      const retrievedBeatObjects = decodableBeatObjects.map(decodableObject => decodeBeatObject(decodableObject))
+      onComplete(retrievedBeatObjects)
+    })
+    .catch(error => {
+      if (
+        error.response != undefined &&
+        error.response.data.includes(expiredAuthorizationToken) &&
+        (limit == undefined || limit == false)
+      ) {
+        RequestUserRefreshAuthentication(
+          userInfo,
+          _ => RequestGetAllBeats(GetUserAuthInfo(), onComplete, onError, true),
           onError
         )
       } else {
@@ -478,6 +523,49 @@ const RequestGetOwnedSamples = (userInfo, onComplete, onError, limit) => {
 
 /**
  * @param {VerifiedUserInfo} userInfo
+ * @param {(ownedSamples: [GridSampleObject]) => void} onComplete
+ * @param {() => void} onError
+ * @param {Boolean?} limit
+ */
+const RequestGetAllSamples = (userInfo, onComplete, onError, limit) => {
+  const url = window.process.env[azureRouteKey] + getAllSampleRoute
+  const requestBody = {
+    email: userInfo.email,
+  }
+  axios
+    .post(url, requestBody, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
+    .then(response => {
+      if (response.status !== 200) {
+        onError()
+      } else {
+        return response.data
+      }
+    })
+    .then(responseData => {
+      const decodableSampleObjects = ParseSampleVertices(userInfo.email, responseData)
+      const retrievedSampleObjects = decodableSampleObjects.map(decodableSample => decodeSampleObject(decodableSample))
+      onComplete(retrievedSampleObjects)
+    })
+    .catch(error => {
+      if (
+        error.response != undefined &&
+        error.response.data.includes(expiredAuthorizationToken) &&
+        (limit == undefined || limit == false)
+      ) {
+        RequestUserRefreshAuthentication(
+          userInfo,
+          _ => RequestGetAllSamples(GetUserAuthInfo(), onComplete, onError, true),
+          onError
+        )
+      } else {
+        onError()
+        console.error(error.response)
+      }
+    })
+}
+
+/**
+ * @param {VerifiedUserInfo} userInfo
  * @param {GridSampleObject} sampleObject
  * @param {(status: ResultStatus) => void} onComplete
  * @param {Boolean?} limit
@@ -520,8 +608,10 @@ export {
   RequestCreateBeat,
   RequestDeleteBeat,
   RequestGetOwnedBeats,
+  RequestGetAllBeats,
   RequestCreateSamples,
   RequestGetOwnedSamples,
+  RequestGetAllSamples,
   RequestDeleteSample,
   VerifiedUserInfo,
   ResultStatus,
