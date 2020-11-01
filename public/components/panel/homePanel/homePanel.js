@@ -4,6 +4,7 @@ import { ProfilePanel } from '../profilePanel/profilePanel'
 import { AudioPanel } from '../audioPanel/audioPanel'
 import { GridBeatObject } from '../workstationPanel/gridObjects'
 import { GetUserAuthInfo, VerifiedUserInfo } from '../../requestService/authRequestService'
+import NetworkActivityAnimation from '../../../images/network_activity.gif'
 import {
   RequestGetAllBeats,
   RequestGetAllSamples,
@@ -31,6 +32,7 @@ const HomePanel = props => {
   const [audioPlaybackList, setAudioPlaybackList] = useState([])
   const [audioPlaybackListIndex, setAudioPlaybackListIndex] = useState(null)
   const [currentSelectedItemHash, setCurrentSelectedItemHash] = useState(null)
+  const [showLoadingOverlay, setShowLoadingOverlay] = useState(true)
   const [personalBeats, setPersonalBeats] = useState([]) /// Type is PersonalBeatObject
   const [publicBeats, setPublicBeats] = useState([]) /// Type is PublicBeatObject
   const [publicSamples, setPublicSamples] = useState([]) /// Type is PublicSample
@@ -152,13 +154,14 @@ const HomePanel = props => {
 
   // MARK : Life Cycle
 
-  /// We fetch personal beats before other beats to prevent having multiple failed requests
+  /// We fetch personal beats before making other calls to prevent having multiple failed requests
   /// due to congestion. This order also prevents multiple attempts to refresh an expired
   /// user token
   const fetchBeats = _ => {
     RequestGetOwnedBeats(
       GetUserAuthInfo(),
       beatObjects => {
+        setShowLoadingOverlay(false)
         const myBeats = beatObjects.map(beatObject => {
           return {
             id: beatObject.beatID,
@@ -280,6 +283,17 @@ const HomePanel = props => {
     }
   }, [])
 
+  const renderOverlay = _ => {
+    if (!showLoadingOverlay) {
+      return <></>
+    }
+    return (
+      <div className="MainLoadingOverlay">
+        <img src={NetworkActivityAnimation} height="40px" width="40px"></img>
+      </div>
+    )
+  }
+
   return (
     <div className={`HomePanel ${props.customClass}`}>
       <LibraryPanel
@@ -310,6 +324,7 @@ const HomePanel = props => {
         hasStoppedPlayingItem={hasStoppedPlayingItem}
         hasPausedPlayingItem={hasPausedPlayingItem}
       ></AudioPanel>
+      {renderOverlay()}
     </div>
   )
 }

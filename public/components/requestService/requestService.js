@@ -134,6 +134,7 @@ const RequestGetUserStatistics = (onBeatCountRecieved, onSampleCountRecieved, on
 }
 
 /**
+ * Gets the first and last name first before attempting other requests to prevent network clog
  * @param {(firstName: String, lastName: String) => void} onUserIdentityRecieved
  * @param {(beatCount: Number) => void} onBeatCountRecieved
  * @param {(sampleCount: Number) => void} onSampleCountRecieved
@@ -147,8 +148,10 @@ const RequestUserProfileInfo = (
   onBeatShared,
   onSampleShared
 ) => {
-  RequestUserIdentificationInfo(onUserIdentityRecieved)
-  RequestGetUserStatistics(onBeatCountRecieved, onSampleCountRecieved, onBeatShared, onSampleShared)
+  RequestUserIdentificationInfo((firstName, lastName) => {
+    onUserIdentityRecieved(firstName, lastName)
+    RequestGetUserStatistics(onBeatCountRecieved, onSampleCountRecieved, onBeatShared, onSampleShared)
+  })
 }
 
 export { RequestUserProfileImage, RequestUserProfileInfo, ResultStatus }
