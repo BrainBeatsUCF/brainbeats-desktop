@@ -1,6 +1,8 @@
 import React from 'react'
 import playButton from './../../../images/playButton.png'
 import pauseButton from './../../../images/pauseButton.png'
+import redHeartButton from './../../../images/redHeartButton.png'
+import whiteHeartButton from './../../../images/whiteHeartButton.png'
 
 import './publicBeatCard.css'
 
@@ -21,6 +23,8 @@ const PublicBeatObject = {
  * isPlaying: boolean,
  * index: Number,
  * item: PublicBeatObject,
+ * isLiked: Boolean,
+ * shouldToggleLike: (isLiked: Boolean, beatId: String) => void,
  * onClick: (item: PublicBeatObject, index: Number) => void
  * }} props
  */
@@ -65,6 +69,15 @@ const PublicBeatCard = props => {
           </div>
           <div className="PublicBeatVerticalSpacer"></div>
         </div>
+        <img
+          className="PublicBeatsLikeButton"
+          src={props.isLiked ? redHeartButton : whiteHeartButton}
+          height="30px"
+          width="30px"
+          onClick={_ => {
+            props.shouldToggleLike(!props.isLiked, props.item.id)
+          }}
+        ></img>
       </div>
     </div>
   )

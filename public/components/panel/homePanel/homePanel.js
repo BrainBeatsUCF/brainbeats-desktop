@@ -6,6 +6,8 @@ import { GridBeatObject } from '../workstationPanel/gridObjects'
 import { GetUserAuthInfo, VerifiedUserInfo } from '../../requestService/authRequestService'
 import NetworkActivityAnimation from '../../../images/network_activity.gif'
 import {
+  RequestGetLikedBeats,
+  RequestLikeUnlikeBeat,
   RequestGetAllBeats,
   RequestGetAllSamples,
   RequestGetOwnedBeats,
@@ -34,10 +36,13 @@ const HomePanel = props => {
   const [audioPlaybackListIndex, setAudioPlaybackListIndex] = useState(null)
   const [currentSelectedItemHash, setCurrentSelectedItemHash] = useState(null)
   const [showLoadingOverlay, setShowLoadingOverlay] = useState(isInitialLoadup)
+  const [likedBeatIDs, setLikedBeatIDs] = useState(new Set())
   const [personalBeats, setPersonalBeats] = useState([]) /// Type is PersonalBeatObject
   const [publicBeats, setPublicBeats] = useState([]) /// Type is PublicBeatObject
   const [publicSamples, setPublicSamples] = useState([]) /// Type is PublicSample
   const [recommendedBeats, setRecommendedBeats] = useState([]) /// Type is PublicBeatObject
+  // add property to publicBeatObject to show likes
+  // pass liked stuff to library
 
   // MARK: Audio Play
 
@@ -153,7 +158,7 @@ const HomePanel = props => {
     }
   }
 
-  // MARK : Life Cycle
+  // MARK : Network Calls
 
   /// We fetch personal beats before making other calls to prevent having multiple failed requests
   /// due to congestion. This order also prevents multiple attempts to refresh an expired
@@ -176,11 +181,12 @@ const HomePanel = props => {
         if (HomePanelMounted) {
           setPersonalBeats(myBeats)
         }
+        fetchLikedBeatIDs()
         let myBeatIds = new Set()
         myBeats.forEach(beatObject => myBeatIds.add(beatObject.id))
-        fetchAllBeats(myBeatIds)
         fetchSamples()
         fetchRecommendedBeats()
+        fetchAllBeats(myBeatIds)
       },
       _ => {}
     )
@@ -194,11 +200,11 @@ const HomePanel = props => {
     const seconds = durationValue % 60
     let durationString = ''
     if (minutes > 0 && seconds == 0) {
-      durationString = `${minutes} min${minutes > 0 ? 's' : ''}`
+      durationString = `${minutes} min${minutes > 1 ? 's' : ''}`
     } else if (minutes > 0 && seconds > 0) {
-      durationString = `${minutes} mins${minutes > 0 ? 's' : ''}, ${seconds} sec${seconds > 0 ? 's' : ''}`
+      durationString = `${minutes} min${minutes > 1 ? 's' : ''}, ${seconds} sec${seconds > 1 ? 's' : ''}`
     } else if (minutes == 0 && seconds > 0) {
-      durationString = `${seconds} sec${seconds > 0 ? 's' : ''}`
+      durationString = `${seconds} sec${seconds > 1 ? 's' : ''}`
     } else {
       durationString = `0 sec`
     }
@@ -253,6 +259,18 @@ const HomePanel = props => {
     )
   }
 
+  const fetchLikedBeatIDs = _ => {
+    RequestGetLikedBeats(
+      GetUserAuthInfo(),
+      likedBeatIDs => {
+        if (HomePanelMounted) {
+          setLikedBeatIDs(likedBeatIDs)
+        }
+      },
+      false
+    )
+  }
+
   const fetchSamples = _ => {
     RequestGetAllSamples(
       GetUserAuthInfo(),
@@ -277,6 +295,26 @@ const HomePanel = props => {
     )
   }
 
+  const toggleLike = (isLiked, beatId) => {
+    RequestLikeUnlikeBeat(
+      GetUserAuthInfo(),
+      beatId,
+      isLiked,
+      () => {
+        let newLikedBeatIDs = new Set(likedBeatIDs)
+        if (isLiked) {
+          newLikedBeatIDs.add(beatId)
+        } else {
+          newLikedBeatIDs.delete(beatId)
+        }
+        setLikedBeatIDs(newLikedBeatIDs)
+      },
+      false
+    )
+  }
+
+  // MARK : Life Cycle
+
   useEffect(() => {
     HomePanelMounted = true
     fetchBeats()
@@ -300,6 +338,7 @@ const HomePanel = props => {
     <div className={`HomePanel ${props.customClass}`}>
       <LibraryPanel
         customClass="MainSection"
+        likedIds={likedBeatIDs}
         items={{
           PersonalBeatListKey: personalBeats,
           PublicBeatListKey: publicBeats,
@@ -309,6 +348,7 @@ const HomePanel = props => {
         isPlayingItem={isPlayingItem}
         shouldPlayItem={shouldPlayItem}
         shouldStopItem={shouldStopItem}
+        shouldToggleLike={toggleLike}
       ></LibraryPanel>
       <ProfilePanel
         customClass="SideTopSection"

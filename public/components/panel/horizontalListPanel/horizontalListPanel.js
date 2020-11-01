@@ -27,12 +27,14 @@ const ListKey = {
 /**
  * @param {{
  * customClass: String,
+ * likedIDs: Set,
  * items: [PersonalBeatObject | SampleCardObject | PublicBeatObject],
  * title: String,
  * itemType: CardType,
  * isPlayingItem: (item: PersonalBeatObject | SampleCardObject | PublicBeatObject, index: Number) => boolean,
  * shouldPlayItem: (item: PersonalBeatObject | SampleCardObject | PublicBeatObject, index: Number, type: CardType) => void,
  * shouldStopItem: (item: PersonalBeatObject | SampleCardObject | PublicBeatObject, index: Number, type: CardType) => void,
+ * shouldToggleLike: (isLiked: Boolean, beatId: String) => void
  * }} props
  */
 const HorizontalListPanel = props => {
@@ -105,6 +107,8 @@ const HorizontalListPanel = props => {
                 isPlaying={props.isPlayingItem(item)}
                 index={index}
                 item={item}
+                isLiked={props.likedIDs.has(item.id)}
+                shouldToggleLike={props.shouldToggleLike}
                 onClick={(clickItem, clickIndex) => handleItemClick(clickItem, clickIndex)}
               ></PublicBeatCard>
             )

@@ -12,11 +12,13 @@ import './libraryPanel.css'
 
 /**
  * @param {{
- * customClass: String
- * items: {ListKey: [PersonalBeatObject | PublicBeatObject | SampleCardObject]}
+ * customClass: String,
+ * likedIds: Set,
+ * items: {ListKey: [PersonalBeatObject | PublicBeatObject | SampleCardObject]},
  * isPlayingItem: (item: any, index: Number) => boolean,
  * shouldPlayItem: (item: any, index: Number, type: CardType) => void,
  * shouldStopItem: (item: any, index: Number, type: CardType) => void,
+ * shouldToggleLike: (isLiked: Boolean, beatId: String) => void
  * }} props
  */
 const LibraryPanel = props => {
@@ -78,6 +80,7 @@ const LibraryPanel = props => {
     return (
       <HorizontalListPanel
         key={ListKey.PublicBeat}
+        likedIDs={props.likedIds}
         customClass="ListBottomPaddingInjection"
         items={props.items[ListKey.PublicBeat]}
         title={ListTitle.PublicBeat}
@@ -85,6 +88,7 @@ const LibraryPanel = props => {
         isPlayingItem={props.isPlayingItem}
         shouldPlayItem={props.shouldPlayItem}
         shouldStopItem={props.shouldStopItem}
+        shouldToggleLike={props.shouldToggleLike}
       ></HorizontalListPanel>
     )
   }

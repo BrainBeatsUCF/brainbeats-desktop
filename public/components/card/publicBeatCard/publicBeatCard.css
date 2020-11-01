@@ -4,6 +4,7 @@
 }
 
 .PublicBeatsContainer {
+  position: relative;
   height: var(--large-card-height);
   min-height: var(--large-card-height);
   width: var(--large-card-width);
@@ -40,6 +41,16 @@
   align-content: flex-end;
   flex-direction: row;
   overflow: hidden;
+}
+
+.PublicBeatsLikeButton {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+.PublicBeatsLikeButton:hover {
+  cursor: pointer;
 }
 
 .PublicBeatsContent:hover {

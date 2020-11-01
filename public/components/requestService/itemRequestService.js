@@ -34,6 +34,9 @@ const updateBeatRoute = '/beat/update_beat'
 const deleteBeatRoute = '/beat/delete_beat'
 const getOwnedBeatRoute = '/user/get_owned_beats'
 const getAllBeatRoute = '/beat/get_all_beats'
+const getLikedBeats = '/user/get_liked_beats'
+const likeBeatRoute = '/user/like_vertex'
+const unlikeBeatRoute = '/user/unlike_vertex'
 const createSampleRoute = '/sample/create_sample'
 const getOwnedSampleRoute = '/user/get_owned_samples'
 const deleteSampleRoute = '/sample/delete_sample'
@@ -302,6 +305,94 @@ const RequestGetAllBeats = (userInfo, onComplete, onError, limit) => {
         RequestUserRefreshAuthentication(
           userInfo,
           _ => RequestGetAllBeats(GetUserAuthInfo(), onComplete, onError, true),
+          onError
+        )
+      } else {
+        onError()
+        console.error(error.response)
+      }
+    })
+}
+
+/**
+ *
+ * @param {VerifiedUserInfo} userInfo
+ * @param {(likedBeatIDs: Set) => void} onComplete
+ * @param {Boolean?} limit
+ */
+const RequestGetLikedBeats = (userInfo, onComplete, limit) => {
+  const url = window.process.env[azureRouteKey] + getLikedBeats
+  const requestBody = {
+    email: userInfo.email,
+  }
+  axios
+    .post(url, requestBody, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
+    .then(response => {
+      if (response.status !== 200) {
+        onError()
+      } else {
+        return response.data
+      }
+    })
+    .then(responseData => {
+      const decodableBeatObjects = ParseBeatVertices(userInfo.email, responseData)
+      let likedBeatIDs = new Set()
+      decodableBeatObjects.forEach(beatObject => likedBeatIDs.add(beatObject.id))
+      onComplete(likedBeatIDs)
+    })
+    .catch(error => {
+      if (
+        error.response != undefined &&
+        error.response.data.includes(expiredAuthorizationToken) &&
+        (limit == undefined || limit == false)
+      ) {
+        RequestUserRefreshAuthentication(
+          userInfo,
+          _ => RequestGetLikedBeats(GetUserAuthInfo(), onComplete, true),
+          onError
+        )
+      } else {
+        onError()
+        console.error(error.response)
+      }
+    })
+}
+
+/**
+ *
+ * @param {VerifiedUserInfo} userInfo
+ * @param {String} beatId
+ * @param {Boolean} shouldLike
+ * @param {() => void} onComplete
+ * @param {Boolean?} limit
+ */
+const RequestLikeUnlikeBeat = (userInfo, beatId, shouldLike, onComplete, limit) => {
+  const url = window.process.env[azureRouteKey] + (shouldLike ? likeBeatRoute : unlikeBeatRoute)
+  const requestBody = {
+    email: userInfo.email,
+    vertexId: beatId,
+  }
+  axios
+    .post(url, requestBody, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
+    .then(response => {
+      if (response.status !== 200) {
+        onError()
+      } else {
+        return response.data
+      }
+    })
+    .then(_ => {
+      onComplete()
+    })
+    .catch(error => {
+      if (
+        error.response != undefined &&
+        error.response.data.includes(expiredAuthorizationToken) &&
+        (limit == undefined || limit == false)
+      ) {
+        RequestUserRefreshAuthentication(
+          userInfo,
+          _ => RequestLikeUnlikeBeat(GetUserAuthInfo(), beatId, shouldLike, onComplete, true),
           onError
         )
       } else {
@@ -654,6 +745,8 @@ export {
   RequestGetOwnedBeats,
   RequestGetAllBeats,
   RequestGetRecommendedBeats,
+  RequestGetLikedBeats,
+  RequestLikeUnlikeBeat,
   RequestCreateSamples,
   RequestGetOwnedSamples,
   RequestGetAllSamples,
