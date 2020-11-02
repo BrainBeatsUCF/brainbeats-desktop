@@ -7,9 +7,6 @@ import {
 } from '../requestService/authRequestService'
 import './authentication.css'
 
-const registerationURL =
-  'https://ucfbrainbeats.b2clogin.com/ucfbrainbeats.onmicrosoft.com/oauth2/v2.0/authorize?p=B2C_1_signup&client_id=037bbefc-958e-489d-ba61-8c0823284010&nonce=defaultNonce&redirect_uri=https%3A%2F%2Fbrain-beats-server-docker.azurewebsites.net%2F.auth%2Flogin%2Faad%2Fcallback&scope=openid&response_type=id_token&prompt=login'
-
 /**
  * @param {{
  * onSuccess: (message: String) => void
@@ -88,7 +85,7 @@ const Authentication = props => {
           type="button"
           value="Create An Account"
           onClick={_ => {
-            window.open(registerationURL, '_blank', 'nodeIntegration=no')
+            window.open(window.process.env['BRAINBEATS_USER_REGISTRATION_ROUTE'], '_blank', 'nodeIntegration=no')
           }}
         ></input>
       </form>

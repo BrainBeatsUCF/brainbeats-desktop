@@ -24,6 +24,7 @@ const GridBeatObject = {
   isPrivate: false,
   beatID: '',
   image: '',
+  savedAudio: '',
   commit: '',
   samples: [GridSampleObject],
 }
@@ -61,7 +62,7 @@ const EncodedSampleObject = {
   name: '',
   isPrivate: false,
   attributes: '',
-  audio: new ArrayBuffer(0),
+  audio: new File([], ''),
   image: '',
 }
 
@@ -197,8 +198,15 @@ const generateBeatInstrumentList = beatObject => {
   return retval
 }
 
+/**
+ * @param {JSON} instrumentList
+ * @returns {String}
+ */
 const convertInstrumentListToSubtitle = instrumentList => {
   const instruments = JSON.parse(instrumentList)
+  if (!Array.isArray(instruments)) {
+    return ''
+  }
   const retval = instruments.reduce((prev, curr, index) => {
     return index == 0 ? curr : prev + ', ' + curr
   }, '')
@@ -230,7 +238,11 @@ const generateAttributesFromSamples = samples => {
  * @param {String} beatAttributes
  */
 const convertAttributesToSamples = beatAttributes => {
-  return JSON.parse(beatAttributes).map(sample => {
+  let beatAttributeList = JSON.parse(beatAttributes)
+  if (!Array.isArray(beatAttributeList)) {
+    return []
+  }
+  return beatAttributeList.map(sample => {
     sample.sampleAudioBuffer = null
     return sample
   })
@@ -274,8 +286,10 @@ const decodeBeatObject = encodedBeatObject => {
     isPrivate: encodedBeatObject.isPrivate,
     beatID: encodedBeatObject.id,
     image: encodedBeatObject.image,
+    savedAudio: encodedBeatObject.audio,
     commit: 0,
     samples: convertAttributesToSamples(encodedBeatObject.attributes),
+    duration: encodedBeatObject.duration,
   }
   commitBeatIfNecessary(gridBeatObject)
   return gridBeatObject
@@ -284,7 +298,7 @@ const decodeBeatObject = encodedBeatObject => {
 /**
  * @param {VerifiedUserInfo} userInfo
  * @param {GridSampleObject} sampleObject
- * @param {ArrayBuffer} sampleAudio
+ * @param {File} sampleAudio
  * @return {EncodedSampleObject}
  */
 const encodeSampleObject = (userInfo, sampleObject, sampleAudio) => {
@@ -305,17 +319,20 @@ const encodeSampleObject = (userInfo, sampleObject, sampleAudio) => {
  */
 const decodeSampleObject = decodableSample => {
   const decodedAttributes = convertAttributesToSamples(decodableSample.attributes)
+  if (decodedAttributes.length == 0) {
+    return {}
+  }
   return {
     sampleID: decodableSample.id,
-    sampleImage: decodableSample.image,
+    sampleImage: decodedAttributes[0].sampleImage,
     sampleSource: decodableSample.audio,
-    sampleColor: decodedAttributes.sampleColor,
+    sampleColor: decodedAttributes[0].sampleColor,
     sampleTitle: decodableSample.name,
-    sampleSubtitle: decodedAttributes.sampleSubTitle,
-    sampleIsActive: true,
-    sampleAudioDelay: decodedAttributes.sampleAudioDelay,
-    sampleAudioStart: decodedAttributes.sampleAudioStart,
-    sampleAudioLength: decodedAttributes.sampleAudioLength,
+    sampleSubtitle: decodedAttributes[0].sampleSubtitle,
+    sampleIsActive: decodedAttributes[0].sampleIsActive,
+    sampleAudioDelay: decodedAttributes[0].sampleAudioDelay,
+    sampleAudioStart: decodedAttributes[0].sampleAudioStart,
+    sampleAudioLength: decodedAttributes[0].sampleAudioLength,
     sampleAudioBuffer: null,
     isPrivate: decodableSample.isPrivate,
   }

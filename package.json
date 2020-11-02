@@ -15,6 +15,8 @@
   "scripts": {
     "create": "webpack",
     "start": "concurrently \"webpack-dev-server --hot --port 3232\" \"sleep 3.0 && electron .\"",
+    "install_windows": "npm install && npm install -g electron && set ELECTRON_START_URL=http://localhost:3232",
+    "start_windows": "concurrently \"webpack-dev-server --hot --port 3232\" \"timeout 6.0 && electron .\"",
     "format": "npx prettier --write .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

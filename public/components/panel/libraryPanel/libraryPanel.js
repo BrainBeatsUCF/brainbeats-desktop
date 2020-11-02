@@ -12,15 +12,20 @@ import './libraryPanel.css'
 
 /**
  * @param {{
- * customClass: String
- * items: {ListKey: [PersonalBeatObject | PublicBeatObject | SampleCardObject]}
+ * customClass: String,
+ * likedIds: Set,
+ * items: {ListKey: [PersonalBeatObject | PublicBeatObject | SampleCardObject]},
  * isPlayingItem: (item: any, index: Number) => boolean,
  * shouldPlayItem: (item: any, index: Number, type: CardType) => void,
  * shouldStopItem: (item: any, index: Number, type: CardType) => void,
+ * shouldToggleLike: (isLiked: Boolean, beatId: String) => void
  * }} props
  */
 const LibraryPanel = props => {
-  const personalBeatHorizontalList = () => {
+  const personalBeatHorizontalList = _ => {
+    if (props.items[ListKey.PersonalBeat].length == 0) {
+      return <></>
+    }
     return (
       <HorizontalListPanel
         key={ListKey.PersonalBeat}
@@ -34,7 +39,10 @@ const LibraryPanel = props => {
     )
   }
 
-  const publicSampleHorizontalList = () => {
+  const publicSampleHorizontalList = _ => {
+    if (props.items[ListKey.PublicSample].length == 0) {
+      return <></>
+    }
     return (
       <HorizontalListPanel
         key={ListKey.PublicSample}
@@ -48,10 +56,33 @@ const LibraryPanel = props => {
     )
   }
 
-  const publicBeatHorizontalList = () => {
+  const recommendedBeatHorizontalList = _ => {
+    if (props.items[ListKey.RecommendedBeats].length == 0) {
+      return <></>
+    }
+    return (
+      <HorizontalListPanel
+        key={ListKey.RecommendedBeats}
+        likedIDs={props.likedIds}
+        items={props.items[ListKey.RecommendedBeats]}
+        title={ListTitle.RecommendedBeats}
+        itemType={CardType.PublicBeat}
+        isPlayingItem={props.isPlayingItem}
+        shouldPlayItem={props.shouldPlayItem}
+        shouldStopItem={props.shouldStopItem}
+        shouldToggleLike={props.shouldToggleLike}
+      ></HorizontalListPanel>
+    )
+  }
+
+  const publicBeatHorizontalList = _ => {
+    if (props.items[ListKey.PublicBeat].length == 0) {
+      return <></>
+    }
     return (
       <HorizontalListPanel
         key={ListKey.PublicBeat}
+        likedIDs={props.likedIds}
         customClass="ListBottomPaddingInjection"
         items={props.items[ListKey.PublicBeat]}
         title={ListTitle.PublicBeat}
@@ -59,6 +90,7 @@ const LibraryPanel = props => {
         isPlayingItem={props.isPlayingItem}
         shouldPlayItem={props.shouldPlayItem}
         shouldStopItem={props.shouldStopItem}
+        shouldToggleLike={props.shouldToggleLike}
       ></HorizontalListPanel>
     )
   }
@@ -67,6 +99,7 @@ const LibraryPanel = props => {
     <div className={`LibraryPanel ${props.customClass}`}>
       <div className="LibraryPanelSection">
         {personalBeatHorizontalList()}
+        {recommendedBeatHorizontalList()}
         {publicSampleHorizontalList()}
         {publicBeatHorizontalList()}
       </div>

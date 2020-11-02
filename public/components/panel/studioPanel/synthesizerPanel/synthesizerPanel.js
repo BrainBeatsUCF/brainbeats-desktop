@@ -5,11 +5,16 @@ import { MODEL_CELL_LENGTH_IN_PIXELS, SynthesizingStage } from './synthesizerCom
 import { MenuButton, MenuButtonColor } from '../../../input/input'
 import { GridSampleObject } from '../../workstationPanel/gridObjects'
 import { RequestGenerateSamples, GenerationInfo } from '../../../requestService/modelRequestService'
-import { ResultStatus, VerifiedUserInfo } from '../../../requestService/authRequestService'
+import { RequestCreateSamples } from '../../../requestService/itemRequestService'
+import { GetUserAuthInfo, ResultStatus, VerifiedUserInfo } from '../../../requestService/authRequestService'
 import { SynthSelectionStagePanel, SynthProcessingStagePanel, SynthCompletedStagePanel } from './synthesizerComponents'
 import './synthesizerPanel.css'
 
 const timeToCloseSocketOnMessage = 500 // 0.5 seconds
+
+/// Cancel Token for monitering axios request
+/// TODO: Store cancel token for axios call here and cancel if disrupt
+const SampleSynthAudioContext = new AudioContext({ sampleRate: 44100 })
 
 const StageTitle = {
   Selecting: 'Select Sample Synthesizer',
@@ -53,12 +58,14 @@ class Synthesizer extends React.Component {
     this.state = {
       hasConnectedToEEG: false,
       hasBegunFetchingSamples: false,
+      hasBegunUploadingSamples: false,
       errorMessage: null,
       predictedEmotion: PredictedEmotions.Melancholy,
       predictedSamples: [GridSampleObject],
       synthesizingModel: SynthesizerModels[0],
       synthesizingStage: SynthesizingStage.Selecting,
       modelContainerLength: lengthForModelCount(SynthesizerModels.length),
+      sampleUploadProgress: 'Starting Upload...',
     }
     // Adding autocomplete to javascript with intellisense
     this.state.predictedSamples = []
@@ -105,6 +112,8 @@ class Synthesizer extends React.Component {
   handleAbortEEG = _ => {
     closeHardwareSocket()
     this.setState({
+      hasBegunFetchingSamples: false,
+      hasBegunUploadingSamples: false,
       hasConnectedToEEG: false,
       synthesizingStage: SynthesizingStage.Selecting,
     })
@@ -122,22 +131,31 @@ class Synthesizer extends React.Component {
     this.props.shouldCloseSynthesizer()
   }
 
+  handleBacktrackToSelectionStage = errorMessage => {
+    this.setState({
+      synthesizingStage: SynthesizingStage.Selecting,
+      hasBegunFetchingSamples: false,
+      hasBegunUploadingSamples: false,
+      hasConnectedToEEG: false,
+      errorMessage: errorMessage,
+    })
+  }
+
   handleShouldRequestSamples = _ => {
     const { userInfo } = this.props
-    const { predictedEmotion } = this.state
+    const { predictedEmotion, synthesizingModel } = this.state
     this.setState({ hasBegunFetchingSamples: true })
-    console.log(userInfo)
     RequestGenerateSamples(
-      userInfo,
+      SampleSynthAudioContext,
+      GetUserAuthInfo(),
       {
         emotion: predictedEmotion,
+        modelImageSource: synthesizingModel.modelImageName,
+        modelName: synthesizingModel.modelName,
       },
       (samples, status) => {
         if (status === ResultStatus.Error) {
-          this.setState({
-            synthesizingStage: SynthesizingStage.Selecting,
-            errorMessage: 'Something went wrong. Please try again',
-          })
+          this.handleBacktrackToSelectionStage('Something went wrong. Please try again')
         } else {
           this.setState({
             synthesizingStage: SynthesizingStage.Completed,
@@ -152,13 +170,16 @@ class Synthesizer extends React.Component {
    * @param {[GridSampleObject]} selectedSamples
    */
   handleShouldSaveSamples = selectedSamples => {
-    // make network request to create samples for selected items
-    // close synthesizer on completion
-    // POI: uploading samples recursively will take time and needs some visual
-    // indicator of progress
-    setTimeout(() => {
-      this.props.shouldCloseSynthesizer()
-    }, 300)
+    this.setState({ hasBegunUploadingSamples: true })
+    RequestCreateSamples(
+      GetUserAuthInfo(),
+      0,
+      selectedSamples,
+      [],
+      progressMessage => this.setState({ sampleUploadProgress: progressMessage }),
+      _ => this.props.shouldCloseSynthesizer(),
+      _ => this.handleBacktrackToSelectionStage('Something went wrong. Please try again')
+    )
   }
 
   // MARK: Render
@@ -189,10 +210,11 @@ class Synthesizer extends React.Component {
         <SynthCompletedStagePanel
           leftSectionClassname="SynthesizerLeftBodySection"
           rightSectionClassname="SynthesizerRightBodySection"
+          audioContext={SampleSynthAudioContext}
           synthesizingStage={synthesizingStage}
           sampleOptions={this.state.predictedSamples}
           saveSamples={selectedSamples => this.handleShouldSaveSamples(selectedSamples)}
-          restartGenerator={_ => this.setState({ synthesizingStage: SynthesizingStage.Selecting })}
+          restartGenerator={_ => this.handleBacktrackToSelectionStage(null)}
         ></SynthCompletedStagePanel>
       )
       // Connecting | Recording | Modeling
@@ -208,7 +230,7 @@ class Synthesizer extends React.Component {
   }
 
   render() {
-    const { modelContainerLength, synthesizingStage } = this.state
+    const { modelContainerLength, synthesizingStage, sampleUploadProgress, hasBegunUploadingSamples } = this.state
     const customClassname = this.props.customClassname ?? ''
     const synthesizerHeaderOverlay = synthesizingStage === SynthesizingStage.Selecting ? '' : 'SynthesizerHeaderOverlay'
     const stageTitle = synthesizingStage === SynthesizingStage.Selecting ? StageTitle.Selecting : StageTitle.Default
@@ -228,6 +250,14 @@ class Synthesizer extends React.Component {
             ></MenuButton>
           </div>
           {this.handleStageRender(modelContainerLength, synthesizingStage)}
+        </div>
+        <div
+          className="SampleUploadOverlay"
+          style={{
+            visibility: hasBegunUploadingSamples ? 'visible' : 'hidden',
+          }}
+        >
+          <h5 className="SampleUploadText">{sampleUploadProgress}</h5>
         </div>
       </>
     )

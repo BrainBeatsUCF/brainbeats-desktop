@@ -13,13 +13,18 @@ During development, the various parts of the application run in the following po
 
 #### Install
 
+**Mac**
 `npm install`
+
+**Windows**
+`npm install_windows`
 
 #### Run
 
+**Mac**
 `npm start`
 
-### Known Issues
+**Windows**
+`npm start_windows`
 
-- August 27, 2020
-  - Only starts electron for mac right now. It's missing boot instructions for windows
+### Known Issues

@@ -1,9 +1,7 @@
+import axios from 'axios'
 import trianglify from 'trianglify'
-import secondTestDataSet from './testHomeData2.json'
-import testSampleAudioBuffer from './testSampleAudioBuffer.json'
-import { VerifiedUserInfo } from './authRequestService'
-import { ListObjectType } from '../panel/verticalListPanel/verticalListPanel'
-import { GridSampleObject, GridBeatObject } from '../panel/workstationPanel/gridObjects'
+import { GetUserAuthInfo, VerifiedUserInfo, RequestUserRefreshAuthentication } from './authRequestService'
+import { RequestGetOwnedBeats, RequestGetOwnedSamples } from './itemRequestService'
 
 const mockNetworkDelayMillisecond = 2000
 
@@ -12,6 +10,7 @@ const ResultStatus = {
   Error: 'error',
 }
 
+/// Colorspace for picking pigment of profile image
 const AvailableColorSpace = [
   'YlGn',
   'YlGnBu',
@@ -42,27 +41,12 @@ const AvailableColorSpace = [
   'RdYlGn',
 ]
 
-/**
- * @param {VerifiedUserInfo} userInfo
- * @param {(data: any, status: String) => void} didCompleteRequest
- */
-const RequestHomeData = (userInfo, didCompleteRequest) => {
-  setTimeout(() => {
-    console.log('Refreshes Home Items')
-    didCompleteRequest(secondTestDataSet, ResultStatus.Success)
-  }, 2500)
-}
+/// Request APIs and Routes
+const azureRoute = window.process.env['BRAINBEATS_AZURE_API_URL']
+const readUserRoute = '/user/read_user'
 
-/**
- * @param {VerifiedUserInfo} userInfo
- * @param {(data: [GridSampleObject]) => void} didCompleteRequest
- */
-const RequestUserSampleItems = (userInfo, didCompleteRequest) => {
-  setTimeout(() => {
-    console.log('Refresh Studio Sample List')
-    didCompleteRequest(testSampleAudioBuffer)
-  }, mockNetworkDelayMillisecond)
-}
+/// Request Error Messages
+const expiredAuthorizationToken = 'The token is expired'
 
 /**
  * @param {VerifiedUserInfo} userInfo
@@ -84,4 +68,90 @@ const RequestUserProfileImage = userInfo => {
   return pattern.toCanvas().toDataURL()
 }
 
-export { RequestHomeData, RequestUserProfileImage, RequestUserSampleItems, ResultStatus }
+/**
+ * @param {(firstName: String, lastName: String) => void} onUserIdentityRecieved
+ * @param {Boolean?} limit
+ */
+const RequestUserIdentificationInfo = (onUserIdentityRecieved, limit) => {
+  const userInfo = GetUserAuthInfo()
+  const url = azureRoute + readUserRoute
+  const requestBody = {
+    email: userInfo.email,
+  }
+  axios
+    .post(url, requestBody, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
+    .then(response => response.data)
+    .then(responseData => {
+      const firstVertex = responseData[0]
+      const firstName = firstVertex.properties.firstName[0].value
+      const lastName = firstVertex.properties.lastName[0].value
+      onUserIdentityRecieved(firstName, lastName)
+    })
+    .catch(error => {
+      if (
+        error.response != undefined &&
+        error.response.data.includes(expiredAuthorizationToken) &&
+        (limit == undefined || limit == false)
+      ) {
+        RequestUserRefreshAuthentication(
+          userInfo,
+          _ => RequestUserIdentificationInfo(onUserIdentityRecieved, true),
+          _ => {}
+        )
+      } else {
+        console.log(error.response)
+      }
+    })
+}
+
+/**
+ * @param {(beatCount: Number) => void} onBeatCountRecieved
+ * @param {(sampleCount: Number) => void} onSampleCountRecieved
+ * @param {(sharesCount: Number) => void} onBeatShared
+ * @param {(sharesCount: Number) => void} onSampleShared
+ */
+const RequestGetUserStatistics = (onBeatCountRecieved, onSampleCountRecieved, onBeatShared, onSampleShared) => {
+  /// Beat count
+  RequestGetOwnedBeats(
+    GetUserAuthInfo(),
+    beats => {
+      onBeatCountRecieved(beats.length)
+      onBeatShared(beats.reduce((prev, curr) => (curr.isPrivate ? prev : prev + 1), 0))
+    },
+    _ => {},
+    false
+  )
+  /// Sample count
+  RequestGetOwnedSamples(
+    GetUserAuthInfo(),
+    samples => {
+      onSampleCountRecieved(samples.length)
+      onSampleShared(samples.reduce((prev, curr) => (curr.isPrivate ? prev : prev + 1), 0))
+    },
+    _ => {},
+    false
+  )
+}
+
+/**
+ * Gets the first and last name first before attempting other requests to prevent network clog
+ * @param {(firstName: String, lastName: String) => void} onUserIdentityRecieved
+ * @param {(beatCount: Number) => void} onBeatCountRecieved
+ * @param {(sampleCount: Number) => void} onSampleCountRecieved
+ * @param {(sharesCount: Number) => void} onBeatShared
+ * @param {(sharesCount: Number) => void} onSampleShared
+ */
+const RequestUserProfileInfo = (
+  onUserIdentityRecieved,
+  onBeatCountRecieved,
+  onSampleCountRecieved,
+  onBeatShared,
+  onSampleShared
+) => {
+  RequestUserIdentificationInfo((firstName, lastName) => {
+    onUserIdentityRecieved(firstName, lastName)
+    RequestGetUserStatistics(onBeatCountRecieved, onSampleCountRecieved, onBeatShared, onSampleShared)
+  })
+}
+
+export { RequestUserProfileImage, RequestUserProfileInfo, ResultStatus }

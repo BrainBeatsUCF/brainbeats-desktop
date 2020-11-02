@@ -14,6 +14,7 @@ const ResultStatusErrorMessage = {
 /// Request APIs and Routes
 const azureRouteKey = 'BRAINBEATS_AZURE_API_URL'
 const loginUserRoute = '/user/login_user'
+const refreshUserTokenRoute = '/user/refresh_token'
 
 /**
  * This object holds the session info for the authenticated user
@@ -115,10 +116,8 @@ const RequestUserRefreshAuthentication = (userInfo, onComplete, onError) => {
     .then(response => response.data)
     .then(responseData => {
       const newUserInfo = {
-        email: userInfo.email,
         authToken: responseData.access_token,
         refreshToken: responseData.refresh_token,
-        password: userInfo.password,
         uuid: responseData.id_token,
       }
       SaveUserAuthInfo(newUserInfo)
