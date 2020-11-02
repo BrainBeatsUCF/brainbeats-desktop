@@ -80,4 +80,4 @@ const SampleSequenceRenderer = (sampleObjects, onDataReady, onRenderError) => {
     })
 }
 
-export { SampleSequenceRenderer }
+export { SampleSequenceRenderer, calculateRenderDuration }

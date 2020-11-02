@@ -12,6 +12,7 @@
 }
 
 .SynthModelCard {
+  position: relative;
   background-color: rgb(10, 48, 89);
   box-sizing: border-box;
   margin: 10px;
@@ -19,10 +20,20 @@
   cursor: pointer;
 }
 
+.SynthModelCardImage {
+  position: relative;
+  border-radius: 50%;
+  height: 100%;
+  width: 100%;
+}
+
 /* Tooltip text */
 .Tooltip .TooltipText {
+  position: relative;
+  top: -20%;
+  left: 50%;
   visibility: hidden;
-  width: 120px;
+  width: 125px;
   background-color: black;
   color: #fff;
   text-align: center;

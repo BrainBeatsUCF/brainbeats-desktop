@@ -1,6 +1,5 @@
 import trianglify from 'trianglify'
 import secondTestDataSet from './testHomeData2.json'
-import testBeatDataSet from './testBeats.json'
 import testSampleAudioBuffer from './testSampleAudioBuffer.json'
 import { VerifiedUserInfo } from './authRequestService'
 import { ListObjectType } from '../panel/verticalListPanel/verticalListPanel'
@@ -13,13 +12,43 @@ const ResultStatus = {
   Error: 'error',
 }
 
+const AvailableColorSpace = [
+  'YlGn',
+  'YlGnBu',
+  'GnBu',
+  'BuGn',
+  'PuBuGn',
+  'PuBu',
+  'BuPu',
+  'RdPu',
+  'PuRd',
+  'OrRd',
+  'YlOrRd',
+  'YlOrBr',
+  'Purples',
+  'Blues',
+  'Greens',
+  'Oranges',
+  'Reds',
+  'Greys',
+  'PuOr',
+  'BrBG',
+  'PRGn',
+  'PiYG',
+  'RdBu',
+  'RdGy',
+  'RdYlBu',
+  'Spectral',
+  'RdYlGn',
+]
+
 /**
  * @param {VerifiedUserInfo} userInfo
  * @param {(data: any, status: String) => void} didCompleteRequest
  */
 const RequestHomeData = (userInfo, didCompleteRequest) => {
   setTimeout(() => {
-    console.log(userInfo)
+    console.log('Refreshes Home Items')
     didCompleteRequest(secondTestDataSet, ResultStatus.Success)
   }, 2500)
 }
@@ -30,19 +59,8 @@ const RequestHomeData = (userInfo, didCompleteRequest) => {
  */
 const RequestUserSampleItems = (userInfo, didCompleteRequest) => {
   setTimeout(() => {
-    console.log(userInfo)
+    console.log('Refresh Studio Sample List')
     didCompleteRequest(testSampleAudioBuffer)
-  }, mockNetworkDelayMillisecond)
-}
-
-/**
- * @param {VerifiedUserInfo} userInfo
- * @param {(data: [GridBeatObject]) => void} didCompleteRequest
- */
-const RequestUserBeatItems = (userInfo, didCompleteRequest) => {
-  setTimeout(() => {
-    console.log(userInfo)
-    didCompleteRequest(testBeatDataSet)
   }, mockNetworkDelayMillisecond)
 }
 
@@ -51,15 +69,19 @@ const RequestUserBeatItems = (userInfo, didCompleteRequest) => {
  * @return {String}
  */
 const RequestUserProfileImage = userInfo => {
-  console.log(userInfo.email)
-  const options = {
+  const convertToNumber = email => {
+    const emailArray = [...email]
+    const convertedNumber = emailArray.map(char => char.charCodeAt(0)).reduce((current, previous) => previous + current)
+    return convertedNumber
+  }
+  const pattern = trianglify({
     height: 120,
     width: 120,
     cellSize: 25,
     seed: userInfo.uuid,
-  }
-  const pattern = trianglify(options)
+    xColors: AvailableColorSpace[convertToNumber(userInfo.email) % AvailableColorSpace.length],
+  })
   return pattern.toCanvas().toDataURL()
 }
 
-export { RequestHomeData, RequestUserProfileImage, RequestUserBeatItems, RequestUserSampleItems, ResultStatus }
+export { RequestHomeData, RequestUserProfileImage, RequestUserSampleItems, ResultStatus }

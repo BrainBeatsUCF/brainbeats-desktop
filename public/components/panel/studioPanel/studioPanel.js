@@ -4,7 +4,9 @@ import { WorkstationPanel } from '../workstationPanel/workstationPanel'
 import { SampleDownloader } from './sampleDownloader'
 import { SaveBeatPromptWrapper, ClosePromptInfo } from './saveBeatPrompt'
 import { ItemContextPromptWrapper, CloseContextPromptInfo } from './itemContextPrompt'
-import { RequestUserBeatItems, RequestUserSampleItems } from '../../requestService/requestService'
+import { GetUserAuthInfo } from '../../requestService/authRequestService'
+import { RequestUserSampleItems } from '../../requestService/requestService'
+import { RequestGetOwnedBeats } from '../../requestService/itemRequestService'
 import { SynthesizerWrapper, HideSynthesizerInfo } from './synthesizerPanel/synthesizerPanel'
 import {
   GridBeatObject,
@@ -16,7 +18,7 @@ import {
 import './studioPanel.css'
 
 let StudioPanelComponentMounted = false
-const StudioAudioContext = new AudioContext()
+const StudioAudioContext = new AudioContext({ sampleRate: 44100 })
 const WorkstationTitle = 'WorkStation'
 const VerticalListTitles = {
   Beats: 'Beats',
@@ -28,7 +30,6 @@ class StudioPanel extends React.Component {
    * @param {{
    * customClass: String?
    * currentGridItem: GridBeatObject,
-   * userInfo: VerifiedUserInfo,
    * setIsMakingNetworkActivity: (Boolean) => void
    * setCurrentGridItem: (GridBeatObject) => void
    * }} props
@@ -86,6 +87,10 @@ class StudioPanel extends React.Component {
         onSaveComplete: savedGridObject => {
           this.beatsItemListRequest()
           this.setState({ currentSavePromptInfo: ClosePromptInfo })
+          /// Important! Replace buffers since we lose them after decoding-encoding
+          beatObject.samples.forEach((sample, index) => {
+            savedGridObject.samples[index].sampleAudioBuffer = sample.sampleAudioBuffer
+          })
           this.props.setCurrentGridItem(savedGridObject)
         },
       },
@@ -122,7 +127,7 @@ class StudioPanel extends React.Component {
   handleSampleAddClick = () => {
     this.setState({
       currentSynthesizerInfo: {
-        userInfo: this.props.userInfo,
+        userInfo: GetUserAuthInfo(),
         shouldShowSynthesizer: true,
         onSynthesizerClose: _ => {
           this.setState({ currentSynthesizerInfo: HideSynthesizerInfo })
@@ -259,12 +264,18 @@ class StudioPanel extends React.Component {
    */
   beatsItemListRequest = () => {
     this.props.setIsMakingNetworkActivity(true)
-    RequestUserBeatItems(this.props.userInfo, data => {
-      if (StudioPanelComponentMounted) {
-        this.props.setIsMakingNetworkActivity(false)
-        this.setState({ loadedBeats: data })
+    RequestGetOwnedBeats(
+      GetUserAuthInfo(),
+      data => {
+        if (StudioPanelComponentMounted) {
+          this.props.setIsMakingNetworkActivity(false)
+          this.setState({ loadedBeats: data })
+        }
+      },
+      _ => {
+        // Request Error
       }
-    })
+    )
   }
 
   /**
@@ -272,7 +283,7 @@ class StudioPanel extends React.Component {
    */
   sampleItemListRequest = () => {
     this.props.setIsMakingNetworkActivity(true)
-    RequestUserSampleItems(this.props.userInfo, data => {
+    RequestUserSampleItems(GetUserAuthInfo(), data => {
       if (StudioPanelComponentMounted) {
         this.props.setIsMakingNetworkActivity(false)
         this.setState({ loadedSamples: data })
@@ -333,12 +344,14 @@ class StudioPanel extends React.Component {
         <SynthesizerWrapper {...this.state.currentSynthesizerInfo}></SynthesizerWrapper>
         {this.renderSampleDownloader()}
         <SaveBeatPromptWrapper
+          userInfo={GetUserAuthInfo()}
           promptInfo={this.state.currentSavePromptInfo}
           currentGridItem={this.props.currentGridItem}
           setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}
           onSaveError={() => this.setState({ currentSavePromptInfo: ClosePromptInfo })}
         ></SaveBeatPromptWrapper>
         <ItemContextPromptWrapper
+          userInfo={GetUserAuthInfo()}
           promptInfo={this.state.currentItemContextPromptInfo}
           setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}
         ></ItemContextPromptWrapper>

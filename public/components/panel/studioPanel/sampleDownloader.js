@@ -1,11 +1,31 @@
 import React from 'react'
+import Color from 'color'
 import axios from 'axios'
 import { GridSampleObject } from '../workstationPanel/gridComponents'
+import {
+  CELL_COLOR_SATURATION,
+  CELL_COLOR_BRIGHTNESS,
+  MAXIMUM_GRID_COLUMN_COUNT,
+  CELL_WIDTH_IN_PIXELS,
+  PIXELS_PER_SECOND,
+} from '../workstationPanel/constants'
 import './studioPanel.css'
 
 let SampleDownloaderMounted = false
 let downloadedSampleCache = {}
 let assignedSampleColor = {}
+
+/**
+ * Returns a dark color in hsl format
+ * @return {String}
+ */
+const RandomDarkColor = _ => {
+  const start = 0
+  const end = 360
+  let hue = Math.floor(Math.random() * (end - start + 1) + start) % 360
+  const randomColor = Color.hsl([hue, CELL_COLOR_SATURATION, CELL_COLOR_BRIGHTNESS])
+  return randomColor.rgb().string()
+}
 
 class SampleDownloader extends React.Component {
   /**
@@ -68,8 +88,10 @@ class SampleDownloader extends React.Component {
     // otherwise, initiate download
     const cachedBuffer = downloadedSampleCache[sample.sampleSource]
     if (cachedBuffer != null && cachedBuffer != undefined) {
+      sample.sampleColor = assignedSampleColor[sample.sampleSource]
       sample.sampleAudioBuffer = cachedBuffer
-      sample.sampleAudioLength = sample.sampleAudioLength === -1 ? cachedBuffer.duration : sample.sampleAudioLength
+      sample.sampleAudioLength =
+        sample.sampleAudioLength === -1 ? Math.round(cachedBuffer.duration) : sample.sampleAudioLength
       prevResults.push(sample)
       downloadedSampleCache[sample.sampleSource] = cachedBuffer
       this.startDownload(prevResults, downloadIndex + 1)
@@ -87,10 +109,22 @@ class SampleDownloader extends React.Component {
         .then(response => this.props.audioContext.decodeAudioData(response.data))
         .then(audioBuffer => {
           if (SampleDownloaderMounted) {
+            const cachedBackgroundColor = assignedSampleColor[sample.sampleSource]
+            const maximumAudioLength = MAXIMUM_GRID_COLUMN_COUNT * (CELL_WIDTH_IN_PIXELS / PIXELS_PER_SECOND)
+            const backgroundColor =
+              cachedBackgroundColor == null || cachedBackgroundColor == undefined
+                ? RandomDarkColor()
+                : cachedBackgroundColor
+            sample.sampleColor = backgroundColor
             sample.sampleAudioBuffer = audioBuffer
-            sample.sampleAudioLength = sample.sampleAudioLength === -1 ? audioBuffer.duration : sample.sampleAudioLength
+            sample.sampleAudioLength =
+              sample.sampleAudioLength === -1 ? Math.floor(audioBuffer.duration) : sample.sampleAudioLength
+            if (sample.sampleAudioLength > maximumAudioLength) {
+              sample.sampleAudioLength = maximumAudioLength
+            }
             prevResults.push(sample)
             downloadedSampleCache[sample.sampleSource] = audioBuffer
+            assignedSampleColor[sample.sampleSource] = backgroundColor
             this.startDownload(prevResults, downloadIndex + 1)
           }
         })

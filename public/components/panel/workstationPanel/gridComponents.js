@@ -110,6 +110,7 @@ const GridSampleMatrix = props => {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
+            backgroundColor: gridSampleItem.sampleColor,
           }}
           default={{
             x: Constants.PIXELS_PER_SECOND * gridSampleItem.sampleAudioDelay,

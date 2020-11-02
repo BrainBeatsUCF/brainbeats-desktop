@@ -5,6 +5,7 @@
   { "BRAINBEATS_DATA_EMOTION": "emotion"},
   { "BRAINBEATS_HOST_URL": "http://0.0.0.0:" },
   { "BRAINBEATS_SYMPHONY_API_URL": "https://symphony-brainbeats.azurewebsites.net" },
+  { "BRAINBEATS_AZURE_API_URL": "https://brain-beats-server-docker.azurewebsites.net/api" },
   { "BRAINBEATS_HARDWARE_SOCKET_PORT": 5333 },
   { "BRAINBEATS_CLIENT_DEVELOPMENT_PORT": 3232 },
   { "BRAINBEATS_HARDWARE_SOCKET_LAUNCH_DELAY": 1500 }

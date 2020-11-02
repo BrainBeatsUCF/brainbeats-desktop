@@ -16,7 +16,7 @@ DefaultGridObject.samples = []
  * }} props
  */
 const AppDelegate = props => {
-  const [navigationPage, setNavigationPage] = useState(NavigationPage.Studio)
+  const [navigationPage, setNavigationPage] = useState(NavigationPage.Home)
   const [isMakingNetworkActivity, setIsMakingNetworkActivity] = useState(false)
   const [currentGridItem, setCurrentGridItem] = useState(DefaultGridObject)
 
@@ -41,7 +41,6 @@ const AppDelegate = props => {
           <StudioPanel
             customClass="AppBody"
             currentGridItem={currentGridItem}
-            userInfo={props.userInfo}
             setIsMakingNetworkActivity={setIsMakingNetworkActivity}
             setCurrentGridItem={setCurrentGridItem}
           ></StudioPanel>

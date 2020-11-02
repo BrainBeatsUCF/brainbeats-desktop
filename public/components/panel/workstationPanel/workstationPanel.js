@@ -192,10 +192,16 @@ class WorkstationPanel extends React.Component {
 
   render() {
     const { customClass, isPlayingAudio, numberOfRows, trackLinePosition } = this.state
+    const { currentGridBeat } = this.props
+    const loadedTitle =
+      numberOfRows > 0 && currentGridBeat.sampleTitle !== '' ? ' - ' + currentGridBeat.sampleTitle : ''
     return (
       <div className={`WorkstationPanel ${customClass}`}>
         <div className="WorkstationPanelMenu">
-          <h4 className="WorkstationPanelMenuTitle LeftSpot">{this.props.title}</h4>
+          <h4 className="WorkstationPanelMenuTitle LeftSpot">
+            {this.props.title}
+            {loadedTitle}
+          </h4>
           <MenuButton
             props={{
               color: MenuButtonColor.Blue,
