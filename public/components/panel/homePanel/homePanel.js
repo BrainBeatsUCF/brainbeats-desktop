@@ -41,8 +41,6 @@ const HomePanel = props => {
   const [publicBeats, setPublicBeats] = useState([]) /// Type is PublicBeatObject
   const [publicSamples, setPublicSamples] = useState([]) /// Type is PublicSample
   const [recommendedBeats, setRecommendedBeats] = useState([]) /// Type is PublicBeatObject
-  // add property to publicBeatObject to show likes
-  // pass liked stuff to library
 
   // MARK: Audio Play
 
