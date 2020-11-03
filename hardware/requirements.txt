@@ -1,2 +1,4 @@
 flask-socketio
 eventlet
+numpy
+pylsl

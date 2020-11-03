@@ -90,6 +90,7 @@ class Synthesizer extends React.Component {
       message => {
         setTimeout(_ => {
           closeHardwareSocket()
+          console.log(message)
           this.setState({
             predictedEmotion: message[window.process.env['BRAINBEATS_DATA_EMOTION']],
             synthesizingStage: SynthesizingStage.Modeling,

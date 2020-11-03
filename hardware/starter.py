@@ -4,6 +4,7 @@ import socketio
 import time
 import json
 import os
+from LSLHelper import connectToEEG, recordEEG
 
 sio = socketio.Server(cors_allowed_origins='*')
 app = socketio.WSGIApp(sio, static_files={
@@ -31,7 +32,7 @@ def deliverEvent(data=[]):
 def deliverError(data=[]):
   # Call this function to send back some error to the client
   # Note: on getting this event, client will shut server down
-  sio.emit(getSharedVariable('BRAINBEATS_ERROR_EVENT'), {""})
+  sio.emit(getSharedVariable('BRAINBEATS_ERROR_EVENT'), data)
 
 def confirmationEvent():
   # This function is called to inform client that connection succeeded
@@ -39,14 +40,20 @@ def confirmationEvent():
 
 @sio.event
 def connect(sid, environ):
-  # This function gets called when a connection is established
-  confirmationEvent()
+  # Connect to the EEG
+	eeg_connection = connectToEEG()
+
+	# Start recording
+	eeg_data = recordEEG(eeg_connection)
+
+	# pass data to ML model
+	emotion = predict_emotion(data)
 
   # IMPORTANT: Use double quotes for hardtyped strings!
   # example of sending back "happy" as the emotion
   deliverEvent(
     {
-      sharedVariables.get('BRAINBEATS_DATA_EMOTION', "emotion"): "happy"
+      sharedVariables.get('BRAINBEATS_DATA_EMOTION', "emotion"): emotion
     }
   )
 
