@@ -142,7 +142,6 @@ class Synthesizer extends React.Component {
   }
 
   handleShouldRequestSamples = _ => {
-    const { userInfo } = this.props
     const { predictedEmotion, synthesizingModel } = this.state
     this.setState({ hasBegunFetchingSamples: true })
     RequestGenerateSamples(
@@ -151,7 +150,7 @@ class Synthesizer extends React.Component {
       {
         emotion: predictedEmotion,
         modelImageSource: synthesizingModel.modelImageName,
-        modelName: synthesizingModel.modelName,
+        modelName: synthesizingModel.queryName,
       },
       (samples, status) => {
         if (status === ResultStatus.Error) {

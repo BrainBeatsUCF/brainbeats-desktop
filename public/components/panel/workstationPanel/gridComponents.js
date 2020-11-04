@@ -130,7 +130,7 @@ const GridSampleMatrix = props => {
           }}
           minHeight={Constants.CELL_HEIGHT_IN_PIXELS}
           maxHeight={Constants.CELL_HEIGHT_IN_PIXELS}
-          minWidth={Constants.CELL_MINIMUM_WIDTH_IN_PIXELS}
+          minWidth={Constants.PIXELS_PER_SECOND} // Minimum width is however long it takes to represent 1 sec
           maxWidth={rndMaximumLength}
           resizeGrid={[Constants.PIXELS_PER_SECOND, 1]}
           dragGrid={[Constants.PIXELS_PER_SECOND, 1]}

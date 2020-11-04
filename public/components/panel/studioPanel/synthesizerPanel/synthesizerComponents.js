@@ -15,6 +15,8 @@ const SynthModelObject = {
   modelImageName: '',
   modelName: '',
   modelBackgroundColor: '',
+  isAvailable: false,
+  queryName: '',
 }
 
 const SynthesizingStage = {
@@ -53,7 +55,14 @@ const SynthModelCards = props => {
           width: MODEL_CELL_LENGTH_IN_PIXELS,
           backgroundColor: modelBackgroundColor,
         }}
-        onClick={() => props.onModelClick(modelObject)}
+        onClick={() => {
+          /// Allow model to be selected only if it's been deployed
+          if (modelObject.isAvailable) {
+            props.onModelClick(modelObject)
+          } else {
+            console.log('Model not yet activated. Please check synthesizerModel json file for details')
+          }
+        }}
       >
         <img className="SynthModelCardImage" src={modelObject.modelImageName} alt={modelObject.modelName}></img>
         <span className="TooltipText">{modelObject.modelName}</span>

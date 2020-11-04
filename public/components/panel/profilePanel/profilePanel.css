@@ -16,6 +16,7 @@
 
 .UserAccountSectionLabel {
   margin-top: 10px;
+  text-transform: capitalize;
 }
 
 .StatisticBackground {

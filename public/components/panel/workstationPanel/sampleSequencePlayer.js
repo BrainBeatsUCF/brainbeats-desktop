@@ -32,7 +32,8 @@ const extractPlayedBuffer = (context, sourceBuffer, sampleObject) => {
  */
 const calculateRenderDuration = sampleObjects => {
   return sampleObjects.reduce((prevMax, sample) => {
-    if (sample.sampleAudioDelay + sample.sampleAudioLength > prevMax) {
+    // Include sample in duration count only if active
+    if (sample.sampleAudioDelay + sample.sampleAudioLength > prevMax && sample.sampleIsActive) {
       return sample.sampleAudioDelay + sample.sampleAudioLength
     } else {
       return prevMax
@@ -53,7 +54,9 @@ const SampleSequenceRenderer = (sampleObjects, onDataReady, onRenderError) => {
 
   sampleObjects.forEach(sampleObject => {
     let { sampleAudioBuffer, sampleIsActive } = sampleObject
-    if (sampleIsActive) {
+    let sampleAudioChannelLength = sampleObject.sampleAudioLength * sampleAudioBuffer.sampleRate
+    // Include audio if its active and longer than 0 seconds
+    if (sampleIsActive && sampleAudioChannelLength > 0) {
       let compressor = offlineAudioContext.createDynamicsCompressor()
       compressor.threshold.setValueAtTime(CompressionThreshold, offlineAudioContext.currentTime)
       compressor.knee.setValueAtTime(CompressionKnee, offlineAudioContext.currentTime)
