@@ -3,16 +3,15 @@ import { VerifiedUserInfo } from './authRequestService'
 import { GridSampleObject } from '../panel/workstationPanel/gridObjects'
 import { ResultStatus } from './requestService'
 
+const numberOfSamplesToGenerate = 5
+const getSampleRoute = window.process.env['BRAINBEATS_SYMPHONY_API_URL'] + '/getSample'
+
 const GenerationInfo = {
   emotion: '',
   modelImageSource: '',
   modelName: '',
 }
 
-const testSampleRoutes = [
-  'https://brainbeatsstorage.blob.core.windows.net/sample/trumpet.sf2.wav',
-  'https://brainbeatsstorage.blob.core.windows.net/sample/woodwinds.sf2.wav',
-]
 let generatedSamples = []
 
 /**
@@ -24,8 +23,7 @@ let generatedSamples = []
  */
 const RequestGenerateSamples = (audioContext, userInfo, generationInfo, didCompleteRequest) => {
   generatedSamples = []
-  console.log(generationInfo)
-  RequestGenerateSingleSample(audioContext, userInfo, testSampleRoutes.length, generationInfo, didCompleteRequest)
+  RequestGenerateSingleSample(audioContext, userInfo, numberOfSamplesToGenerate, generationInfo, didCompleteRequest)
 }
 
 /**
@@ -41,10 +39,19 @@ const RequestGenerateSingleSample = (audioContext, userInfo, count, generationIn
     didCompleteRequest(generatedSamples, ResultStatus.Success)
     return
   }
-  const requestURL = 'https://cors-anywhere.herokuapp.com/' + testSampleRoutes[count - 1]
+  /// WIP: Route not yet available
   axios({
-    responseType: 'arraybuffer',
-    url: requestURL,
+    method: 'GET',
+    url: getSampleRoute,
+    headers: { 'Content-Type': 'application/json' },
+    data: {
+      instrument_name: generationInfo.modelName,
+      emotion: generationInfo.emotion,
+      seed: '60 _ ',
+      num_steps: 64,
+      max_seq_len: 128,
+      temperature: 0.5,
+    },
   })
     .then(response => audioContext.decodeAudioData(response.data))
     .then(decodedAudioBuffer => {

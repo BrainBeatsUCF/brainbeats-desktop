@@ -205,10 +205,17 @@ class StudioPanel extends React.Component {
    * @param {GridSampleObject} sampleObject
    */
   handleSampleItemClick = sampleObject => {
+    let canDeleteSample = true
+    this.props.currentGridItem.samples.forEach(singleSample => {
+      if (singleSample.sampleID === sampleObject.sampleID) {
+        canDeleteSample = false
+      }
+    })
     this.setState({
       currentItemContextPromptInfo: {
         title: sampleObject.sampleTitle,
         shouldShowPrompt: true,
+        canDeleteSample: canDeleteSample,
         value: sampleObject,
         type: ListObjectType.Sample,
         onLoadItemToGrid: _ => {

@@ -26,6 +26,7 @@ const OpenContextPromptInfo = {
 const CloseContextPromptInfo = {
   title: null,
   shouldShowPrompt: false,
+  canDeleteSample: true,
   value: GridBeatObject,
   type: ListObjectType,
   onLoadItemToGrid: null,
@@ -40,6 +41,7 @@ let downloadProgress = 0
  * @param {{
  * promptTitle: String,
  * userInfo: VerifiedUserInfo,
+ * canDeleteSample: Boolean,
  * value: GridBeatObject | GridSampleObject,
  * type: ListObjectType,
  * setIsMakingNetworkActivity: (Boolean) => void,
@@ -158,6 +160,26 @@ const ItemContextPrompt = props => {
     }
   }
 
+  const getDeleteButton = _ => {
+    if (isSample && !props.canDeleteSample) {
+      return <></>
+    } else {
+      return (
+        <input
+          className="LoginInput PromptButton ContextButton"
+          type="button"
+          value={deleteInputValue}
+          onClick={_ => {
+            if (window.confirm(`Delete ${props.promptTitle} permanently?`)) {
+              handleItemDelete()
+            }
+          }}
+          disabled={isInActivity()}
+        ></input>
+      )
+    }
+  }
+
   return (
     <div className="SaveBeatPromptBackground">
       <div className="ItemContextPrompt">
@@ -171,17 +193,7 @@ const ItemContextPrompt = props => {
           disabled={isInActivity()}
         ></input>
         {getDownloadAudioButton()}
-        <input
-          className="LoginInput PromptButton ContextButton"
-          type="button"
-          value={deleteInputValue}
-          onClick={_ => {
-            if (window.confirm(`Delete ${props.promptTitle} permanently?`)) {
-              handleItemDelete()
-            }
-          }}
-          disabled={isInActivity()}
-        ></input>
+        {getDeleteButton()}
         <input
           className="LoginInput PromptButton ContextButton"
           type="button"
@@ -212,6 +224,7 @@ const ItemContextPromptWrapper = props => {
       <ItemContextPrompt
         promptTitle={promptInfo.title ?? ''}
         userInfo={userInfo}
+        canDeleteSample={promptInfo.canDeleteSample}
         value={promptInfo.value}
         type={promptInfo.type}
         setIsMakingNetworkActivity={props.setIsMakingNetworkActivity}
