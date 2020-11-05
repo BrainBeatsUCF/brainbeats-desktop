@@ -5,6 +5,7 @@ import time
 import json
 import os
 from LSLHelper import connectToEEG, recordEEG
+from model_helper import predict_emotion
 
 sio = socketio.Server(cors_allowed_origins='*')
 app = socketio.WSGIApp(sio, static_files={
@@ -12,7 +13,7 @@ app = socketio.WSGIApp(sio, static_files={
 })
 
 # Uncomment for server debug mode
-# app.debug = True
+app.debug = True
 
 sharedVariables = {}
 with open(os.getcwd() + '/shared_variables.json') as environmentVariablesJsonFile:
@@ -41,6 +42,7 @@ def confirmationEvent():
 @sio.event
 def connect(sid, environ):
   # Connect to the EEG
+	confirmationEvent()
 	eeg_connection = connectToEEG()
 
 	# Start recording
@@ -51,11 +53,7 @@ def connect(sid, environ):
 
   # IMPORTANT: Use double quotes for hardtyped strings!
   # example of sending back "happy" as the emotion
-  deliverEvent(
-    {
-      sharedVariables.get('BRAINBEATS_DATA_EMOTION', "emotion"): emotion
-    }
-  )
+	deliverEvent({sharedVariables.get('BRAINBEATS_DATA_EMOTION', "emotion"): emotion})
 
 @sio.on('my status')
 def my_message(sid, data):

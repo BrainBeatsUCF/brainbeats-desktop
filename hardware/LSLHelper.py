@@ -1,7 +1,6 @@
 from pylsl import StreamInlet, resolve_byprop
 from collections import deque
 import time
-from starter import confirmationEvent, deliverError
 
 FFT_MAX_HZ = 60
 HM_SECONDS = 10  # this is approximate. Not 100%. do not depend on this.
@@ -12,10 +11,10 @@ def connectToEEG() -> StreamInlet:
 	print("Attempting to connect to the EEG headset...")
 	try: 
 		streams = resolve_byprop('type', 'EEG')
-		confirmationEvent()
+		print("Connected!")
 		return StreamInlet(streams[0])
 	except Exception:
-		deliverError(["Failed to connect to the EEG Headset"])
+		return None
 
 def recordEEG(stream_connection: StreamInlet):
 	last_print = time.time()
@@ -39,4 +38,4 @@ def recordEEG(stream_connection: StreamInlet):
 			data.append(cur_raw_hz)
 		return data
 	except Exception:
-		deliverError(["Failed to record from the EEG Headset"])
+		return None

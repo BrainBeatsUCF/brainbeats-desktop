@@ -26,7 +26,8 @@ function establishConnection(handleData, handleError, handleConfirmation) {
       return
     }
     console.log('Establishing Connection')
-    socket = io.connect(socketConnectionURL)
+    //socket = io.connect(socketConnectionURL)
+    socket = io.connect('http://0.0.0.0:5333')
     socket.on('connect', () => {
       console.log('Client Connected')
     })
