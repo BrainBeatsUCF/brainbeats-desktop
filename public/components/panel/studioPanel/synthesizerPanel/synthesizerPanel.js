@@ -15,6 +15,7 @@ const timeToCloseSocketOnMessage = 500 // 0.5 seconds
 /// Cancel Token for monitering axios request
 /// TODO: Store cancel token for axios call here and cancel if disrupt
 const SampleSynthAudioContext = new AudioContext({ sampleRate: 44100 })
+let SynthesizerPanelMounted = false
 
 const StageTitle = {
   Selecting: 'Select Sample Synthesizer',
@@ -73,6 +74,14 @@ class Synthesizer extends React.Component {
 
   // MARK: Life Cycle
 
+  componentDidMount() {
+    SynthesizerPanelMounted = true
+  }
+
+  componentWillUnmount() {
+    SynthesizerPanelMounted = false
+  }
+
   componentDidUpdate() {
     const { synthesizingStage, hasConnectedToEEG, hasBegunFetchingSamples } = this.state
     if (synthesizingStage == SynthesizingStage.Connecting && !hasConnectedToEEG) {
@@ -91,8 +100,9 @@ class Synthesizer extends React.Component {
         setTimeout(_ => {
           closeHardwareSocket()
           this.setState({
-            predictedEmotion: message[window.process.env['BRAINBEATS_DATA_EMOTION']],
+            predictedEmotion: message,
             synthesizingStage: SynthesizingStage.Modeling,
+            hasBegunFetchingSamples: false,
           })
         }, timeToCloseSocketOnMessage)
       },
@@ -102,9 +112,11 @@ class Synthesizer extends React.Component {
       },
       // callback recieved when EEG successfully connects
       _ => {
-        this.setState({
-          synthesizingStage: SynthesizingStage.Recording,
-        })
+        if (SynthesizerPanelMounted) {
+          this.setState({
+            synthesizingStage: SynthesizingStage.Recording,
+          })
+        }
       }
     )
   }

@@ -1,5 +1,10 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron')
+const { PythonShell } = require('python-shell')
 const path = require('path')
+
+/// Keep reference to main window to allow communication with background
+/// window processes
+let mainWindow
 
 function createWindow() {
   // Create the browser window.
@@ -22,6 +27,7 @@ function createWindow() {
 
   // Open the DevTools.
   win.webContents.openDevTools()
+  mainWindow = win
 }
 
 // This method will be called when Electron has finished
@@ -48,3 +54,64 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+// Event listeners for coordinating IPC between main and renderer threads
+let pyshell
+
+const endPyshell = _ => {
+  console.log('BACKGROUND DEBUG PRINT: Script Handler Should End')
+  if (pyshell == null || pyshell == undefined) {
+    return
+  }
+  pyshell.end(function (err, code, signal) {
+    if (err) throw err
+    console.log('The script exit code was: ' + code, 'The script exit signal was: ' + signal)
+    pyshell = null
+  })
+}
+
+const parsePyshellMessage = args => {
+  try {
+    const messageDetails = JSON.parse(args)
+    if (messageDetails == undefined || messageDetails == null) {
+      return
+    }
+
+    /// Handle sending emotion
+    if (messageDetails.emotion != null && messageDetails.emotion != undefined) {
+      mainWindow.webContents.send('HARDWARE_PROCESS_MESSAGE', messageDetails.emotion)
+      return
+    }
+
+    /// Handle sending confirmation
+    if (messageDetails.hasConfirmed != undefined && messageDetails.hasConfirmed != null) {
+      mainWindow.webContents.send('HARDWARE_PROCESS_MESSAGE', 'hasConfirmed')
+      return
+    }
+  } catch (error) {
+    console.log(args)
+  }
+}
+
+// Event to tell electron to create python script handler
+ipcMain.on('HARDWARE_PROCESS_START', event => {
+  endPyshell()
+  let startScriptPath = path.join(__dirname, 'hardware/foobar.py')
+  pyshell = new PythonShell(startScriptPath, {
+    pythonPath: 'python',
+  })
+
+  pyshell.on('message', function (results) {
+    parsePyshellMessage(results)
+  })
+
+  pyshell.on('stderr', function (stderr) {
+    endPyshell()
+    mainWindow.webContents.send('HARDWARE_PROCESS_ERROR')
+  })
+})
+
+// Event to shutdown python script handler
+ipcMain.on('HARDWARE_PROCESS_SHUTDOWN', event => {
+  endPyshell()
+})

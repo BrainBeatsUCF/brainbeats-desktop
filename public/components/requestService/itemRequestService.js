@@ -375,9 +375,7 @@ const RequestLikeUnlikeBeat = (userInfo, beatId, shouldLike, onComplete, limit) 
   axios
     .post(url, requestBody, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
     .then(response => {
-      if (response.status !== 200) {
-        onError()
-      } else {
+      if (response.status === 200) {
         return response.data
       }
     })
@@ -393,10 +391,9 @@ const RequestLikeUnlikeBeat = (userInfo, beatId, shouldLike, onComplete, limit) 
         RequestUserRefreshAuthentication(
           userInfo,
           _ => RequestLikeUnlikeBeat(GetUserAuthInfo(), beatId, shouldLike, onComplete, true),
-          onError
+          _ => {} // error callback
         )
       } else {
-        onError()
         console.error(error.response)
       }
     })
