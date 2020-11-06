@@ -59,10 +59,10 @@ app.on('activate', () => {
 let pyshell
 
 const endPyshell = _ => {
-  console.log('BACKGROUND DEBUG PRINT: Script Handler Should End')
   if (pyshell == null || pyshell == undefined) {
     return
   }
+  console.log('BACKGROUND DEBUG PRINT: Script Handler Should End')
   pyshell.end(function (err, code, signal) {
     if (err) throw err
     console.log('The script exit code was: ' + code, 'The script exit signal was: ' + signal)
@@ -96,7 +96,7 @@ const parsePyshellMessage = args => {
 // Event to tell electron to create python script handler
 ipcMain.on('HARDWARE_PROCESS_START', event => {
   endPyshell()
-  let startScriptPath = path.join(__dirname, 'hardware/foobar.py')
+  let startScriptPath = path.join(__dirname, 'hardware/hardware_starter.py')
   pyshell = new PythonShell(startScriptPath, {
     pythonPath: 'python',
   })

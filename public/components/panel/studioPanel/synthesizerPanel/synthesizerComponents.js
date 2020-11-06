@@ -151,17 +151,13 @@ let sampleIsPlaying = [false]
 const SynthCompletedStagePanel = props => {
   const SampleCardKey = 'SynthSampleCard'
   const { leftSectionClassname, rightSectionClassname, sampleOptions } = props
+  const [isSelected, setIsSelected] = useState(new Array(sampleOptions.length).fill(false))
+  const [isPrivate, setIsPrivate] = useState(new Array(sampleOptions.length).fill(false))
   const [titles, setTitles] = useState(
     sampleOptions.map((_, index) => {
       return 'Sample ' + (index + 1)
     })
   )
-  const [isSelected, setIsSelected] = useState(
-    sampleOptions.map(_ => {
-      return false
-    })
-  )
-  const [isPrivate, setIsPrivate] = useState(isSelected)
 
   useEffect(_ => {
     SynthSamplesMounted = true
@@ -310,6 +306,8 @@ const SynthCompletedStagePanel = props => {
                 selectedSamples.push(selectedSample)
               }
             })
+            console.log(isSelected)
+            console.log(isPrivate)
             props.saveSamples(selectedSamples)
           })}
         </div>

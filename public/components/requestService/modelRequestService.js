@@ -39,20 +39,22 @@ const RequestGenerateSingleSample = (audioContext, userInfo, count, generationIn
     didCompleteRequest(generatedSamples, ResultStatus.Success)
     return
   }
-  /// WIP: Route not yet available
-  axios({
-    method: 'GET',
-    url: getSampleRoute,
-    headers: { 'Content-Type': 'application/json' },
-    data: {
-      instrument_name: generationInfo.modelName,
-      emotion: generationInfo.emotion,
-      seed: '60 _ ',
-      num_steps: 64,
-      max_seq_len: 128,
-      temperature: 0.5,
-    },
-  })
+  /// WIP: Route not ready
+  axios
+    .post(
+      getSampleRoute,
+      {
+        instrument_name: generationInfo.modelName,
+        emotion: generationInfo.emotion,
+        seed: '60 _ ',
+        num_steps: 64,
+        max_seq_len: 128,
+        temperature: 0.5,
+      },
+      {
+        responseType: 'arraybuffer',
+      }
+    )
     .then(response => audioContext.decodeAudioData(response.data))
     .then(decodedAudioBuffer => {
       let newSample = { ...GridSampleObject }
