@@ -6,7 +6,8 @@ import { SaveBeatPromptWrapper, ClosePromptInfo } from './saveBeatPrompt'
 import { ItemContextPromptWrapper, CloseContextPromptInfo } from './itemContextPrompt'
 import { GetUserAuthInfo } from '../../requestService/authRequestService'
 import { RequestGetOwnedBeats, RequestGetOwnedSamples } from '../../requestService/itemRequestService'
-import { SynthesizerWrapper, HideSynthesizerInfo } from './synthesizerPanel/synthesizerPanel'
+import { HideSynthesizerInfo } from './synthesizerPanel/synthesizerPanel'
+import { SynthesizerManager } from './synthesizerPanel/synthesizerManagerPanel'
 import {
   GridBeatObject,
   GridSampleObject,
@@ -117,7 +118,6 @@ class StudioPanel extends React.Component {
   handleSampleAddClick = () => {
     this.setState({
       currentSynthesizerInfo: {
-        userInfo: GetUserAuthInfo(),
         shouldShowSynthesizer: true,
         onSynthesizerClose: _ => {
           this.sampleItemListRequest()
@@ -345,7 +345,7 @@ class StudioPanel extends React.Component {
           onSaveCurrentGridBeat={this.handleSaveBeatToDatabase}
           setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}
         ></WorkstationPanel>
-        <SynthesizerWrapper {...this.state.currentSynthesizerInfo}></SynthesizerWrapper>
+        <SynthesizerManager {...this.state.currentSynthesizerInfo}></SynthesizerManager>
         {this.renderSampleDownloader()}
         <SaveBeatPromptWrapper
           userInfo={GetUserAuthInfo()}

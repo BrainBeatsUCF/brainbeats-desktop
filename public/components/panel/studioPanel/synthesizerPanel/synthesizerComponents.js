@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { GridSampleObject } from '../../workstationPanel/gridObjects'
+import { MenuButton, MenuButtonColor } from '../../../input/input'
 import PlayButton from '../../../../images/whitePlayButton.png'
 import './synthesizerComponents.css'
-import { lab } from 'color'
 
 const MODEL_CARD_KEY_PREFIX = 'synthModelCard'
 const MODEL_CELL_LENGTH_IN_PIXELS = 100
@@ -30,7 +30,7 @@ const SynthesizingStage = {
 const ProcessingStageInfo = {
   Connecting: 'Connecting to EEG headset',
   Recording: 'Recording EEG Data',
-  Modeling: 'Generating Samples',
+  Modeling: 'Generating Sample',
   Completed: 'Generated Samples',
 }
 
@@ -118,18 +118,20 @@ const SynthVisualizer = props => {
  * @param {{
  * leftSectionClassname: String?,
  * rightSectionClassname: String?,
- * synthesizingStage: SynthesizingStage
+ * synthesizingStage: SynthesizingStage,
+ * sampleGenerationIndex: Number
  * }} props
  */
 const SynthProcessingStagePanel = props => {
-  const { leftSectionClassname, rightSectionClassname, synthesizingStage } = props
+  const { leftSectionClassname, rightSectionClassname, synthesizingStage, sampleGenerationIndex } = props
   const shouldAnimateVisualizer =
     synthesizingStage === SynthesizingStage.Recording || synthesizingStage === SynthesizingStage.Modeling
+  const sampleGenerationInfo = synthesizingStage === SynthesizingStage.Modeling ? ` (${sampleGenerationIndex + 1})` : ''
   return (
     <>
       <SynthVisualizer className={leftSectionClassname} isAnimating={shouldAnimateVisualizer}></SynthVisualizer>
       <div className={`FlexWithCenteredContent ${rightSectionClassname}`}>
-        <h4 className="SynthProcessingMessage">{ProcessingStageInfo[synthesizingStage]}</h4>
+        <h4 className="SynthProcessingMessage">{ProcessingStageInfo[synthesizingStage] + sampleGenerationInfo}</h4>
       </div>
     </>
   )
@@ -297,6 +299,7 @@ const SynthCompletedStagePanel = props => {
             props.restartGenerator()
           })}
           {actionInput('Save Selected Samples', '#415F36', _ => {
+            stopSynthPreview(currentAudioBufferIndex)
             let selectedSamples = []
             isSelected.forEach((sampleSelected, index) => {
               if (sampleSelected) {
@@ -306,8 +309,6 @@ const SynthCompletedStagePanel = props => {
                 selectedSamples.push(selectedSample)
               }
             })
-            console.log(isSelected)
-            console.log(isPrivate)
             props.saveSamples(selectedSamples)
           })}
         </div>
@@ -316,11 +317,44 @@ const SynthCompletedStagePanel = props => {
   )
 }
 
+/**
+ * @param {{onMenuButtonClick: () => void}} props
+ */
+const SynthesizingStageCloseButton = props => {
+  return (
+    <MenuButton
+      props={{
+        customClass: '',
+        title: 'Close',
+        color: MenuButtonColor.Red,
+        onMenuButtonClick: props.onMenuButtonClick,
+      }}
+    ></MenuButton>
+  )
+}
+
+/**
+ *
+ * @param {{
+ * stageTitle: String,
+ * onMenuButtonClick: () => void
+ * }} props
+ */
+const SynthesizingStageNavigation = props => {
+  return (
+    <div className="SynthesizerHeaderSection">
+      <h4 className="SynthesizerHeaderTitle">{props.stageTitle}</h4>
+      <SynthesizingStageCloseButton onMenuButtonClick={props.onMenuButtonClick}></SynthesizingStageCloseButton>
+    </div>
+  )
+}
+
 export {
   SynthModelObject,
   SynthesizingStage,
   ProcessingStageInfo,
   MODEL_CELL_LENGTH_IN_PIXELS,
+  SynthesizingStageNavigation,
   SynthSelectionStagePanel,
   SynthProcessingStagePanel,
   SynthCompletedStagePanel,

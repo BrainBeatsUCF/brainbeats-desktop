@@ -13,7 +13,6 @@ various background processes are running.
 .Synthesizer {
   display: grid;
   position: absolute;
-  animation: fadeInFromNone 0.24s ease-out;
   background-color: var(--app-background-color);
   top: var(--app-header-height);
   height: calc(100% - var(--app-header-height));

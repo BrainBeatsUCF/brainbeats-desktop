@@ -62,12 +62,9 @@ const endPyshell = _ => {
   if (pyshell == null || pyshell == undefined) {
     return
   }
-  console.log('BACKGROUND DEBUG PRINT: Script Handler Should End')
-  pyshell.end(function (err, code, signal) {
-    if (err) throw err
-    console.log('The script exit code was: ' + code, 'The script exit signal was: ' + signal)
-    pyshell = null
-  })
+  console.log('BACKGROUND DEBUG PRINT: Ending Script Child Process')
+  pyshell.childProcess.kill('SIGINT')
+  pyshell = null
 }
 
 const parsePyshellMessage = args => {
@@ -79,13 +76,14 @@ const parsePyshellMessage = args => {
 
     /// Handle sending emotion
     if (messageDetails.emotion != null && messageDetails.emotion != undefined) {
+      console.log('BACKGROUND DEBUG PRINT: Emotion Predicted')
       mainWindow.webContents.send('HARDWARE_PROCESS_MESSAGE', messageDetails.emotion)
       return
     }
 
     /// Handle sending confirmation
     if (messageDetails.hasConfirmed != undefined && messageDetails.hasConfirmed != null) {
-      mainWindow.webContents.send('HARDWARE_PROCESS_MESSAGE', 'hasConfirmed')
+      console.log('BACKGROUND DEBUG PRINT: Connection Confirmed')
       return
     }
   } catch (error) {
