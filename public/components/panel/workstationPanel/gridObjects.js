@@ -87,10 +87,12 @@ const getEmptyBeat = () => {
     isWorthSaving: false,
     sampleTitle: '',
     sampleSubtitle: '',
-    beatID: 0,
+    beatID: '',
     image: '',
     commit: '',
     samples: [],
+    savedAudio: '',
+    isPrivate: false,
   }
 }
 
