@@ -22,7 +22,6 @@ import {
 import './homePanel.css'
 
 let HomePanelMounted = false
-let isInitialLoadup = true
 
 /**
  * @param {{
@@ -35,7 +34,6 @@ const HomePanel = props => {
   const [audioPlaybackList, setAudioPlaybackList] = useState([])
   const [audioPlaybackListIndex, setAudioPlaybackListIndex] = useState(null)
   const [currentSelectedItemHash, setCurrentSelectedItemHash] = useState(null)
-  const [showLoadingOverlay, setShowLoadingOverlay] = useState(isInitialLoadup)
   const [likedBeatIDs, setLikedBeatIDs] = useState(new Set())
   const [personalBeats, setPersonalBeats] = useState([]) /// Type is PersonalBeatObject
   const [publicBeats, setPublicBeats] = useState([]) /// Type is PublicBeatObject
@@ -165,8 +163,6 @@ const HomePanel = props => {
     RequestGetOwnedBeats(
       GetUserAuthInfo(),
       beatObjects => {
-        isInitialLoadup = false
-        setShowLoadingOverlay(false)
         const myBeats = beatObjects.map(beatObject => {
           return {
             id: beatObject.beatID,
@@ -179,11 +175,8 @@ const HomePanel = props => {
         if (HomePanelMounted) {
           setPersonalBeats(myBeats)
         }
-        fetchLikedBeatIDs()
         let myBeatIds = new Set()
         myBeats.forEach(beatObject => myBeatIds.add(beatObject.id))
-        fetchSamples()
-        fetchRecommendedBeats()
         fetchAllBeats(myBeatIds)
       },
       _ => {}
@@ -274,7 +267,15 @@ const HomePanel = props => {
       GetUserAuthInfo(),
       sampleObjects => {
         const availableSamples = sampleObjects
-          .filter(sample => sample.sampleID != undefined && sample.sampleID != null && sample.sampleID !== '')
+          .filter(
+            sample =>
+              sample.sampleID != undefined &&
+              sample.sampleID != null &&
+              sample.sampleID !== '' &&
+              sample.isPrivate != undefined &&
+              sample.isPrivate != null &&
+              sample.isPrivate === false
+          )
           .map(sample => {
             return {
               id: sample.sampleID,
@@ -316,21 +317,13 @@ const HomePanel = props => {
   useEffect(() => {
     HomePanelMounted = true
     fetchBeats()
+    fetchLikedBeatIDs()
+    fetchSamples()
+    fetchRecommendedBeats()
     return function cleanup() {
       HomePanelMounted = false
     }
   }, [])
-
-  const renderOverlay = _ => {
-    if (!showLoadingOverlay) {
-      return <></>
-    }
-    return (
-      <div className="MainLoadingOverlay">
-        <img src={NetworkActivityAnimation} height="40px" width="40px"></img>
-      </div>
-    )
-  }
 
   return (
     <div className={`HomePanel ${props.customClass}`}>
@@ -364,7 +357,6 @@ const HomePanel = props => {
         hasStoppedPlayingItem={hasStoppedPlayingItem}
         hasPausedPlayingItem={hasPausedPlayingItem}
       ></AudioPanel>
-      {renderOverlay()}
     </div>
   )
 }

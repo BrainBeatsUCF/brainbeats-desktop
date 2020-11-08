@@ -129,7 +129,39 @@ const RequestUserRefreshAuthentication = (userInfo, onComplete, onError) => {
     })
 }
 
+/**
+ * @param {() => void} onSuccess
+ * @param {() => void} onError
+ */
+const RequestUserTokenRefresh = (onSuccess, onError) => {
+  const url = window.process.env[azureRouteKey] + refreshUserTokenRoute
+  const requestBody = {
+    refreshToken: GetUserAuthInfo().refreshToken,
+  }
+  axios
+    .post(url, requestBody)
+    .then(response => response.data)
+    .then(responseData => {
+      const newUserInfo = {
+        authToken: responseData.access_token,
+        refreshToken: responseData.refresh_token,
+        uuid: responseData.id_token,
+      }
+      SaveUserAuthInfo(newUserInfo)
+      if (onSuccess != null && onSuccess != undefined) {
+        onSuccess()
+      }
+    })
+    .catch(error => {
+      console.error(error.response)
+      if (onError != null && onError != undefined) {
+        onError()
+      }
+    })
+}
+
 export {
+  RequestUserTokenRefresh,
   RequestUserLoginAuthentication,
   RequestUserRefreshAuthentication,
   AuthenticateUserInfo,
