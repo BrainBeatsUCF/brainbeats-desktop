@@ -14,7 +14,7 @@ import {
   encodeSampleObject,
 } from '../panel/workstationPanel/gridObjects'
 
-const mockNetworkDelayMillisecond = 2000
+const imageURLPrefix = 'https://brainbeatsstorage.blob.core.windows.net/static/'
 
 /// Request Keys
 const idKey = 'id'
@@ -315,7 +315,6 @@ const RequestGetAllBeats = (userInfo, onComplete, onError, limit) => {
 }
 
 /**
- *
  * @param {VerifiedUserInfo} userInfo
  * @param {(likedBeatIDs: Set) => void} onComplete
  * @param {Boolean?} limit
@@ -359,7 +358,6 @@ const RequestGetLikedBeats = (userInfo, onComplete, limit) => {
 }
 
 /**
- *
  * @param {VerifiedUserInfo} userInfo
  * @param {String} beatId
  * @param {Boolean} shouldLike
@@ -550,7 +548,6 @@ const RequestCreateSamples = (userInfo, index, gridSampleObjects, previousSample
 }
 
 /**
- *
  * @param {VerifiedUserInfo} userInfo
  * @param {EncodedSampleObject} encodedSampleObject
  * @param {(progress: String) => void} onProgress
@@ -559,6 +556,9 @@ const RequestCreateSamples = (userInfo, index, gridSampleObjects, previousSample
  * @param {Boolean?} limit
  */
 const RequestCreateSample = (userInfo, encodedSampleObject, onProgress, onComplete, onError, limit) => {
+  /// take out image prefix + .png and .jpg extension
+  const imageNameFromURL = encodedSampleObject.image.slice(imageURLPrefix.length).slice(0, -4)
+
   /// Create form data
   let formData = new FormData()
   formData.append(emailKey, encodedSampleObject.email)
@@ -566,7 +566,7 @@ const RequestCreateSample = (userInfo, encodedSampleObject, onProgress, onComple
   formData.append(privacyKey, encodedSampleObject.isPrivate)
   formData.append(attributesKey, encodedSampleObject.attributes)
   formData.append(audioKey, encodedSampleObject.audio, encodedSampleObject.audio.name)
-  formData.append(imageKey, encodedSampleObject.image)
+  formData.append(imageKey, imageNameFromURL)
 
   /// Make Request
   const url = window.process.env[azureRouteKey] + createSampleRoute

@@ -63,7 +63,7 @@ const endPyshell = _ => {
     return
   }
   console.log('BACKGROUND DEBUG PRINT: Ending Script Child Process')
-  pyshell.childProcess.kill('SIGINT')
+  pyshell.childProcess.kill(0)
   pyshell = null
 }
 
@@ -103,8 +103,14 @@ ipcMain.on('HARDWARE_PROCESS_START', event => {
     parsePyshellMessage(results)
   })
 
+  pyshell.on('error', function (results) {
+    console.log('BACKGROUND DEBUG PRINT: Script Error Exit')
+    endPyshell()
+  })
+
   pyshell.on('stderr', function (stderr) {
     endPyshell()
+    console.log(stderr)
     mainWindow.webContents.send('HARDWARE_PROCESS_ERROR')
   })
 })
