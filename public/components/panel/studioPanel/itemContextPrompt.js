@@ -74,7 +74,7 @@ const ItemContextPrompt = props => {
     const tempAudioContext = new AudioContext({ sampleRate: 44100 })
     axios({
       responseType: 'arraybuffer',
-      url: 'https://cors-anywhere.herokuapp.com/' + sample.sampleSource,
+      url: sample.sampleSource,
       onDownloadProgress(progressEvent) {
         const progress = Math.round((progressEvent.loaded / progressEvent.total) * 100)
         downloadProgress = progress

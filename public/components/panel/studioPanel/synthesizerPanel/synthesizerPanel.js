@@ -1,16 +1,19 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import SynthesizerModels from './synthesizerModels.json'
 import { startHardwareSocket, closeHardwareSocket } from './hardwareSocketHandler'
 import { MODEL_CELL_LENGTH_IN_PIXELS, SynthesizingStage } from './synthesizerComponents'
-import { MenuButton, MenuButtonColor } from '../../../input/input'
 import { GridSampleObject } from '../../workstationPanel/gridObjects'
-import { RequestGenerateSamples, GenerationInfo } from '../../../requestService/modelRequestService'
+import { RequestGenerateSamples } from '../../../requestService/modelRequestService'
 import { RequestCreateSamples } from '../../../requestService/itemRequestService'
 import { GetUserAuthInfo, ResultStatus, VerifiedUserInfo } from '../../../requestService/authRequestService'
-import { SynthSelectionStagePanel, SynthProcessingStagePanel, SynthCompletedStagePanel } from './synthesizerComponents'
+import {
+  SynthSelectionStagePanel,
+  SynthProcessingStagePanel,
+  SynthCompletedStagePanel,
+  SynthesizingStageNavigation,
+  SynthModelObject,
+} from './synthesizerComponents'
 import './synthesizerPanel.css'
-
-const timeToCloseSocketOnMessage = 500 // 0.5 seconds
 
 /// Cancel Token for monitering axios request
 /// TODO: Store cancel token for axios call here and cancel if disrupt
@@ -19,13 +22,7 @@ const SampleSynthAudioContext = new AudioContext({ sampleRate: 44100 })
 const StageTitle = {
   Selecting: 'Select Sample Synthesizer',
   Default: 'Sample Creator Processing',
-}
-
-const PredictedEmotions = {
-  Happy: 'happy',
-  Melancholy: 'melancholy',
-  Surprised: 'surprised',
-  Calm: 'calm',
+  Completed: 'Sample Generation Completed',
 }
 
 const HideSynthesizerInfo = {
@@ -45,240 +42,248 @@ const lengthForModelCount = count => {
   return length
 }
 
-class Synthesizer extends React.Component {
-  /**
-   * @param {{
-   * userInfo: VerifiedUserInfo,
-   * customClassname: String?,
-   * shouldCloseSynthesizer: () => void
-   * }} props
-   */
-  constructor(props) {
-    super(props)
-    this.state = {
-      hasConnectedToEEG: false,
-      hasBegunFetchingSamples: false,
-      hasBegunUploadingSamples: false,
-      errorMessage: null,
-      predictedEmotion: PredictedEmotions.Melancholy,
-      predictedSamples: [GridSampleObject],
-      synthesizingModel: SynthesizerModels[0],
-      synthesizingStage: SynthesizingStage.Selecting,
-      modelContainerLength: lengthForModelCount(SynthesizerModels.length),
-      sampleUploadProgress: 'Starting Upload...',
-    }
-    // Adding autocomplete to javascript with intellisense
-    this.state.predictedSamples = []
-  }
+/**
+ * @param {{
+ * onModelSelect: (modelObject: SynthModelObject) => void,
+ * handleToggleEEGHardwareConnection: (value: String) => void,
+ * onClose: () => void
+ * }} props
+ */
+const SelectionSynthesizingPanel = props => {
+  const modelContainerLength = lengthForModelCount(SynthesizerModels.length)
+  return (
+    <>
+      <div className={'Synthesizer'}>
+        <SynthesizingStageNavigation
+          stageTitle={StageTitle.Selecting}
+          onMenuButtonClick={props.onClose}
+        ></SynthesizingStageNavigation>
+        <SynthSelectionStagePanel
+          customClassname="SynthesizerFullBodySection"
+          modelCardsContainerWidth={modelContainerLength}
+          availableSynthModels={SynthesizerModels}
+          handleSynthModelClick={props.onModelSelect}
+          handleToggleEEGHardwareConnection={props.handleToggleEEGHardwareConnection}
+        ></SynthSelectionStagePanel>
+      </div>
+    </>
+  )
+}
 
-  // MARK: Life Cycle
+/**
+ * @param {{
+ * onEmotionPredicted: (emotion: String) => void,
+ * onHardwareError: (error: any) => void
+ * onRestart: () void,
+ * onClose: () => void,
+ * stage: SynthesizingStage
+ * }} props
+ */
+const EEGProcessingSynthesizingPanel = props => {
+  let processingPanelMounted = false
 
-  componentDidUpdate() {
-    const { synthesizingStage, hasConnectedToEEG, hasBegunFetchingSamples } = this.state
-    if (synthesizingStage == SynthesizingStage.Connecting && !hasConnectedToEEG) {
-      this.handleConnectingToHardware()
-    } else if (synthesizingStage == SynthesizingStage.Modeling && !hasBegunFetchingSamples) {
-      this.handleShouldRequestSamples()
-    }
-  }
-
-  // MARK: EEG Event Handlers
-
-  handleConnectingToHardware = _ => {
-    this.setState({ hasConnectedToEEG: true })
+  const bootUpHardware = _ => {
     startHardwareSocket(
-      message => {
-        setTimeout(_ => {
-          closeHardwareSocket()
-          this.setState({
-            predictedEmotion: message[window.process.env['BRAINBEATS_DATA_EMOTION']],
-            synthesizingStage: SynthesizingStage.Modeling,
-          })
-        }, timeToCloseSocketOnMessage)
+      emotion => {
+        if (processingPanelMounted) {
+          props.onEmotionPredicted(emotion)
+        }
       },
-      errorMessage => {
-        console.error('EEG Error', errorMessage)
-        this.handleAbortEEG()
+      error => {
+        if (processingPanelMounted) {
+          props.onHardwareError(error)
+        }
       },
-      // callback recieved when EEG successfully connects
-      _ => {
-        this.setState({
-          synthesizingStage: SynthesizingStage.Recording,
-        })
-      }
+      _ => {} // Not handling confirmation callback
     )
   }
 
-  handleAbortEEG = _ => {
-    closeHardwareSocket()
-    this.setState({
-      hasBegunFetchingSamples: false,
-      hasBegunUploadingSamples: false,
-      hasConnectedToEEG: false,
-      synthesizingStage: SynthesizingStage.Selecting,
-    })
-  }
+  useEffect(() => {
+    processingPanelMounted = true
+    bootUpHardware()
+    return function cleanup() {
+      processingPanelMounted = false
+    }
+  }, [])
 
-  // MARK: Stage Event Handlers
+  return (
+    <>
+      <div className="SynthesizerHeaderOverlay"></div>
+      <div className={'Synthesizer'}>
+        <SynthesizingStageNavigation
+          stageTitle={StageTitle.Default}
+          onMenuButtonClick={_ => {
+            closeHardwareSocket()
+            props.onClose()
+          }}
+        ></SynthesizingStageNavigation>
+        <SynthProcessingStagePanel
+          leftSectionClassname="SynthesizerLeftBodySection"
+          rightSectionClassname="SynthesizerRightBodySection"
+          synthesizingStage={SynthesizingStage.Recording}
+          sampleGenerationIndex={0}
+        ></SynthProcessingStagePanel>
+      </div>
+    </>
+  )
+}
 
-  /**
-   * Cleans up any running processes like network requests or EEG connections before closing
-   * synthesizer
-   */
-  handleShouldAbortSynthesizing = _ => {
-    // cleanup background processes
-    this.handleAbortEEG()
-    this.props.shouldCloseSynthesizer()
-  }
+/**
+ * @param {{
+ * selectedModel: SynthModelObject,
+ * predictedEmotion: String,
+ * onSamplesGenerated: (samples: [GridSampleObject]) => void,
+ * onRestart: () void,
+ * onClose: () => void
+ * }} props
+ */
+const ModelingSynthesizingPanel = props => {
+  let modelingPanelMounted = false
+  const { selectedModel, predictedEmotion } = props
+  const [sampleGenerationIndex, setSampleGenerationIndex] = useState(0)
 
-  handleBacktrackToSelectionStage = errorMessage => {
-    this.setState({
-      synthesizingStage: SynthesizingStage.Selecting,
-      hasBegunFetchingSamples: false,
-      hasBegunUploadingSamples: false,
-      hasConnectedToEEG: false,
-      errorMessage: errorMessage,
-    })
-  }
-
-  handleShouldRequestSamples = _ => {
-    const { predictedEmotion, synthesizingModel } = this.state
-    this.setState({ hasBegunFetchingSamples: true })
+  const startRequestingSamples = _ => {
+    let sampleGenerationInfo = {
+      emotion: predictedEmotion,
+      modelImageSource: selectedModel.modelImageName,
+      modelName: selectedModel.queryName,
+      modelCommonName: selectedModel.modelName,
+    }
     RequestGenerateSamples(
       SampleSynthAudioContext,
       GetUserAuthInfo(),
-      {
-        emotion: predictedEmotion,
-        modelImageSource: synthesizingModel.modelImageName,
-        modelName: synthesizingModel.queryName,
+      sampleGenerationInfo,
+      currentSampleGenerationIndex => {
+        if (modelingPanelMounted) {
+          setSampleGenerationIndex(currentSampleGenerationIndex)
+        }
       },
       (samples, status) => {
         if (status === ResultStatus.Error) {
-          this.handleBacktrackToSelectionStage('Something went wrong. Please try again')
-        } else {
-          this.setState({
-            synthesizingStage: SynthesizingStage.Completed,
-            predictedSamples: samples,
-          })
+          if (modelingPanelMounted) {
+            props.onRestart()
+          }
+          return
+        }
+        if (modelingPanelMounted) {
+          props.onSamplesGenerated(samples)
         }
       }
     )
   }
 
+  useEffect(() => {
+    modelingPanelMounted = true
+    startRequestingSamples()
+    return function cleanup() {
+      modelingPanelMounted = false
+    }
+  }, [])
+
+  return (
+    <>
+      <div className="SynthesizerHeaderOverlay"></div>
+      <div className={'Synthesizer'}>
+        <SynthesizingStageNavigation
+          stageTitle={StageTitle.Default}
+          onMenuButtonClick={_ => {
+            // TODO: Call cancel executer for request
+            props.onClose()
+          }}
+        ></SynthesizingStageNavigation>
+        <SynthProcessingStagePanel
+          leftSectionClassname="SynthesizerLeftBodySection"
+          rightSectionClassname="SynthesizerRightBodySection"
+          synthesizingStage={SynthesizingStage.Modeling}
+          sampleGenerationIndex={sampleGenerationIndex}
+        ></SynthProcessingStagePanel>
+      </div>
+    </>
+  )
+}
+
+/**
+ * @param {{
+ * generatedSamples: [GridSampleObject],
+ * onRestart: () void,
+ * onClose: () => void
+ * }} props
+ */
+const UploadSynthesizingPanel = props => {
+  let uploadPanelMounted = false
+  const { generatedSamples } = props
+  const [hasBegunUpload, setHasBegunUpload] = useState(false)
+  const [sampleUploadProgress, setSampleUploadProgress] = useState('')
+  const overlayStyle = {
+    visibility: hasBegunUpload ? 'visible' : 'hidden',
+  }
+
   /**
    * @param {[GridSampleObject]} selectedSamples
    */
-  handleShouldSaveSamples = selectedSamples => {
-    this.setState({ hasBegunUploadingSamples: true })
+  const uploadSamples = selectedSamples => {
+    setHasBegunUpload(true)
     RequestCreateSamples(
       GetUserAuthInfo(),
       0,
       selectedSamples,
       [],
-      progressMessage => this.setState({ sampleUploadProgress: progressMessage }),
-      _ => this.props.shouldCloseSynthesizer(),
-      _ => this.handleBacktrackToSelectionStage('Something went wrong. Please try again')
+      progressMessage => {
+        if (uploadPanelMounted) {
+          setSampleUploadProgress(progressMessage)
+        }
+      },
+      // Success Callback
+      _ => {
+        if (uploadPanelMounted) {
+          props.onClose()
+        }
+      },
+      // Error Callback
+      _ => {
+        if (uploadPanelMounted) {
+          props.onRestart()
+        }
+      }
     )
   }
 
-  // MARK: Render
+  useEffect(() => {
+    uploadPanelMounted = true
+    return function cleanup() {
+      uploadPanelMounted = false
+    }
+  }, [])
 
-  /**
-   * @param {Number} modelContainerLength
-   * @param {SynthesizingStage} synthesizingStage
-   */
-  handleStageRender = (modelContainerLength, synthesizingStage) => {
-    // Selecting Stage
-    if (synthesizingStage === SynthesizingStage.Selecting) {
-      return (
-        <SynthSelectionStagePanel
-          customClassname="SynthesizerFullBodySection"
-          modelCardsContainerWidth={modelContainerLength}
-          availableSynthModels={SynthesizerModels}
-          handleSynthModelClick={modelInfo => {
-            this.setState({
-              synthesizingModel: modelInfo,
-              synthesizingStage: SynthesizingStage.Connecting,
-            })
-          }}
-        ></SynthSelectionStagePanel>
-      )
-      // Completed Stage
-    } else if (synthesizingStage === SynthesizingStage.Completed) {
-      return (
+  return (
+    <>
+      <div className="SynthesizerHeaderOverlay"></div>
+      <div className={'Synthesizer'}>
+        <SynthesizingStageNavigation
+          stageTitle={StageTitle.Completed}
+          onMenuButtonClick={props.onClose}
+        ></SynthesizingStageNavigation>
         <SynthCompletedStagePanel
           leftSectionClassname="SynthesizerLeftBodySection"
           rightSectionClassname="SynthesizerRightBodySection"
           audioContext={SampleSynthAudioContext}
-          synthesizingStage={synthesizingStage}
-          sampleOptions={this.state.predictedSamples}
-          saveSamples={selectedSamples => this.handleShouldSaveSamples(selectedSamples)}
-          restartGenerator={_ => this.handleBacktrackToSelectionStage(null)}
+          synthesizingStage={SynthesizingStage.Completed}
+          sampleOptions={generatedSamples}
+          saveSamples={selectedSamples => uploadSamples(selectedSamples)}
+          restartGenerator={props.onRestart}
         ></SynthCompletedStagePanel>
-      )
-      // Connecting | Recording | Modeling
-    } else {
-      return (
-        <SynthProcessingStagePanel
-          leftSectionClassname="SynthesizerLeftBodySection"
-          rightSectionClassname="SynthesizerRightBodySection"
-          synthesizingStage={synthesizingStage}
-        ></SynthProcessingStagePanel>
-      )
-    }
-  }
-
-  render() {
-    const { modelContainerLength, synthesizingStage, sampleUploadProgress, hasBegunUploadingSamples } = this.state
-    const customClassname = this.props.customClassname ?? ''
-    const synthesizerHeaderOverlay = synthesizingStage === SynthesizingStage.Selecting ? '' : 'SynthesizerHeaderOverlay'
-    const stageTitle = synthesizingStage === SynthesizingStage.Selecting ? StageTitle.Selecting : StageTitle.Default
-    return (
-      <>
-        <div className={synthesizerHeaderOverlay}></div>
-        <div className={`Synthesizer ${customClassname}`}>
-          <div className="SynthesizerHeaderSection">
-            <h4 className="SynthesizerHeaderTitle">{stageTitle}</h4>
-            <MenuButton
-              props={{
-                customClass: '',
-                title: 'Close',
-                color: MenuButtonColor.Red,
-                onMenuButtonClick: _ => this.handleShouldAbortSynthesizing(),
-              }}
-            ></MenuButton>
-          </div>
-          {this.handleStageRender(modelContainerLength, synthesizingStage)}
-        </div>
-        <div
-          className="SampleUploadOverlay"
-          style={{
-            visibility: hasBegunUploadingSamples ? 'visible' : 'hidden',
-          }}
-        >
-          <h5 className="SampleUploadText">{sampleUploadProgress}</h5>
-        </div>
-      </>
-    )
-  }
+      </div>
+      <div className="SampleUploadOverlay" style={overlayStyle}>
+        <h5 className="SampleUploadText">{sampleUploadProgress}</h5>
+      </div>
+    </>
+  )
 }
 
-/**
- * @param {HideSynthesizerInfo} props
- */
-const SynthesizerWrapper = props => {
-  const { customClassname, userInfo, shouldShowSynthesizer, onSynthesizerClose } = props
-  if (!shouldShowSynthesizer) {
-    return <></>
-  } else {
-    return (
-      <Synthesizer
-        userInfo={userInfo}
-        customClassname={customClassname}
-        shouldCloseSynthesizer={onSynthesizerClose}
-      ></Synthesizer>
-    )
-  }
+export {
+  HideSynthesizerInfo,
+  SelectionSynthesizingPanel,
+  EEGProcessingSynthesizingPanel,
+  ModelingSynthesizingPanel,
+  UploadSynthesizingPanel,
 }
-
-export { HideSynthesizerInfo, SynthesizerWrapper }

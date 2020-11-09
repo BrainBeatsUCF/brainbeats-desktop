@@ -253,3 +253,17 @@
   -ms-transform: rotate(45deg);
   transform: rotate(45deg);
 }
+
+.SynthSelectionStagePanel {
+  position: relative;
+}
+
+.EmotionSourceLegend {
+  color: #fff;
+  font-size: 1em;
+}
+
+.EmotionSourceFieldSet {
+  position: absolute;
+  top: 10px;
+}

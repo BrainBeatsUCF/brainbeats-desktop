@@ -100,7 +100,7 @@ class SampleDownloader extends React.Component {
       setCurrentDownloadIndex()
       axios({
         responseType: 'arraybuffer',
-        url: 'https://cors-anywhere.herokuapp.com/' + sample.sampleSource,
+        url: sample.sampleSource,
         onDownloadProgress(progressEvent) {
           const progress = Math.round((progressEvent.loaded / progressEvent.total) * 100)
           setProgress(progress)

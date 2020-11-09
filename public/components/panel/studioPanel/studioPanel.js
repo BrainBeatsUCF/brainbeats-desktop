@@ -6,7 +6,8 @@ import { SaveBeatPromptWrapper, ClosePromptInfo } from './saveBeatPrompt'
 import { ItemContextPromptWrapper, CloseContextPromptInfo } from './itemContextPrompt'
 import { GetUserAuthInfo } from '../../requestService/authRequestService'
 import { RequestGetOwnedBeats, RequestGetOwnedSamples } from '../../requestService/itemRequestService'
-import { SynthesizerWrapper, HideSynthesizerInfo } from './synthesizerPanel/synthesizerPanel'
+import { HideSynthesizerInfo } from './synthesizerPanel/synthesizerPanel'
+import { SynthesizerManager } from './synthesizerPanel/synthesizerManagerPanel'
 import {
   GridBeatObject,
   GridSampleObject,
@@ -83,6 +84,11 @@ class StudioPanel extends React.Component {
           })
           this.props.setCurrentGridItem(savedGridObject)
         },
+        onCloseBeat: _ => {
+          this.beatsItemListRequest()
+          this.setState({ currentSavePromptInfo: ClosePromptInfo })
+          this.props.setCurrentGridItem(getEmptyBeat())
+        },
       },
     })
   }
@@ -104,6 +110,11 @@ class StudioPanel extends React.Component {
             this.setState({ currentSavePromptInfo: ClosePromptInfo })
             this.props.setCurrentGridItem(getEmptyBeat())
           },
+          onCloseBeat: _ => {
+            this.beatsItemListRequest()
+            this.setState({ currentSavePromptInfo: ClosePromptInfo })
+            this.props.setCurrentGridItem(getEmptyBeat())
+          },
         },
       })
     } else {
@@ -117,7 +128,6 @@ class StudioPanel extends React.Component {
   handleSampleAddClick = () => {
     this.setState({
       currentSynthesizerInfo: {
-        userInfo: GetUserAuthInfo(),
         shouldShowSynthesizer: true,
         onSynthesizerClose: _ => {
           this.sampleItemListRequest()
@@ -176,6 +186,11 @@ class StudioPanel extends React.Component {
             this.startLoadingBeatItem(selectedBeatObject)
             this.setState({ currentSavePromptInfo: ClosePromptInfo })
           },
+          onCloseBeat: _ => {
+            this.beatsItemListRequest()
+            this.startLoadingBeatItem(selectedBeatObject)
+            this.setState({ currentSavePromptInfo: ClosePromptInfo })
+          },
         },
       })
     } else {
@@ -193,6 +208,7 @@ class StudioPanel extends React.Component {
     // Emptying out the samples here and relying on them being replaced after download completion
     // can lead to a bug where local information for a sample will be lost if the download fails.
     // A better approach would be replace the buffer of the downloaded samples in real-time.
+    // TODO: Change to dedicated beat downloader
     const samplesToDownload = beatsObject.samples
     beatsObject.samples = []
     beatsObject.isWorthSaving = true
@@ -307,7 +323,12 @@ class StudioPanel extends React.Component {
           samples={downloadSamples}
           audioContext={StudioAudioContext}
           onComplete={this.handleSampleItemDownloaded}
-          onError={() => this.setState({ downloadSamples: null })}
+          onError={() => {
+            // if new beat
+            this.setState({
+              downloadSamples: null,
+            })
+          }}
         ></SampleDownloader>
       )
     }
@@ -345,7 +366,7 @@ class StudioPanel extends React.Component {
           onSaveCurrentGridBeat={this.handleSaveBeatToDatabase}
           setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}
         ></WorkstationPanel>
-        <SynthesizerWrapper {...this.state.currentSynthesizerInfo}></SynthesizerWrapper>
+        <SynthesizerManager {...this.state.currentSynthesizerInfo}></SynthesizerManager>
         {this.renderSampleDownloader()}
         <SaveBeatPromptWrapper
           userInfo={GetUserAuthInfo()}

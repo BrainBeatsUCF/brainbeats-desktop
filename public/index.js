@@ -2,10 +2,17 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { Authentication } from './components/authentication/authentication'
 import { AppDelegate } from './components/appDelegate/appDelegate'
-import { ClearUserAuthInfo, GetUserAuthInfo, SaveUserAuthInfo } from './components/requestService/authRequestService'
-
+import NetworkActivityAnimation from './images/network_activity.gif'
+import {
+  ClearUserAuthInfo,
+  GetUserAuthInfo,
+  SaveUserAuthInfo,
+  RequestUserTokenRefresh,
+} from './components/requestService/authRequestService'
 import './index.css'
 import './scrollbar.css'
+
+const TokenRefreshInterval = 40 * 60 * 1000 // 40 minutes
 
 const PreloadUserInfo = _ => {
   const userInfo = GetUserAuthInfo()
@@ -27,7 +34,25 @@ class App extends React.Component {
     super(props)
     this.state = {
       userInfo: PreloadUserInfo(),
+      shouldShowOverlay: false,
     }
+  }
+
+  componentDidMount() {
+    if (this.state.userInfo != null) {
+      RequestUserTokenRefresh(this.handleRefreshTokenSuccess, this.hideMainOverlay)
+    }
+  }
+
+  hideMainOverlay = _ => {
+    this.setState({ shouldShowOverlay: false })
+  }
+
+  handleRefreshTokenSuccess = _ => {
+    this.hideMainOverlay()
+    setInterval(_ => {
+      RequestUserTokenRefresh()
+    }, TokenRefreshInterval)
   }
 
   onLoginSuccess = userInfo => {
@@ -57,7 +82,13 @@ class App extends React.Component {
 
   render() {
     return this.isUserDefined() ? (
-      <AppDelegate onLogoutClick={this.handleLogout} userInfo={this.state.userInfo}></AppDelegate>
+      this.state.shouldShowOverlay ? (
+        <div className="MainLoadingOverlay">
+          <img src={NetworkActivityAnimation} height="40px" width="40px"></img>
+        </div>
+      ) : (
+        <AppDelegate onLogoutClick={this.handleLogout} userInfo={this.state.userInfo}></AppDelegate>
+      )
     ) : (
       <Authentication onSuccess={this.onLoginSuccess} onError={this.onLoginError}></Authentication>
     )

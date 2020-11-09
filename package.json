@@ -16,7 +16,7 @@
     "create": "webpack",
     "start": "concurrently \"webpack-dev-server --hot --port 3232\" \"sleep 3.0 && electron .\"",
     "install_windows": "npm install && npm install -g electron && set ELECTRON_START_URL=http://localhost:3232",
-    "start_windows": "concurrently \"webpack-dev-server --hot --port 3232\" \"timeout 6.0 && electron .\"",
+    "start_windows": "concurrently \"webpack-dev-server --hot --port 3232\" \"timeout 6 && electron .\"",
     "format": "npx prettier --write .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -31,6 +31,7 @@
     "concurrently": "^5.1.0",
     "midi-player-js": "^2.0.5",
     "object-hash": "^2.0.3",
+    "python-shell": "^2.0.2",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
     "react-h5-audio-player": "^3.4.0",

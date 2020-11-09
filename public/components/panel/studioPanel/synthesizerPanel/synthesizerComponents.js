@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useReducer } from 'react'
 import { GridSampleObject } from '../../workstationPanel/gridObjects'
+import { MenuButton, MenuButtonColor } from '../../../input/input'
 import PlayButton from '../../../../images/whitePlayButton.png'
+import PauseButton from '../../../../images/pauseButton.png'
 import './synthesizerComponents.css'
-import { lab } from 'color'
 
 const MODEL_CARD_KEY_PREFIX = 'synthModelCard'
 const MODEL_CELL_LENGTH_IN_PIXELS = 100
+const EMOTION_TITLES = window.process.env['BRAINBEATS_EMOTION_OPTION_TITLES'].split(',')
+const EMOTION_VALUES = window.process.env['BRAINBEATS_EMOTION_OPTION_VALUES'].split(',')
 
 let SynthSamplesMounted = false
 let currentAudioSource = null
@@ -30,7 +33,7 @@ const SynthesizingStage = {
 const ProcessingStageInfo = {
   Connecting: 'Connecting to EEG headset',
   Recording: 'Recording EEG Data',
-  Modeling: 'Generating Samples',
+  Modeling: 'Generating Sample',
   Completed: 'Generated Samples',
 }
 
@@ -76,14 +79,30 @@ const SynthModelCards = props => {
  * customClassname: String?,
  * modelCardsContainerWidth: Number,
  * availableSynthModels: [SynthModelObject],
- * handleSynthModelClick: (modelObject: SynthModelObject) => void
+ * handleSynthModelClick: (modelObject: SynthModelObject) => void,
+ * handleToggleEEGHardwareConnection: (value: String) => void
  * }} props
  */
 const SynthSelectionStagePanel = props => {
   const customClassname = props.customClassname ?? ''
   const { modelCardsContainerWidth, availableSynthModels } = props
+  const options = _ => {
+    return EMOTION_TITLES.map((title, index) => {
+      return (
+        <option key={title} value={EMOTION_VALUES[index]}>
+          {title}
+        </option>
+      )
+    })
+  }
+
+  useEffect(_ => {
+    /// Set default as 'predict' on mount
+    props.handleToggleEEGHardwareConnection(EMOTION_VALUES[0])
+  }, [])
+
   return (
-    <div className={customClassname}>
+    <div className={`${customClassname} SynthSelectionStagePanel`}>
       <div
         className="SynthModelsContainer"
         style={{
@@ -95,6 +114,10 @@ const SynthSelectionStagePanel = props => {
           onModelClick={props.handleSynthModelClick}
         ></SynthModelCards>
       </div>
+      <fieldset className="EmotionSourceFieldSet">
+        <legend className="EmotionSourceLegend">Select an Emotion for Sample Generation</legend>
+        <select onChange={event => props.handleToggleEEGHardwareConnection(event.target.value)}>{options()}</select>
+      </fieldset>
     </div>
   )
 }
@@ -118,25 +141,25 @@ const SynthVisualizer = props => {
  * @param {{
  * leftSectionClassname: String?,
  * rightSectionClassname: String?,
- * synthesizingStage: SynthesizingStage
+ * synthesizingStage: SynthesizingStage,
+ * sampleGenerationIndex: Number
  * }} props
  */
 const SynthProcessingStagePanel = props => {
-  const { leftSectionClassname, rightSectionClassname, synthesizingStage } = props
+  const { leftSectionClassname, rightSectionClassname, synthesizingStage, sampleGenerationIndex } = props
   const shouldAnimateVisualizer =
     synthesizingStage === SynthesizingStage.Recording || synthesizingStage === SynthesizingStage.Modeling
+  const sampleGenerationInfo =
+    synthesizingStage === SynthesizingStage.Modeling ? ` ${sampleGenerationIndex + 1}...` : ''
   return (
     <>
       <SynthVisualizer className={leftSectionClassname} isAnimating={shouldAnimateVisualizer}></SynthVisualizer>
       <div className={`FlexWithCenteredContent ${rightSectionClassname}`}>
-        <h4 className="SynthProcessingMessage">{ProcessingStageInfo[synthesizingStage]}</h4>
+        <h4 className="SynthProcessingMessage">{ProcessingStageInfo[synthesizingStage] + sampleGenerationInfo}</h4>
       </div>
     </>
   )
 }
-
-/// Kept out of the component to prevent unexpected state from component updates
-let sampleIsPlaying = [false]
 
 /**
  * @param {{
@@ -151,21 +174,17 @@ let sampleIsPlaying = [false]
 const SynthCompletedStagePanel = props => {
   const SampleCardKey = 'SynthSampleCard'
   const { leftSectionClassname, rightSectionClassname, sampleOptions } = props
+  const [, forceUpdate] = useReducer(x => x + 1, 0)
+  const [isSelected, setIsSelected] = useState(new Array(sampleOptions.length).fill(false))
+  const [isPrivate, setIsPrivate] = useState(new Array(sampleOptions.length).fill(false))
   const [titles, setTitles] = useState(
     sampleOptions.map((_, index) => {
       return 'Sample ' + (index + 1)
     })
   )
-  const [isSelected, setIsSelected] = useState(
-    sampleOptions.map(_ => {
-      return false
-    })
-  )
-  const [isPrivate, setIsPrivate] = useState(isSelected)
 
   useEffect(_ => {
     SynthSamplesMounted = true
-    sampleIsPlaying = isSelected
     return function cleanup() {
       SynthSamplesMounted = false
       stopSynthPreview(currentAudioBufferIndex)
@@ -174,6 +193,9 @@ const SynthCompletedStagePanel = props => {
 
   const respondToAudioDidEnd = _ => {
     stopSynthPreview(currentAudioBufferIndex)
+    if (SynthSamplesMounted) {
+      forceUpdate()
+    }
   }
 
   const stopSynthPreview = index => {
@@ -184,7 +206,6 @@ const SynthCompletedStagePanel = props => {
     currentAudioSource.stop()
     currentAudioSource.disconnect(props.audioContext)
     currentAudioBufferIndex = -1
-    sampleIsPlaying[index] = false
   }
 
   const startSynthPreview = index => {
@@ -202,14 +223,16 @@ const SynthCompletedStagePanel = props => {
     currentAudioSource.addEventListener('ended', respondToAudioDidEnd)
     currentAudioSource.start()
     currentAudioBufferIndex = index
-    sampleIsPlaying[index] = true
   }
 
   const sampleCards = _ => {
     return titles.map((title, index) => {
       return (
         <div key={SampleCardKey + index} className="SynthSampleCardContainer">
-          <div className={`SynthSampleCard ${isSelected[index] ? 'SynthSampleCardSelected' : ''}`}>
+          <div
+            key={SampleCardKey + 'Inner' + index}
+            className={`SynthSampleCard ${isSelected[index] ? 'SynthSampleCardSelected' : ''}`}
+          >
             <input
               className="SynthSampleCardTitle"
               value={title}
@@ -222,16 +245,18 @@ const SynthCompletedStagePanel = props => {
             ></input>
             <img
               className="SynthSampleCardButton"
-              src={PlayButton}
+              src={currentAudioBufferIndex === index ? PauseButton : PlayButton}
               onClick={_ => {
-                if (sampleIsPlaying[index]) {
+                if (currentAudioBufferIndex == index) {
                   // stop this preview
                   stopSynthPreview(index)
+                  forceUpdate()
                 } else {
                   // stop current preview
                   stopSynthPreview(currentAudioBufferIndex)
                   // load and play this preview
                   startSynthPreview(index)
+                  forceUpdate()
                 }
               }}
             ></img>
@@ -301,6 +326,7 @@ const SynthCompletedStagePanel = props => {
             props.restartGenerator()
           })}
           {actionInput('Save Selected Samples', '#415F36', _ => {
+            stopSynthPreview(currentAudioBufferIndex)
             let selectedSamples = []
             isSelected.forEach((sampleSelected, index) => {
               if (sampleSelected) {
@@ -318,11 +344,44 @@ const SynthCompletedStagePanel = props => {
   )
 }
 
+/**
+ * @param {{onMenuButtonClick: () => void}} props
+ */
+const SynthesizingStageCloseButton = props => {
+  return (
+    <MenuButton
+      props={{
+        customClass: '',
+        title: 'Close',
+        color: MenuButtonColor.Red,
+        onMenuButtonClick: props.onMenuButtonClick,
+      }}
+    ></MenuButton>
+  )
+}
+
+/**
+ *
+ * @param {{
+ * stageTitle: String,
+ * onMenuButtonClick: () => void
+ * }} props
+ */
+const SynthesizingStageNavigation = props => {
+  return (
+    <div className="SynthesizerHeaderSection">
+      <h4 className="SynthesizerHeaderTitle">{props.stageTitle}</h4>
+      <SynthesizingStageCloseButton onMenuButtonClick={props.onMenuButtonClick}></SynthesizingStageCloseButton>
+    </div>
+  )
+}
+
 export {
   SynthModelObject,
   SynthesizingStage,
   ProcessingStageInfo,
   MODEL_CELL_LENGTH_IN_PIXELS,
+  SynthesizingStageNavigation,
   SynthSelectionStagePanel,
   SynthProcessingStagePanel,
   SynthCompletedStagePanel,
