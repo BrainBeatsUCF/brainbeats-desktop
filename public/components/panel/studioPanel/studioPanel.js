@@ -84,6 +84,11 @@ class StudioPanel extends React.Component {
           })
           this.props.setCurrentGridItem(savedGridObject)
         },
+        onCloseBeat: _ => {
+          this.beatsItemListRequest()
+          this.setState({ currentSavePromptInfo: ClosePromptInfo })
+          this.props.setCurrentGridItem(getEmptyBeat())
+        },
       },
     })
   }
@@ -101,6 +106,11 @@ class StudioPanel extends React.Component {
           title: 'Save Previous Work To Continue',
           shouldShowPrompt: true,
           onSaveComplete: _ => {
+            this.beatsItemListRequest()
+            this.setState({ currentSavePromptInfo: ClosePromptInfo })
+            this.props.setCurrentGridItem(getEmptyBeat())
+          },
+          onCloseBeat: _ => {
             this.beatsItemListRequest()
             this.setState({ currentSavePromptInfo: ClosePromptInfo })
             this.props.setCurrentGridItem(getEmptyBeat())
@@ -176,6 +186,11 @@ class StudioPanel extends React.Component {
             this.startLoadingBeatItem(selectedBeatObject)
             this.setState({ currentSavePromptInfo: ClosePromptInfo })
           },
+          onCloseBeat: _ => {
+            this.beatsItemListRequest()
+            this.startLoadingBeatItem(selectedBeatObject)
+            this.setState({ currentSavePromptInfo: ClosePromptInfo })
+          },
         },
       })
     } else {
@@ -193,6 +208,7 @@ class StudioPanel extends React.Component {
     // Emptying out the samples here and relying on them being replaced after download completion
     // can lead to a bug where local information for a sample will be lost if the download fails.
     // A better approach would be replace the buffer of the downloaded samples in real-time.
+    // TODO: Change to dedicated beat downloader
     const samplesToDownload = beatsObject.samples
     beatsObject.samples = []
     beatsObject.isWorthSaving = true
@@ -307,7 +323,12 @@ class StudioPanel extends React.Component {
           samples={downloadSamples}
           audioContext={StudioAudioContext}
           onComplete={this.handleSampleItemDownloaded}
-          onError={() => this.setState({ downloadSamples: null })}
+          onError={() => {
+            // if new beat
+            this.setState({
+              downloadSamples: null,
+            })
+          }}
         ></SampleDownloader>
       )
     }

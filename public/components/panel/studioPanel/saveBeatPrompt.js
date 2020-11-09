@@ -12,6 +12,7 @@ const SavePromptInfo = {
   title: null,
   shouldShowPrompt: false,
   onSaveComplete: null,
+  onCloseBeat: null,
 }
 
 /// Generic info for hiding the save dialog
@@ -19,6 +20,7 @@ const ClosePromptInfo = {
   title: null,
   shouldShowPrompt: false,
   onSaveComplete: null,
+  onCloseBeat: null,
 }
 
 /**
@@ -29,6 +31,7 @@ const ClosePromptInfo = {
  * currentGridItem: GridBeatObject,
  * setIsMakingNetworkActivity: (Boolean) => void
  * onSaveComplete: (savedBeat: GridBeatObject) => void,
+ * onSaveAbort: () => void,
  * onSaveError: () => void
  * }} props
  */
@@ -125,7 +128,19 @@ const SaveBeatPrompt = props => {
           <input
             className="LoginInput PromptButton"
             type="button"
-            value="Save"
+            value="Close Beat"
+            onClick={_ => {
+              const prevSaveCancel =
+                props.currentGridItem.prevSaveCancel == undefined ? 0 : props.currentGridItem.prevSaveCancel
+              props.currentGridItem.prevSaveCancel = prevSaveCancel + 1
+              props.onSaveAbort()
+            }}
+            disabled={uploadStarted}
+          ></input>
+          <input
+            className="LoginInput PromptButton"
+            type="button"
+            value="Save Beat"
             onClick={_ => startUpload()}
             disabled={uploadStarted}
           ></input>
@@ -157,6 +172,7 @@ const SaveBeatPromptWrapper = props => {
         currentGridItem={currentGridItem}
         setIsMakingNetworkActivity={props.setIsMakingNetworkActivity}
         onSaveComplete={promptInfo.onSaveComplete}
+        onSaveAbort={promptInfo.onCloseBeat}
         onSaveError={props.onSaveError}
       ></SaveBeatPrompt>
     )

@@ -151,7 +151,11 @@ const ModelingSynthesizingPanel = props => {
       SampleSynthAudioContext,
       GetUserAuthInfo(),
       sampleGenerationInfo,
-      currentSampleGenerationIndex => setSampleGenerationIndex(currentSampleGenerationIndex),
+      currentSampleGenerationIndex => {
+        if (modelingPanelMounted) {
+          setSampleGenerationIndex(currentSampleGenerationIndex)
+        }
+      },
       (samples, status) => {
         if (status === ResultStatus.Error) {
           if (modelingPanelMounted) {

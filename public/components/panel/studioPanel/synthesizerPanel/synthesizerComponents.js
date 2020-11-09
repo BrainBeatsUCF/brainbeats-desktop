@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useReducer } from 'react'
 import { GridSampleObject } from '../../workstationPanel/gridObjects'
 import { MenuButton, MenuButtonColor } from '../../../input/input'
 import PlayButton from '../../../../images/whitePlayButton.png'
+import PauseButton from '../../../../images/pauseButton.png'
 import './synthesizerComponents.css'
 
 const MODEL_CARD_KEY_PREFIX = 'synthModelCard'
@@ -126,7 +127,8 @@ const SynthProcessingStagePanel = props => {
   const { leftSectionClassname, rightSectionClassname, synthesizingStage, sampleGenerationIndex } = props
   const shouldAnimateVisualizer =
     synthesizingStage === SynthesizingStage.Recording || synthesizingStage === SynthesizingStage.Modeling
-  const sampleGenerationInfo = synthesizingStage === SynthesizingStage.Modeling ? ` (${sampleGenerationIndex + 1})` : ''
+  const sampleGenerationInfo =
+    synthesizingStage === SynthesizingStage.Modeling ? ` ${sampleGenerationIndex + 1}...` : ''
   return (
     <>
       <SynthVisualizer className={leftSectionClassname} isAnimating={shouldAnimateVisualizer}></SynthVisualizer>
@@ -136,9 +138,6 @@ const SynthProcessingStagePanel = props => {
     </>
   )
 }
-
-/// Kept out of the component to prevent unexpected state from component updates
-let sampleIsPlaying = [false]
 
 /**
  * @param {{
@@ -153,6 +152,7 @@ let sampleIsPlaying = [false]
 const SynthCompletedStagePanel = props => {
   const SampleCardKey = 'SynthSampleCard'
   const { leftSectionClassname, rightSectionClassname, sampleOptions } = props
+  const [, forceUpdate] = useReducer(x => x + 1, 0)
   const [isSelected, setIsSelected] = useState(new Array(sampleOptions.length).fill(false))
   const [isPrivate, setIsPrivate] = useState(new Array(sampleOptions.length).fill(false))
   const [titles, setTitles] = useState(
@@ -163,7 +163,6 @@ const SynthCompletedStagePanel = props => {
 
   useEffect(_ => {
     SynthSamplesMounted = true
-    sampleIsPlaying = isSelected
     return function cleanup() {
       SynthSamplesMounted = false
       stopSynthPreview(currentAudioBufferIndex)
@@ -172,6 +171,9 @@ const SynthCompletedStagePanel = props => {
 
   const respondToAudioDidEnd = _ => {
     stopSynthPreview(currentAudioBufferIndex)
+    if (SynthSamplesMounted) {
+      forceUpdate()
+    }
   }
 
   const stopSynthPreview = index => {
@@ -182,7 +184,6 @@ const SynthCompletedStagePanel = props => {
     currentAudioSource.stop()
     currentAudioSource.disconnect(props.audioContext)
     currentAudioBufferIndex = -1
-    sampleIsPlaying[index] = false
   }
 
   const startSynthPreview = index => {
@@ -200,14 +201,16 @@ const SynthCompletedStagePanel = props => {
     currentAudioSource.addEventListener('ended', respondToAudioDidEnd)
     currentAudioSource.start()
     currentAudioBufferIndex = index
-    sampleIsPlaying[index] = true
   }
 
   const sampleCards = _ => {
     return titles.map((title, index) => {
       return (
         <div key={SampleCardKey + index} className="SynthSampleCardContainer">
-          <div className={`SynthSampleCard ${isSelected[index] ? 'SynthSampleCardSelected' : ''}`}>
+          <div
+            key={SampleCardKey + 'Inner' + index}
+            className={`SynthSampleCard ${isSelected[index] ? 'SynthSampleCardSelected' : ''}`}
+          >
             <input
               className="SynthSampleCardTitle"
               value={title}
@@ -220,16 +223,18 @@ const SynthCompletedStagePanel = props => {
             ></input>
             <img
               className="SynthSampleCardButton"
-              src={PlayButton}
+              src={currentAudioBufferIndex === index ? PauseButton : PlayButton}
               onClick={_ => {
-                if (sampleIsPlaying[index]) {
+                if (currentAudioBufferIndex == index) {
                   // stop this preview
                   stopSynthPreview(index)
+                  forceUpdate()
                 } else {
                   // stop current preview
                   stopSynthPreview(currentAudioBufferIndex)
                   // load and play this preview
                   startSynthPreview(index)
+                  forceUpdate()
                 }
               }}
             ></img>

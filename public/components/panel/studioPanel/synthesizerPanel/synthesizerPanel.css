@@ -5,7 +5,6 @@ various background processes are running.
 .SynthesizerHeaderOverlay {
   position: absolute;
   background-color: var(--app-background-color);
-  animation: fadeInFromNone 0.2s ease-out;
   width: 100%;
   height: var(--app-header-height);
 }
@@ -78,19 +77,4 @@ various background processes are running.
   font-size: 1.2em;
   color: #fff;
   margin: 0px;
-}
-
-@keyframes fadeInFromNone {
-  0% {
-    display: none;
-    opacity: 0;
-  }
-  1% {
-    display: grid;
-    opacity: 0;
-  }
-  100% {
-    display: grid;
-    opacity: 1;
-  }
 }

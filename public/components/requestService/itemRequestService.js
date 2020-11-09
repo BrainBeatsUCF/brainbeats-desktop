@@ -326,13 +326,7 @@ const RequestGetLikedBeats = (userInfo, onComplete, limit) => {
   }
   axios
     .post(url, requestBody, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
-    .then(response => {
-      if (response.status !== 200) {
-        onError()
-      } else {
-        return response.data
-      }
-    })
+    .then(response => response.data)
     .then(responseData => {
       const decodableBeatObjects = ParseBeatVertices(userInfo.email, responseData)
       let likedBeatIDs = new Set()
@@ -348,10 +342,9 @@ const RequestGetLikedBeats = (userInfo, onComplete, limit) => {
         RequestUserRefreshAuthentication(
           userInfo,
           _ => RequestGetLikedBeats(GetUserAuthInfo(), onComplete, true),
-          onError
+          _ => {}
         )
       } else {
-        onError()
         console.error(error.response)
       }
     })
