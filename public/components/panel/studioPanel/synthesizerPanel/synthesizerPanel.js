@@ -44,7 +44,8 @@ const lengthForModelCount = count => {
 
 /**
  * @param {{
- * onModelSelect: (modelObject: SynthModelObject) => void
+ * onModelSelect: (modelObject: SynthModelObject) => void,
+ * handleToggleEEGHardwareConnection: (value: String) => void,
  * onClose: () => void
  * }} props
  */
@@ -62,6 +63,7 @@ const SelectionSynthesizingPanel = props => {
           modelCardsContainerWidth={modelContainerLength}
           availableSynthModels={SynthesizerModels}
           handleSynthModelClick={props.onModelSelect}
+          handleToggleEEGHardwareConnection={props.handleToggleEEGHardwareConnection}
         ></SynthSelectionStagePanel>
       </div>
     </>

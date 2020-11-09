@@ -7,6 +7,8 @@ import './synthesizerComponents.css'
 
 const MODEL_CARD_KEY_PREFIX = 'synthModelCard'
 const MODEL_CELL_LENGTH_IN_PIXELS = 100
+const EMOTION_TITLES = window.process.env['BRAINBEATS_EMOTION_OPTION_TITLES'].split(',')
+const EMOTION_VALUES = window.process.env['BRAINBEATS_EMOTION_OPTION_VALUES'].split(',')
 
 let SynthSamplesMounted = false
 let currentAudioSource = null
@@ -77,14 +79,30 @@ const SynthModelCards = props => {
  * customClassname: String?,
  * modelCardsContainerWidth: Number,
  * availableSynthModels: [SynthModelObject],
- * handleSynthModelClick: (modelObject: SynthModelObject) => void
+ * handleSynthModelClick: (modelObject: SynthModelObject) => void,
+ * handleToggleEEGHardwareConnection: (value: String) => void
  * }} props
  */
 const SynthSelectionStagePanel = props => {
   const customClassname = props.customClassname ?? ''
   const { modelCardsContainerWidth, availableSynthModels } = props
+  const options = _ => {
+    return EMOTION_TITLES.map((title, index) => {
+      return (
+        <option key={title} value={EMOTION_VALUES[index]}>
+          {title}
+        </option>
+      )
+    })
+  }
+
+  useEffect(_ => {
+    /// Set default as 'predict' on mount
+    props.handleToggleEEGHardwareConnection(EMOTION_VALUES[0])
+  }, [])
+
   return (
-    <div className={customClassname}>
+    <div className={`${customClassname} SynthSelectionStagePanel`}>
       <div
         className="SynthModelsContainer"
         style={{
@@ -96,6 +114,10 @@ const SynthSelectionStagePanel = props => {
           onModelClick={props.handleSynthModelClick}
         ></SynthModelCards>
       </div>
+      <fieldset className="EmotionSourceFieldSet">
+        <legend className="EmotionSourceLegend">Select an Emotion for Sample Generation</legend>
+        <select onChange={event => props.handleToggleEEGHardwareConnection(event.target.value)}>{options()}</select>
+      </fieldset>
     </div>
   )
 }

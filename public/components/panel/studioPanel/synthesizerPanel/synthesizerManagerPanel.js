@@ -9,6 +9,7 @@ import {
 } from './synthesizerPanel'
 import './synthesizerPanel.css'
 
+const defaultEmotionValue = 'predict'
 const HideSynthesizerInfo = {
   shouldShowSynthesizer: false,
   onSynthesizerClose: null,
@@ -21,7 +22,7 @@ const SynthPanelCollection = props => {
   const { onSynthesizerClose } = props
   const [currentStage, setCurrentStage] = useState(SynthesizingStage.Selecting)
   const [synthModel, setSynthModel] = useState(SynthModelObject)
-  const [predictedEmotion, setPredictedEmotion] = useState('')
+  const [predictedEmotion, setPredictedEmotion] = useState(defaultEmotionValue)
   const [generatedSamples, setGeneratedSamples] = useState([])
 
   /**
@@ -31,6 +32,13 @@ const SynthPanelCollection = props => {
     setPredictedEmotion(emotion)
     setCurrentStage(SynthesizingStage.Modeling)
     closeHardwareSocket()
+  }
+
+  /**
+   * @param {String} emotionOption
+   */
+  const handleToggleEEGHardwareConnection = emotionOption => {
+    setPredictedEmotion(emotionOption)
   }
 
   /**
@@ -47,8 +55,14 @@ const SynthPanelCollection = props => {
         <SelectionSynthesizingPanel
           onModelSelect={modelObject => {
             setSynthModel(modelObject)
-            setCurrentStage(SynthesizingStage.Connecting)
+            if (predictedEmotion === 'predict') {
+              setCurrentStage(SynthesizingStage.Connecting)
+            } else {
+              /// Skip to modeling if user chose not specific emotion
+              setCurrentStage(SynthesizingStage.Modeling)
+            }
           }}
+          handleToggleEEGHardwareConnection={handleToggleEEGHardwareConnection}
           onClose={onSynthesizerClose}
         ></SelectionSynthesizingPanel>
       )
