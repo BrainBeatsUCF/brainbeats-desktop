@@ -1,33 +1,23 @@
 import time
 import json
 import random
+from common import debugPrint
+from LSL_helper import connectToEEG, recordEEG
+from model_helper import predict_emotion
 
-## Errors thrown in this file will immediately end this process
 
 ## Call this function to send the predicted emotion to the desktop
 ## Calling this function will end this process
-def sendPredictedEmotion(emotion):
+def sendPredictedEmotion(emotion: str) -> None:
   print(json.dumps({ 'emotion' : emotion }))
 
-## Used for printing statements to application console
-def debugPrint(message):
-  print('BACKGROUND DEBUG PRINT:', message)
-
 ## Call to signal to desktop that a connection has been established
-def confirmConnection():
+def confirmConnection() -> None:
   print(json.dumps({ 'hasConfirmed' : True }))
 
-## Example print statment
-## Please default to this method over the normal print for debugging 
-debugPrint("Script Handler Booted")
-
-## Uncomment this line to send confirmation that EEG you've been 
-## able to connect to the EEG
+# TODO: Error handling for None
+# TODO: Add remaining model code
+stream_connection = connectToEEG()
 confirmConnection()
-
-## Perform recording and prediction after confirmation
-## When predicted emotion is ready, call `sendPredictedEmotion(predictedEmotion`
-## to send this back to the desktop
-
-## For example, a random emotion being sent back
-sendPredictedEmotion(random.choice(['happy', 'joy']))
+data = recordEEG(stream_connection)
+sendPredictedEmotion(predict_emotion(data))

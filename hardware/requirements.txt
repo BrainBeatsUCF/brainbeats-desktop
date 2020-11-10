@@ -1,1 +1,4 @@
 eventlet
+tensorflow
+pylsl
+h5py
