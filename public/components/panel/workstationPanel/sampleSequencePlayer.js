@@ -50,8 +50,29 @@ const SampleSequenceRenderer = (sampleObjects, onDataReady, onRenderError) => {
   const contextPlayLength = calculateRenderDuration(sampleObjects) * AcceptedSampleRate
   const contextSampleRate =
     sampleObjects.length > 0 ? sampleObjects[0].sampleAudioBuffer.sampleRate : AcceptedSampleRate
-  const offlineAudioContext = new window.OfflineAudioContext(2, contextPlayLength, contextSampleRate)
 
+  // No playable content available
+  if (contextPlayLength <= 0) {
+    const emptyAudioContext = new window.OfflineAudioContext(2, 1, AcceptedSampleRate)
+    let offlineSource = emptyAudioContext.createBufferSource()
+    offlineSource.buffer = emptyAudioContext.createBuffer(2, 1, AcceptedSampleRate)
+    offlineSource.connect(emptyAudioContext.destination)
+    offlineSource.start(0)
+    emptyAudioContext
+      .startRendering()
+      .then(renderedBuffer => {
+        onDataReady(renderedBuffer)
+        return
+      })
+      .catch(error => {
+        console.log(error)
+        onRenderError()
+        return
+      })
+    return
+  }
+
+  const offlineAudioContext = new window.OfflineAudioContext(2, contextPlayLength, contextSampleRate)
   sampleObjects.forEach(sampleObject => {
     let { sampleAudioBuffer, sampleIsActive } = sampleObject
     let sampleAudioChannelLength = sampleObject.sampleAudioLength * sampleAudioBuffer.sampleRate

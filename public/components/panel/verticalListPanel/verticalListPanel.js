@@ -97,7 +97,7 @@ class VerticalListPanel extends React.Component {
       .map((item, index) => {
         return (
           <ListCard
-            key={item.sampleTitle + item.sampleSubtitle + index}
+            key={`${item.sampleTitle}${item.sampleSubtitle}${index}`}
             item={item}
             onClick={() => this.handleItemClick(item, index)}
           ></ListCard>

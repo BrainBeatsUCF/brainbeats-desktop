@@ -8,6 +8,7 @@ import { GetUserAuthInfo } from '../../requestService/authRequestService'
 import { RequestGetOwnedBeats, RequestGetOwnedSamples } from '../../requestService/itemRequestService'
 import { HideSynthesizerInfo } from './synthesizerPanel/synthesizerPanel'
 import { SynthesizerManager } from './synthesizerPanel/synthesizerManagerPanel'
+import { BeatDownloadPromptWrapper, CloseBeatDownloadPrompt } from './beatDownloadPrompt'
 import {
   GridBeatObject,
   GridSampleObject,
@@ -42,6 +43,7 @@ class StudioPanel extends React.Component {
       currentSavePromptInfo: ClosePromptInfo,
       currentItemContextPromptInfo: CloseContextPromptInfo,
       currentSynthesizerInfo: HideSynthesizerInfo,
+      currentBeatDownloadInfo: CloseBeatDownloadPrompt,
       loadedBeats: [],
       loadedSamples: [GridSampleObject],
     }
@@ -204,16 +206,22 @@ class StudioPanel extends React.Component {
    * @param {GridBeatObject} beatsObject
    */
   startLoadingBeatItem = beatsObject => {
-    // [Bug] Issue-18:
-    // Emptying out the samples here and relying on them being replaced after download completion
-    // can lead to a bug where local information for a sample will be lost if the download fails.
-    // A better approach would be replace the buffer of the downloaded samples in real-time.
-    // TODO: Change to dedicated beat downloader
-    const samplesToDownload = beatsObject.samples
-    beatsObject.samples = []
-    beatsObject.isWorthSaving = true
-    this.props.setCurrentGridItem(beatsObject)
-    this.setState({ downloadSamples: samplesToDownload })
+    this.setState({
+      currentBeatDownloadInfo: {
+        shouldShowPrompt: true,
+        beatObject: beatsObject,
+        audioContext: StudioAudioContext,
+        onDownloadComplete: downloadedBeatObject => {
+          downloadedBeatObject.isWorthSaving = true
+          this.setState({ currentBeatDownloadInfo: CloseBeatDownloadPrompt })
+          this.props.setCurrentGridItem(downloadedBeatObject)
+        },
+        onDownloadError: _ => {
+          // Nothing is loaded on download fail
+          console.error('Failed to download some sample')
+        },
+      },
+    })
   }
 
   /**
@@ -368,6 +376,7 @@ class StudioPanel extends React.Component {
         ></WorkstationPanel>
         <SynthesizerManager {...this.state.currentSynthesizerInfo}></SynthesizerManager>
         {this.renderSampleDownloader()}
+        <BeatDownloadPromptWrapper promptInfo={this.state.currentBeatDownloadInfo}></BeatDownloadPromptWrapper>
         <SaveBeatPromptWrapper
           userInfo={GetUserAuthInfo()}
           promptInfo={this.state.currentSavePromptInfo}

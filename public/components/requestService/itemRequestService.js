@@ -625,7 +625,9 @@ const RequestGetOwnedSamples = (userInfo, onComplete, onError, limit) => {
     })
     .then(responseData => {
       const decodableSampleObjects = ParseSampleVertices(userInfo.email, responseData)
-      const retrievedSampleObjects = decodableSampleObjects.map(decodableSample => decodeSampleObject(decodableSample))
+      const retrievedSampleObjects = decodableSampleObjects
+        .map(decodableSample => decodeSampleObject(decodableSample))
+        .filter(decodedSample => decodedSample.sampleID != undefined || decodedSample.sampleID != null)
       onComplete(retrievedSampleObjects)
     })
     .catch(error => {

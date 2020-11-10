@@ -30,6 +30,13 @@ const PersonalBeatCard = props => {
     )
   })
 
+  const displayedTagsContainer =
+    props.item.displayTags.length > 0 && props.item.displayTags[0].length > 0 ? (
+      <div className="BeatsCardTagContainer">{displayedTags}</div>
+    ) : (
+      <></>
+    )
+
   const backgroundStyle = {
     backgroundImage: `url(${displayImage})`,
   }
@@ -41,7 +48,7 @@ const PersonalBeatCard = props => {
       style={backgroundStyle}
       onClick={() => props.onClick(props.item, props.index)}
     >
-      <div className="BeatsCardTagContainer">{displayedTags}</div>
+      {displayedTagsContainer}
       <div className="BeatsCardContainerOverlay">
         <h4 className="BeatsCardDisplayTitle">{displayTitle}</h4>
       </div>

@@ -4,7 +4,7 @@ import { GridSampleObject, GridSampleMatrix, GridActivator, GridTimeRuler } from
 import { MenuButton, MenuButtonColor, MenuButtonSelectionState } from '../../input/input'
 import { GridBeatObject, fixResizeOverCorrections } from './gridObjects'
 import { SampleSequenceRenderer } from './sampleSequencePlayer'
-
+import PauseButton from '../../../images/pauseButton.png'
 import PlayButton from '../../../images/whitePlayButton.png'
 import './workstationPanel.css'
 
@@ -208,7 +208,7 @@ class WorkstationPanel extends React.Component {
               selectionState: MenuButtonSelectionState.Active,
               customClass: 'WorkstationPanelMenuButton MiddleSpot CenterSelf',
               title: `${isPlayingAudio ? 'Stop' : 'Play'}`,
-              imageSource: PlayButton,
+              imageSource: isPlayingAudio ? PauseButton : PlayButton,
               imageHeight: '20px',
               imageWidth: '20px',
               onMenuButtonClick: () => {
