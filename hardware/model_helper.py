@@ -1,4 +1,5 @@
 import random
+import numpy as np
 from common import debugPrint
 from collections import deque
 
@@ -15,4 +16,8 @@ def predict_emotion(data: deque) -> None:
 	except Exception as e:
 		debugPrint(f"Error with loading model: {e}")
 
-	return random.choice(["happy","melancholy","surprised","calm"])
+	prediction = model.predict(np.array(list(data)).reshape(150, 1))
+	emotions = ["happy","melancholy","surprised","calm"]
+	choice = np.argmax(prediction[np.argmax(prediction)])
+
+	return emotions[choice]
