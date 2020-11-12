@@ -10,8 +10,8 @@
     "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/drums.png",
     "modelName": "Drums",
     "modelBackgroundColor": "#28252b",
-    "isAvailable": false,
-    "queryName": ""
+    "isAvailable": true,
+    "queryName": "Drums"
   },
   {
     "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/folk.png",
@@ -24,15 +24,15 @@
     "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/guitar.png",
     "modelName": "Guitar",
     "modelBackgroundColor": "#28252b",
-    "isAvailable": false,
-    "queryName": ""
+    "isAvailable": true,
+    "queryName": "Guitar"
   },
   {
     "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/jazz_drums.png",
-    "modelName": "Jazz Drums",
+    "modelName": "Latin Drums",
     "modelBackgroundColor": "#28252b",
-    "isAvailable": false,
-    "queryName": ""
+    "isAvailable": true,
+    "queryName": "LatinDrums"
   },
   {
     "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/lakh_subset.png",
@@ -59,8 +59,8 @@
     "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/funk_drums.png",
     "modelName": "Funk Drums",
     "modelBackgroundColor": "#28252b",
-    "isAvailable": false,
-    "queryName": ""
+    "isAvailable": true,
+    "queryName": "FunkDrums"
   },
   {
     "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/animal_crossing.png",
@@ -75,5 +75,19 @@
     "modelBackgroundColor": "#ccc",
     "isAvailable": false,
     "queryName": ""
-  }
+	},
+	{
+    "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/drums.png",
+    "modelName": "Cymbals",
+    "modelBackgroundColor": "#28252b",
+    "isAvailable": true,
+    "queryName": "Cymbals"
+	},
+	{
+    "modelImageName": "https://brainbeatsstorage.blob.core.windows.net/static/drums.png",
+    "modelName": "AltDrums",
+    "modelBackgroundColor": "#28252b",
+    "isAvailable": true,
+    "queryName": "AltDrums"
+  },
 ]

@@ -20,4 +20,6 @@ def confirmConnection() -> None:
 stream_connection = connectToEEG()
 confirmConnection()
 data = recordEEG(stream_connection)
-sendPredictedEmotion(predict_emotion(data))
+emotion = predict_emotion(data)
+debugPrint(f"the emotion was: {emotion}")
+sendPredictedEmotion(emotion)
