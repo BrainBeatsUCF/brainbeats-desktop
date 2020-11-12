@@ -65,10 +65,6 @@ const RequestGenerateSingleSample = (
       {
         instrument_name: generationInfo.modelName,
         emotion: generationInfo.emotion,
-        seed: '60 _ ',
-        num_steps: 64,
-        max_seq_len: 128,
-        temperature: 0.5,
       },
       {
         responseType: 'arraybuffer',
