@@ -4,7 +4,6 @@ import { ProfilePanel } from '../profilePanel/profilePanel'
 import { AudioPanel } from '../audioPanel/audioPanel'
 import { GridBeatObject } from '../workstationPanel/gridObjects'
 import { GetUserAuthInfo, VerifiedUserInfo } from '../../requestService/authRequestService'
-import NetworkActivityAnimation from '../../../images/network_activity.gif'
 import {
   RequestGetLikedBeats,
   RequestLikeUnlikeBeat,
@@ -69,8 +68,15 @@ const HomePanel = props => {
       case CardType.PersonalBeat:
       case CardType.PublicBeat:
       case CardType.PublicSample:
+      case CardType.RecommendedBeat:
         const sourceList =
-          type === CardType.PersonalBeat ? personalBeats : type === CardType.PublicBeat ? publicBeats : publicSamples
+          type === CardType.PersonalBeat
+            ? personalBeats
+            : type === CardType.PublicBeat
+            ? publicBeats
+            : type === CardType.RecommendedBeat
+            ? recommendedBeats
+            : publicSamples
         audioPlaybackList = sourceList.map(item => {
           return {
             displayTitle: item.displayTitle,

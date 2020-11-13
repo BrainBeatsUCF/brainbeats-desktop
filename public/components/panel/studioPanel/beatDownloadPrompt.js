@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { GridBeatObject } from '../workstationPanel/gridObjects'
 import { SampleDownloader } from './sampleDownloader'
 
-/// Generic info for displaying the download beat prompt
+/// Generic info for closing the download beat prompt
 const CloseBeatDownloadPrompt = {
   shouldShowPrompt: false,
   beatObject: GridBeatObject,
