@@ -206,6 +206,7 @@ class StudioPanel extends React.Component {
    * @param {GridBeatObject} beatsObject
    */
   startLoadingBeatItem = beatsObject => {
+    this.props.setCurrentGridItem(getEmptyBeat())
     this.setState({
       currentBeatDownloadInfo: {
         shouldShowPrompt: true,
@@ -260,10 +261,11 @@ class StudioPanel extends React.Component {
    * @param {GridSampleObject} sampleObject
    */
   shouldLoadSampleItem = sampleObject => {
+    const copySample = { ...sampleObject }
     this.setState({
-      currentBeatDownloadInfo: {
+      currentSampleDownloadInfo: {
         shouldShowPrompt: true,
-        sampleObjects: [sampleObject],
+        sampleObjects: [copySample],
         audioContext: StudioAudioContext,
         onDownloadComplete: this.handleSampleItemDownloaded,
         onDownloadError: _ => {
@@ -284,6 +286,7 @@ class StudioPanel extends React.Component {
     const { currentGridItem } = this.props
     currentGridItem.isWorthSaving = true
     this.props.setCurrentGridItem(appendSamplesToBeat(newSamples, currentGridItem))
+    this.setState({ currentSampleDownloadInfo: CloseSampleDownloadPrompt })
   }
 
   /**

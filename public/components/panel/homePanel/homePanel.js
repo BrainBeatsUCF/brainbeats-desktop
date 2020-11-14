@@ -215,7 +215,7 @@ const HomePanel = props => {
   const getPublicBeatObject = beatObject => {
     return {
       id: beatObject.beatID,
-      displayOwner: 'Username not available',
+      displayOwner: beatObject.ownerName,
       displayImage: beatObject.image,
       displayTitle: beatObject.sampleTitle,
       audioSource: beatObject.savedAudio,

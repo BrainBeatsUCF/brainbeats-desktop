@@ -26,6 +26,7 @@ const GridBeatObject = {
   image: '',
   savedAudio: '',
   commit: '',
+  ownerName: '',
   samples: [GridSampleObject],
 }
 
@@ -53,6 +54,7 @@ const DecodableBeatObject = {
   duration: 0,
   audio: '',
   image: '',
+  ownerName: '',
 }
 
 /// Representation of a sample object when being sent to backend
@@ -92,6 +94,7 @@ const getEmptyBeat = () => {
     commit: '',
     samples: [],
     savedAudio: '',
+    ownerName: '',
     isPrivate: false,
   }
 }
@@ -292,6 +295,7 @@ const decodeBeatObject = encodedBeatObject => {
     commit: 0,
     samples: convertAttributesToSamples(encodedBeatObject.attributes),
     duration: encodedBeatObject.duration,
+    ownerName: encodedBeatObject.ownerName,
   }
   commitBeatIfNecessary(gridBeatObject)
   return gridBeatObject

@@ -20,7 +20,7 @@ const CloseBeatDownloadPrompt = {
  * }} props
  */
 const BeatDownloadPrompt = props => {
-  const samplesToDownload = [...props.gridBeatObject.samples]
+  let samplesToDownload = props.gridBeatObject.samples.map(value => ({ ...value }))
   const handleSamplesDownloaded = downloadedSamples => {
     let newGridObject = { ...props.gridBeatObject }
     newGridObject.samples = downloadedSamples

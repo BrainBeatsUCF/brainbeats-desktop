@@ -29,19 +29,20 @@ const imageKey = 'image'
 
 /// Request APIs and Routes
 const azureRouteKey = 'BRAINBEATS_AZURE_API_URL'
-const createBeatRoute = '/beat/create_beat'
-const updateBeatRoute = '/beat/update_beat'
-const deleteBeatRoute = '/beat/delete_beat'
-const getOwnedBeatRoute = '/user/get_owned_beats'
-const getAllBeatRoute = '/beat/get_all_beats'
-const getLikedBeats = '/user/get_liked_beats'
+const createBeatRoute = '/v2/beats/create/'
+const updateBeatRoute = '/v2/beats/update/'
+const deleteBeatRoute = '/v2/beats/delete/'
+const getAllBeatRoute = '/v2/beats'
+const getLikedBeats = '/v2/users/'
+const getOwnedBeatRoute = '/v2/users/'
+const getRecommendedBeatsRoute = '/v2/users/'
 const likeBeatRoute = '/user/like_vertex'
 const unlikeBeatRoute = '/user/unlike_vertex'
 const createSampleRoute = '/sample/create_sample'
 const getOwnedSampleRoute = '/user/get_owned_samples'
 const deleteSampleRoute = '/sample/delete_sample'
 const getAllSampleRoute = '/sample/get_all_samples'
-const getRecommendedBeatsRoute = '/user/get_recommended_beats'
+const urlBaseRoute = window.process.env[azureRouteKey]
 
 /// Request Error Messages
 const expiredAuthorizationToken = 'The token is expired'
@@ -75,6 +76,7 @@ const ParseBeatVertex = (email, responseData) => {
 const ParseBeatVertices = (email, responseData) => {
   return responseData.map(singleVertex => {
     const properties = singleVertex.properties
+    const owner = singleVertex.owner
     return {
       email: email,
       id: singleVertex.id,
@@ -85,6 +87,7 @@ const ParseBeatVertices = (email, responseData) => {
       duration: properties.duration[0].value,
       audio: properties.audio[0].value,
       image: properties.image[0].value,
+      ownerName: owner != undefined || owner != null ? owner.properties.name[0].value : 'Anonymous',
     }
   })
 }
@@ -100,7 +103,6 @@ const ParseBeatVertices = (email, responseData) => {
 const RequestCreateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, onError) => {
   /// Create form
   let formData = new FormData()
-  formData.append(emailKey, encodedBeatObject.email)
   formData.append(nameKey, encodedBeatObject.name)
   formData.append(privacyKey, encodedBeatObject.isPrivate)
   formData.append(instrumentListKey, encodedBeatObject.instrumentList)
@@ -110,7 +112,7 @@ const RequestCreateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, 
   formData.append(imageKey, encodedBeatObject.image, encodedBeatObject.image.name)
 
   /// Make request
-  const url = window.process.env[azureRouteKey] + createBeatRoute
+  const url = urlBaseRoute + createBeatRoute + encodedBeatObject.email
   axios
     .post(url, formData, {
       onUploadProgress(progressEvent) {
@@ -121,13 +123,7 @@ const RequestCreateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, 
         Authorization: `Bearer ${userInfo.authToken}`,
       },
     })
-    .then(response => {
-      if (response.status !== 200) {
-        onError()
-      } else {
-        return response.data
-      }
-    })
+    .then(response => response.data)
     .then(responseData => {
       if (responseData.length == undefined || responseData.length != 1) {
         onError()
@@ -138,20 +134,8 @@ const RequestCreateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, 
       }
     })
     .catch(error => {
-      if (
-        error.response != undefined &&
-        error.response.data.includes(expiredAuthorizationToken) &&
-        (limit == undefined || limit == false)
-      ) {
-        RequestUserRefreshAuthentication(
-          userInfo,
-          _ => RequestCreateBeat(GetUserAuthInfo(), encodedBeatObject, onProgress, onComplete, onError, true),
-          onError
-        )
-      } else {
-        onError()
-        console.error(error.response)
-      }
+      onError()
+      console.error(error.response)
     })
 }
 
@@ -166,8 +150,6 @@ const RequestCreateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, 
 const RequestUpdateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, onError, limit) => {
   /// Create form
   let formData = new FormData()
-  formData.append(idKey, encodedBeatObject.id)
-  formData.append(emailKey, encodedBeatObject.email)
   formData.append(nameKey, encodedBeatObject.name)
   formData.append(privacyKey, encodedBeatObject.isPrivate)
   formData.append(instrumentListKey, encodedBeatObject.instrumentList)
@@ -183,9 +165,9 @@ const RequestUpdateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, 
   }
 
   /// Make request
-  const url = window.process.env[azureRouteKey] + updateBeatRoute
+  const url = urlBaseRoute + updateBeatRoute + encodedBeatObject.id
   axios
-    .post(url, formData, {
+    .put(url, formData, {
       onUploadProgress(progressEvent) {
         const progress = ((progressEvent.loaded / progressEvent.total) * 100).toFixed(2)
         onProgress(`Upload Progress... ${progress}%`)
@@ -194,13 +176,7 @@ const RequestUpdateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, 
         Authorization: `Bearer ${userInfo.authToken}`,
       },
     })
-    .then(response => {
-      if (response.status !== 200) {
-        onError()
-      } else {
-        return response.data
-      }
-    })
+    .then(response => response.data)
     .then(responseData => {
       if (responseData.length == undefined || responseData.length != 1) {
         onError()
@@ -211,20 +187,8 @@ const RequestUpdateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, 
       }
     })
     .catch(error => {
-      if (
-        error.response != undefined &&
-        error.response.data.includes(expiredAuthorizationToken) &&
-        (limit == undefined || limit == false)
-      ) {
-        RequestUserRefreshAuthentication(
-          userInfo,
-          _ => RequestUpdateBeat(GetUserAuthInfo(), encodedBeatObject, onProgress, onComplete, onError, true),
-          onError
-        )
-      } else {
-        onError()
-        console.error(error.response)
-      }
+      onError()
+      console.error(error.response)
     })
 }
 
@@ -235,39 +199,18 @@ const RequestUpdateBeat = (userInfo, encodedBeatObject, onProgress, onComplete, 
  * @param {Boolean?} limit
  */
 const RequestGetOwnedBeats = (userInfo, onComplete, onError, limit) => {
-  const url = window.process.env[azureRouteKey] + getOwnedBeatRoute
-  const requestBody = {
-    email: userInfo.email,
-  }
+  const url = urlBaseRoute + getOwnedBeatRoute + userInfo.email + '/owned_by?type=beat'
   axios
-    .post(url, requestBody, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
-    .then(response => {
-      if (response.status !== 200) {
-        onError()
-      } else {
-        return response.data
-      }
-    })
+    .get(url, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
+    .then(response => response.data)
     .then(responseData => {
       const decodableBeatObjects = ParseBeatVertices(userInfo.email, responseData)
       const retrievedBeatObjects = decodableBeatObjects.map(decodableObject => decodeBeatObject(decodableObject))
       onComplete(retrievedBeatObjects)
     })
     .catch(error => {
-      if (
-        error.response != undefined &&
-        error.response.data.includes(expiredAuthorizationToken) &&
-        (limit == undefined || limit == false)
-      ) {
-        RequestUserRefreshAuthentication(
-          userInfo,
-          _ => RequestGetOwnedBeats(GetUserAuthInfo(), onComplete, onError, true),
-          onError
-        )
-      } else {
-        onError()
-        console.error(error.response)
-      }
+      onError()
+      console.error(error.response)
     })
 }
 
@@ -278,39 +221,18 @@ const RequestGetOwnedBeats = (userInfo, onComplete, onError, limit) => {
  * @param {Boolean?} limit
  */
 const RequestGetAllBeats = (userInfo, onComplete, onError, limit) => {
-  const url = window.process.env[azureRouteKey] + getAllBeatRoute
-  const requestBody = {
-    email: userInfo.email,
-  }
+  const url = urlBaseRoute + getAllBeatRoute
   axios
-    .post(url, requestBody, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
-    .then(response => {
-      if (response.status !== 200) {
-        onError()
-      } else {
-        return response.data
-      }
-    })
+    .get(url, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
+    .then(response => response.data)
     .then(responseData => {
       const decodableBeatObjects = ParseBeatVertices(userInfo.email, responseData)
       const retrievedBeatObjects = decodableBeatObjects.map(decodableObject => decodeBeatObject(decodableObject))
       onComplete(retrievedBeatObjects)
     })
     .catch(error => {
-      if (
-        error.response != undefined &&
-        error.response.data.includes(expiredAuthorizationToken) &&
-        (limit == undefined || limit == false)
-      ) {
-        RequestUserRefreshAuthentication(
-          userInfo,
-          _ => RequestGetAllBeats(GetUserAuthInfo(), onComplete, onError, true),
-          onError
-        )
-      } else {
-        onError()
-        console.error(error.response)
-      }
+      onError()
+      console.error(error.response)
     })
 }
 
@@ -320,12 +242,9 @@ const RequestGetAllBeats = (userInfo, onComplete, onError, limit) => {
  * @param {Boolean?} limit
  */
 const RequestGetLikedBeats = (userInfo, onComplete, limit) => {
-  const url = window.process.env[azureRouteKey] + getLikedBeats
-  const requestBody = {
-    email: userInfo.email,
-  }
+  const url = urlBaseRoute + getLikedBeats + userInfo.email + '/likes?type=beat'
   axios
-    .post(url, requestBody, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
+    .get(url, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
     .then(response => response.data)
     .then(responseData => {
       const decodableBeatObjects = ParseBeatVertices(userInfo.email, responseData)
@@ -333,21 +252,7 @@ const RequestGetLikedBeats = (userInfo, onComplete, limit) => {
       decodableBeatObjects.forEach(beatObject => likedBeatIDs.add(beatObject.id))
       onComplete(likedBeatIDs)
     })
-    .catch(error => {
-      if (
-        error.response != undefined &&
-        error.response.data.includes(expiredAuthorizationToken) &&
-        (limit == undefined || limit == false)
-      ) {
-        RequestUserRefreshAuthentication(
-          userInfo,
-          _ => RequestGetLikedBeats(GetUserAuthInfo(), onComplete, true),
-          _ => {}
-        )
-      } else {
-        console.error(error.response)
-      }
-    })
+    .catch(error => console.error(error, error.response))
 }
 
 /**
@@ -397,39 +302,18 @@ const RequestLikeUnlikeBeat = (userInfo, beatId, shouldLike, onComplete, limit) 
  * @param {Boolean?} limit
  */
 const RequestGetRecommendedBeats = (userInfo, onComplete, onError, limit) => {
-  const url = window.process.env[azureRouteKey] + getRecommendedBeatsRoute
-  const requestBody = {
-    email: userInfo.email,
-  }
+  const url = urlBaseRoute + getRecommendedBeatsRoute + userInfo.email + '/recommended?type=beat'
   axios
-    .post(url, requestBody, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
-    .then(response => {
-      if (response.status !== 200) {
-        onError()
-      } else {
-        return response.data
-      }
-    })
+    .get(url, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
+    .then(response => response.data)
     .then(responseData => {
       const decodableBeatObjects = ParseBeatVertices(userInfo.email, responseData)
       const retrievedBeatObjects = decodableBeatObjects.map(decodableObject => decodeBeatObject(decodableObject))
       onComplete(retrievedBeatObjects)
     })
     .catch(error => {
-      if (
-        error.response != undefined &&
-        error.response.data.includes(expiredAuthorizationToken) &&
-        (limit == undefined || limit == false)
-      ) {
-        RequestUserRefreshAuthentication(
-          userInfo,
-          _ => RequestGetRecommendedBeats(GetUserAuthInfo(), onComplete, onError, true),
-          onError
-        )
-      } else {
-        onError()
-        console.error(error.response)
-      }
+      onError()
+      console.error(error.response)
     })
 }
 
@@ -440,13 +324,9 @@ const RequestGetRecommendedBeats = (userInfo, onComplete, onError, limit) => {
  * @param {Boolean?} limit
  */
 const RequestDeleteBeat = (userInfo, beatObject, onComplete, limit) => {
-  const url = window.process.env[azureRouteKey] + deleteBeatRoute
-  const requestBody = {
-    email: userInfo.email,
-    id: beatObject.beatID,
-  }
+  const url = urlBaseRoute + deleteBeatRoute + beatObject.beatID
   axios
-    .post(url, requestBody, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
+    .delete(url, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
     .then(response => {
       if (response.status !== 200) {
         onComplete(ResultStatus.Error)

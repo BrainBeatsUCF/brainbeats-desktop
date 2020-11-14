@@ -83,7 +83,7 @@ class SampleDownloader extends React.Component {
       }
     }
 
-    let sample = this.state.samples[downloadIndex]
+    let sample = { ...this.state.samples[downloadIndex] }
     // check sample audio has already been downloaded and take from cache if available
     // otherwise, initiate download
     const cachedBuffer = downloadedSampleCache[sample.sampleSource]
