@@ -13,7 +13,7 @@ const ResultStatusErrorMessage = {
 
 /// Request APIs and Routes
 const azureRouteKey = 'BRAINBEATS_AZURE_API_URL'
-const loginUserRoute = '/user/login_user'
+const loginUserRoute = '/v2/login'
 const refreshUserTokenRoute = '/v2/refresh_token'
 const urlBaseRoute = window.process.env[azureRouteKey]
 

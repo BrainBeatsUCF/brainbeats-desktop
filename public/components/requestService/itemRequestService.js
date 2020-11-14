@@ -38,10 +38,10 @@ const getOwnedBeatRoute = '/v2/users/'
 const getRecommendedBeatsRoute = '/v2/users/'
 const likeBeatRoute = '/user/like_vertex'
 const unlikeBeatRoute = '/user/unlike_vertex'
-const createSampleRoute = '/sample/create_sample'
-const getOwnedSampleRoute = '/user/get_owned_samples'
-const deleteSampleRoute = '/sample/delete_sample'
-const getAllSampleRoute = '/sample/get_all_samples'
+const createSampleRoute = '/v2/samples/create/'
+const deleteSampleRoute = '/v2/samples/delete/'
+const getAllSampleRoute = '/v2/samples'
+const getOwnedSampleRoute = '/v2/users/'
 const urlBaseRoute = window.process.env[azureRouteKey]
 
 /// Request Error Messages
@@ -434,7 +434,6 @@ const RequestCreateSample = (userInfo, encodedSampleObject, onProgress, onComple
 
   /// Create form data
   let formData = new FormData()
-  formData.append(emailKey, encodedSampleObject.email)
   formData.append(nameKey, encodedSampleObject.name)
   formData.append(privacyKey, encodedSampleObject.isPrivate)
   formData.append(attributesKey, encodedSampleObject.attributes)
@@ -442,7 +441,7 @@ const RequestCreateSample = (userInfo, encodedSampleObject, onProgress, onComple
   formData.append(imageKey, imageNameFromURL)
 
   /// Make Request
-  const url = window.process.env[azureRouteKey] + createSampleRoute
+  const url = urlBaseRoute + createSampleRoute + encodedSampleObject.email
   axios
     .post(url, formData, {
       onUploadProgress(progressEvent) {
@@ -453,33 +452,15 @@ const RequestCreateSample = (userInfo, encodedSampleObject, onProgress, onComple
         Authorization: `Bearer ${userInfo.authToken}`,
       },
     })
-    .then(response => {
-      if (response.status !== 200) {
-        onError()
-      } else {
-        return response.data
-      }
-    })
+    .then(response => response.data)
     .then(responseData => {
       const decodableSampleObjects = ParseSampleVertices(encodedSampleObject.email, responseData)
       let savedSampleObject = decodeSampleObject(decodableSampleObjects[0])
       onComplete(savedSampleObject)
     })
     .catch(error => {
-      if (
-        error.response != undefined &&
-        error.response.data.includes(expiredAuthorizationToken) &&
-        (limit == undefined || limit == false)
-      ) {
-        RequestUserRefreshAuthentication(
-          userInfo,
-          _ => RequestCreateSample(GetUserAuthInfo(), encodedSampleObject, onProgress, onComplete, onError, true),
-          onError
-        )
-      } else {
-        onError()
-        console.log(error.response)
-      }
+      onError()
+      console.log(error.response)
     })
 }
 
@@ -490,19 +471,10 @@ const RequestCreateSample = (userInfo, encodedSampleObject, onProgress, onComple
  * @param {Boolean?} limit
  */
 const RequestGetOwnedSamples = (userInfo, onComplete, onError, limit) => {
-  const url = window.process.env[azureRouteKey] + getOwnedSampleRoute
-  const requestBody = {
-    email: userInfo.email,
-  }
+  const url = urlBaseRoute + getOwnedSampleRoute + userInfo.email + '/owned_by?type=sample'
   axios
-    .post(url, requestBody, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
-    .then(response => {
-      if (response.status !== 200) {
-        onError()
-      } else {
-        return response.data
-      }
-    })
+    .get(url, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
+    .then(response => response.data)
     .then(responseData => {
       const decodableSampleObjects = ParseSampleVertices(userInfo.email, responseData)
       const retrievedSampleObjects = decodableSampleObjects
@@ -511,20 +483,8 @@ const RequestGetOwnedSamples = (userInfo, onComplete, onError, limit) => {
       onComplete(retrievedSampleObjects)
     })
     .catch(error => {
-      if (
-        error.response != undefined &&
-        error.response.data.includes(expiredAuthorizationToken) &&
-        (limit == undefined || limit == false)
-      ) {
-        RequestUserRefreshAuthentication(
-          userInfo,
-          _ => RequestGetOwnedSamples(GetUserAuthInfo(), onComplete, onError, true),
-          onError
-        )
-      } else {
-        onError()
-        console.error(error.response)
-      }
+      onError()
+      console.error(error, error.response)
     })
 }
 
@@ -535,39 +495,18 @@ const RequestGetOwnedSamples = (userInfo, onComplete, onError, limit) => {
  * @param {Boolean?} limit
  */
 const RequestGetAllSamples = (userInfo, onComplete, onError, limit) => {
-  const url = window.process.env[azureRouteKey] + getAllSampleRoute
-  const requestBody = {
-    email: userInfo.email,
-  }
+  const url = urlBaseRoute + getAllSampleRoute
   axios
-    .post(url, requestBody, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
-    .then(response => {
-      if (response.status !== 200) {
-        onError()
-      } else {
-        return response.data
-      }
-    })
+    .get(url, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
+    .then(response => response.data)
     .then(responseData => {
       const decodableSampleObjects = ParseSampleVertices(userInfo.email, responseData)
       const retrievedSampleObjects = decodableSampleObjects.map(decodableSample => decodeSampleObject(decodableSample))
       onComplete(retrievedSampleObjects)
     })
     .catch(error => {
-      if (
-        error.response != undefined &&
-        error.response.data.includes(expiredAuthorizationToken) &&
-        (limit == undefined || limit == false)
-      ) {
-        RequestUserRefreshAuthentication(
-          userInfo,
-          _ => RequestGetAllSamples(GetUserAuthInfo(), onComplete, onError, true),
-          onError
-        )
-      } else {
-        onError()
-        console.error(error.response)
-      }
+      onError()
+      console.error(error.response)
     })
 }
 
@@ -578,35 +517,13 @@ const RequestGetAllSamples = (userInfo, onComplete, onError, limit) => {
  * @param {Boolean?} limit
  */
 const RequestDeleteSample = (userInfo, sampleObject, onComplete, limit) => {
-  const url = window.process.env[azureRouteKey] + deleteSampleRoute
-  const requestBody = {
-    email: userInfo.email,
-    id: sampleObject.sampleID,
-  }
+  const url = urlBaseRoute + deleteSampleRoute + sampleObject.sampleID
   axios
-    .post(url, requestBody, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
-    .then(response => {
-      if (response.status !== 200) {
-        onComplete(ResultStatus.Error)
-      } else {
-        onComplete(ResultStatus.Success)
-      }
-    })
+    .delete(url, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
+    .then(_ => onComplete(ResultStatus.Success))
     .catch(error => {
-      if (
-        error.response != undefined &&
-        error.response.data.includes(expiredAuthorizationToken) &&
-        (limit == undefined || limit == false)
-      ) {
-        RequestUserRefreshAuthentication(
-          userInfo,
-          _ => RequestDeleteSample(GetUserAuthInfo(), sampleObject, onComplete, true),
-          _ => onComplete(ResultStatus.Error)
-        )
-      } else {
-        onComplete(ResultStatus.Error)
-        console.error(error.response)
-      }
+      onComplete(ResultStatus.Error)
+      console.error(error.response)
     })
 }
 
