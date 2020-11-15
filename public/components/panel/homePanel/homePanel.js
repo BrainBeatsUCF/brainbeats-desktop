@@ -11,6 +11,7 @@ import {
   RequestGetAllSamples,
   RequestGetOwnedBeats,
   RequestGetRecommendedBeats,
+  RequestGetOwnedSamples,
 } from '../../requestService/itemRequestService'
 import {
   CardType,
@@ -38,6 +39,10 @@ const HomePanel = props => {
   const [publicBeats, setPublicBeats] = useState([]) /// Type is PublicBeatObject
   const [publicSamples, setPublicSamples] = useState([]) /// Type is PublicSample
   const [recommendedBeats, setRecommendedBeats] = useState([]) /// Type is PublicBeatObject
+  const [numberOfUserBeats, setNumberOfUserBeats] = useState(0)
+  const [numberOfUserSamples, setNumberOfUserSamples] = useState(0)
+  const [numberOfBeatsShared, setNumberOfBeatsShared] = useState(0)
+  const [numberOfSamplesShared, setNumberOfSamplesShared] = useState(0)
 
   // MARK: Audio Play
 
@@ -180,6 +185,8 @@ const HomePanel = props => {
         })
         if (HomePanelMounted) {
           setPersonalBeats(myBeats)
+          setNumberOfUserBeats(beatObjects.length)
+          setNumberOfBeatsShared(beatObjects.filter(beat => beat.isPrivate === false).length)
         }
         let myBeatIds = new Set()
         myBeats.forEach(beatObject => myBeatIds.add(beatObject.id))
@@ -294,6 +301,21 @@ const HomePanel = props => {
           })
         if (HomePanelMounted) {
           setPublicSamples(availableSamples)
+          fetchOwnedSamples()
+        }
+      },
+      _ => {}
+    )
+  }
+
+  const fetchOwnedSamples = _ => {
+    RequestGetOwnedSamples(
+      GetUserAuthInfo(),
+      sampleObjects => {
+        const myPublicSamples = sampleObjects.filter(sample => sample.isPrivate === false)
+        if (HomePanelMounted) {
+          setNumberOfUserSamples(sampleObjects.length)
+          setNumberOfSamplesShared(myPublicSamples.length)
         }
       },
       _ => {}
@@ -351,6 +373,10 @@ const HomePanel = props => {
         customClass="SideTopSection"
         userProfileName="Toph Beifong"
         userInfo={props.userInfo}
+        numberOfBeatsCreated={numberOfUserBeats}
+        numberOfSamplesCreated={numberOfUserSamples}
+        numberOfUserBeatsShared={numberOfBeatsShared}
+        numberOfUserSamplesShared={numberOfSamplesShared}
       ></ProfilePanel>
       <div className="SideBottomSection"></div>
       <AudioPanel

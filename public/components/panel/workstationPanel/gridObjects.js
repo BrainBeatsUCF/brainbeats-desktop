@@ -15,6 +15,7 @@ const GridSampleObject = {
   sampleAudioLength: -1,
   sampleAudioBuffer: AudioBuffer,
   isPrivate: false,
+  ownerName: '',
 }
 
 const GridBeatObject = {
@@ -77,6 +78,7 @@ const DecodableSampleObject = {
   attributes: '',
   audio: '',
   image: '',
+  ownerName: '',
 }
 
 // Todo: update to parse some request body
@@ -341,6 +343,7 @@ const decodeSampleObject = decodableSample => {
     sampleAudioLength: decodedAttributes[0].sampleAudioLength,
     sampleAudioBuffer: null,
     isPrivate: decodableSample.isPrivate,
+    ownerName: decodableSample.ownerName,
   }
 }
 

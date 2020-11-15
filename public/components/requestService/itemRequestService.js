@@ -361,6 +361,7 @@ const RequestDeleteBeat = (userInfo, beatObject, onComplete, limit) => {
 const ParseSampleVertices = (email, sampleVertices) => {
   return sampleVertices.map(singleVertex => {
     const properties = singleVertex.properties
+    const owner = singleVertex.owner
     return {
       id: singleVertex.id,
       email: email,
@@ -369,6 +370,7 @@ const ParseSampleVertices = (email, sampleVertices) => {
       attributes: properties.attributes[0].value,
       audio: properties.audio[0].value,
       image: properties.image[0].value,
+      ownerName: owner == undefined || owner == null ? 'Unknown' : owner.id,
     }
   })
 }
@@ -460,7 +462,7 @@ const RequestCreateSample = (userInfo, encodedSampleObject, onProgress, onComple
     })
     .catch(error => {
       onError()
-      console.log(error.response)
+      console.log(error, error.response)
     })
 }
 
@@ -506,7 +508,7 @@ const RequestGetAllSamples = (userInfo, onComplete, onError, limit) => {
     })
     .catch(error => {
       onError()
-      console.error(error.response)
+      console.error(error, error.response)
     })
 }
 

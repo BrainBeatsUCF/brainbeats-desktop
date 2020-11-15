@@ -17,35 +17,21 @@ const ProfileStatisticTitle = {
  * customClass: String
  * userProfileName: String,
  * userInfo: VerifiedUserInfo,
+ * numberOfBeatsCreated: Number,
+ * numberOfSamplesCreated: Number,
+ * numberOfUserBeatsShared: Number,
+ * numberOfUserSamplesShared: Number,
  * }} props
  */
 const ProfilePanel = props => {
   const [userDisplayName, setUserDisplayName] = useState('')
-  const [numberOfBeatsCreated, setNumberOfBeatsCreated] = useState(0)
-  const [numberOfSamplesCreated, setNumberOfSamplesCreated] = useState(0)
-  const [numberOfUserSamplesShared, setNumberOfSamplesShared] = useState(0)
-  const [numberOfUserBeatsShared, setNumberOfUserBeatsShared] = useState(0)
   const [userGeneratedProfileImage, setUserGeneratedProfileImage] = useState(null)
   const [hasProfileBeenFetched, setHasProfileBeenFetched] = useState(false)
 
   useEffect(() => {
-    RequestUserProfileInfo(
-      (firstName, lastName) => {
-        setUserDisplayName(firstName + ' ' + lastName)
-      },
-      beatCount => {
-        setNumberOfBeatsCreated(beatCount)
-      },
-      sampleCount => {
-        setNumberOfSamplesCreated(sampleCount)
-      },
-      beatsShared => {
-        setNumberOfUserBeatsShared(beatsShared)
-      },
-      samplesShared => {
-        setNumberOfSamplesShared(samplesShared)
-      }
-    )
+    RequestUserProfileInfo((firstName, lastName) => {
+      setUserDisplayName(firstName + ' ' + lastName)
+    })
     if (!hasProfileBeenFetched) {
       generateUserProfileImage()
     }
@@ -80,9 +66,13 @@ const ProfilePanel = props => {
     <div className={`${props.customClass} UserAccountSection`}>
       {getGeneratedUserProfileImage()}
       <h3 className="UserAccountSectionLabel">{userDisplayName}</h3>
-      {renderStatistic(BeatButton, ProfileStatisticTitle.Beats, numberOfBeatsCreated)}
-      {renderStatistic(SampleButton, ProfileStatisticTitle.Samples, numberOfSamplesCreated)}
-      {renderStatistic(ShareButton, ProfileStatisticTitle.Shares, numberOfUserBeatsShared + numberOfUserSamplesShared)}
+      {renderStatistic(BeatButton, ProfileStatisticTitle.Beats, props.numberOfBeatsCreated)}
+      {renderStatistic(SampleButton, ProfileStatisticTitle.Samples, props.numberOfSamplesCreated)}
+      {renderStatistic(
+        ShareButton,
+        ProfileStatisticTitle.Shares,
+        props.numberOfUserBeatsShared + props.numberOfUserSamplesShared
+      )}
     </div>
   )
 }
