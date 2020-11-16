@@ -105,53 +105,11 @@ const RequestUserIdentificationInfo = (onUserIdentityRecieved, limit) => {
 }
 
 /**
- * @param {(beatCount: Number) => void} onBeatCountRecieved
- * @param {(sampleCount: Number) => void} onSampleCountRecieved
- * @param {(sharesCount: Number) => void} onBeatShared
- * @param {(sharesCount: Number) => void} onSampleShared
- */
-const RequestGetUserStatistics = (onBeatCountRecieved, onSampleCountRecieved, onBeatShared, onSampleShared) => {
-  /// Beat count
-  RequestGetOwnedBeats(
-    GetUserAuthInfo(),
-    beats => {
-      onBeatCountRecieved(beats.length)
-      onBeatShared(beats.reduce((prev, curr) => (curr.isPrivate ? prev : prev + 1), 0))
-    },
-    _ => {},
-    false
-  )
-  /// Sample count
-  RequestGetOwnedSamples(
-    GetUserAuthInfo(),
-    samples => {
-      onSampleCountRecieved(samples.length)
-      onSampleShared(samples.reduce((prev, curr) => (curr.isPrivate ? prev : prev + 1), 0))
-    },
-    _ => {},
-    false
-  )
-}
-
-/**
  * Gets the first and last name first before attempting other requests to prevent network clog
  * @param {(firstName: String, lastName: String) => void} onUserIdentityRecieved
- * @param {(beatCount: Number) => void} onBeatCountRecieved
- * @param {(sampleCount: Number) => void} onSampleCountRecieved
- * @param {(sharesCount: Number) => void} onBeatShared
- * @param {(sharesCount: Number) => void} onSampleShared
  */
-const RequestUserProfileInfo = (
-  onUserIdentityRecieved,
-  onBeatCountRecieved,
-  onSampleCountRecieved,
-  onBeatShared,
-  onSampleShared
-) => {
-  RequestUserIdentificationInfo((firstName, lastName) => {
-    onUserIdentityRecieved(firstName, lastName)
-    RequestGetUserStatistics(onBeatCountRecieved, onSampleCountRecieved, onBeatShared, onSampleShared)
-  })
+const RequestUserProfileInfo = onUserIdentityRecieved => {
+  RequestUserIdentificationInfo((firstName, lastName) => onUserIdentityRecieved(firstName, lastName))
 }
 
 export { RequestUserProfileImage, RequestUserProfileInfo, ResultStatus }

@@ -66,7 +66,7 @@ const LibraryPanel = props => {
         likedIDs={props.likedIds}
         items={props.items[ListKey.RecommendedBeats]}
         title={ListTitle.RecommendedBeats}
-        itemType={CardType.PublicBeat}
+        itemType={CardType.RecommendedBeat}
         isPlayingItem={props.isPlayingItem}
         shouldPlayItem={props.shouldPlayItem}
         shouldStopItem={props.shouldStopItem}

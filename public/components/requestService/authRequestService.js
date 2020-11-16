@@ -13,8 +13,12 @@ const ResultStatusErrorMessage = {
 
 /// Request APIs and Routes
 const azureRouteKey = 'BRAINBEATS_AZURE_API_URL'
-const loginUserRoute = '/user/login_user'
-const refreshUserTokenRoute = '/user/refresh_token'
+const loginUserRoute = '/v2/login'
+const refreshUserTokenRoute = '/v2/refresh_token'
+const urlBaseRoute = window.process.env[azureRouteKey]
+
+/// Hack to prevent 503 on initial bootup if user already logged in
+let initialRefreshTokenAttempts = 3
 
 /**
  * This object holds the session info for the authenticated user
@@ -71,7 +75,7 @@ const ClearUserAuthInfo = _ => {
  * @param {(user: VerifiedUserInfo, status: String, message: String) => void} didCompleteRequest
  */
 const RequestUserLoginAuthentication = (userInfo, didCompleteRequest) => {
-  const url = window.process.env[azureRouteKey] + loginUserRoute
+  const url = urlBaseRoute + loginUserRoute
   const requestBody = {
     email: userInfo.email,
     password: userInfo.password,
@@ -106,7 +110,7 @@ const RequestUserLoginAuthentication = (userInfo, didCompleteRequest) => {
  * @param {() => void} onError
  */
 const RequestUserRefreshAuthentication = (userInfo, onComplete, onError) => {
-  const url = window.process.env[azureRouteKey] + loginUserRoute
+  const url = urlBaseRoute + loginUserRoute
   const requestBody = {
     email: userInfo.email,
     password: userInfo.password,
@@ -134,7 +138,7 @@ const RequestUserRefreshAuthentication = (userInfo, onComplete, onError) => {
  * @param {() => void} onError
  */
 const RequestUserTokenRefresh = (onSuccess, onError) => {
-  const url = window.process.env[azureRouteKey] + refreshUserTokenRoute
+  const url = urlBaseRoute + refreshUserTokenRoute
   const requestBody = {
     refreshToken: GetUserAuthInfo().refreshToken,
   }
@@ -153,9 +157,20 @@ const RequestUserTokenRefresh = (onSuccess, onError) => {
       }
     })
     .catch(error => {
-      console.error(error.response)
-      if (onError != null && onError != undefined) {
-        onError()
+      /// Server could be asleep. 3 attempts 2.5 seconds apart
+      /// could be enough to eventually make contacts
+      /// This only fires on initial bootup since counter is a
+      /// global variable
+      if (initialRefreshTokenAttempts > 0) {
+        setTimeout(_ => {
+          initialRefreshTokenAttempts -= 1
+          RequestUserTokenRefresh(onSuccess, onError)
+        }, 2500)
+      } else {
+        console.error(error.response)
+        if (onError != null && onError != undefined) {
+          onError()
+        }
       }
     })
 }

@@ -83,7 +83,7 @@ class SampleDownloader extends React.Component {
       }
     }
 
-    let sample = this.state.samples[downloadIndex]
+    let sample = { ...this.state.samples[downloadIndex] }
     // check sample audio has already been downloaded and take from cache if available
     // otherwise, initiate download
     const cachedBuffer = downloadedSampleCache[sample.sampleSource]
@@ -160,4 +160,34 @@ class SampleDownloader extends React.Component {
   }
 }
 
-export { SampleDownloader }
+/// Generic info for closing the download sample(s) prompt
+const CloseSampleDownloadPrompt = {
+  shouldShowPrompt: false,
+  sampleObjects: [GridSampleObject],
+  audioContext: null,
+  onDownloadComplete: null,
+  onDownloadError: null,
+}
+
+/**
+ * @param {{
+ * promptInfo: CloseSampleDownloadPrompt
+ * }} props
+ */
+const SampleDownloadPromptWrapper = props => {
+  const { promptInfo } = props
+  if (!promptInfo.shouldShowPrompt) {
+    return <></>
+  }
+  const samplesToDownload = [...promptInfo.sampleObjects]
+  return (
+    <SampleDownloader
+      samples={samplesToDownload}
+      audioContext={promptInfo.audioContext}
+      onComplete={promptInfo.onDownloadComplete}
+      onError={promptInfo.onDownloadError}
+    ></SampleDownloader>
+  )
+}
+
+export { SampleDownloadPromptWrapper, SampleDownloader, CloseSampleDownloadPrompt }

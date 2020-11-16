@@ -1,7 +1,7 @@
 import React from 'react'
 import { ListObjectType, VerticalListPanel } from '../verticalListPanel/verticalListPanel'
 import { WorkstationPanel } from '../workstationPanel/workstationPanel'
-import { SampleDownloader } from './sampleDownloader'
+import { SampleDownloadPromptWrapper, CloseSampleDownloadPrompt } from './sampleDownloader'
 import { SaveBeatPromptWrapper, ClosePromptInfo } from './saveBeatPrompt'
 import { ItemContextPromptWrapper, CloseContextPromptInfo } from './itemContextPrompt'
 import { GetUserAuthInfo } from '../../requestService/authRequestService'
@@ -39,13 +39,13 @@ class StudioPanel extends React.Component {
     super(props)
     this.state = {
       customClass: props.customClass ?? '',
-      downloadSamples: null,
       currentSavePromptInfo: ClosePromptInfo,
       currentItemContextPromptInfo: CloseContextPromptInfo,
       currentSynthesizerInfo: HideSynthesizerInfo,
       currentBeatDownloadInfo: CloseBeatDownloadPrompt,
+      currentSampleDownloadInfo: CloseSampleDownloadPrompt,
       loadedBeats: [],
-      loadedSamples: [GridSampleObject],
+      loadedSamples: [],
     }
 
     // Hacky way of adding autocomplete to state through VSCode intellisense
@@ -206,6 +206,7 @@ class StudioPanel extends React.Component {
    * @param {GridBeatObject} beatsObject
    */
   startLoadingBeatItem = beatsObject => {
+    this.props.setCurrentGridItem(getEmptyBeat())
     this.setState({
       currentBeatDownloadInfo: {
         shouldShowPrompt: true,
@@ -260,11 +261,19 @@ class StudioPanel extends React.Component {
    * @param {GridSampleObject} sampleObject
    */
   shouldLoadSampleItem = sampleObject => {
-    // Sample are copied to overcome default pass-by-reference behavior in javascript
-    let copySampleObject = {}
-    Object.assign(copySampleObject, sampleObject)
-    this.props.currentGridItem.isWorthSaving = true
-    this.setState({ downloadSamples: [copySampleObject] })
+    const copySample = { ...sampleObject }
+    this.setState({
+      currentSampleDownloadInfo: {
+        shouldShowPrompt: true,
+        sampleObjects: [copySample],
+        audioContext: StudioAudioContext,
+        onDownloadComplete: this.handleSampleItemDownloaded,
+        onDownloadError: _ => {
+          // Nothing is loaded on download fail
+          console.error(`Failed to download ${sampleObject.sampleTitle} sample`)
+        },
+      },
+    })
   }
 
   // MARK : Network Request Handlers
@@ -276,8 +285,8 @@ class StudioPanel extends React.Component {
   handleSampleItemDownloaded = newSamples => {
     const { currentGridItem } = this.props
     currentGridItem.isWorthSaving = true
-    this.setState({ downloadSamples: null })
     this.props.setCurrentGridItem(appendSamplesToBeat(newSamples, currentGridItem))
+    this.setState({ currentSampleDownloadInfo: CloseSampleDownloadPrompt })
   }
 
   /**
@@ -319,29 +328,6 @@ class StudioPanel extends React.Component {
     )
   }
 
-  // MARK : Helpers
-
-  renderSampleDownloader = () => {
-    const { downloadSamples } = this.state
-    if (downloadSamples == null) {
-      return <></>
-    } else {
-      return (
-        <SampleDownloader
-          samples={downloadSamples}
-          audioContext={StudioAudioContext}
-          onComplete={this.handleSampleItemDownloaded}
-          onError={() => {
-            // if new beat
-            this.setState({
-              downloadSamples: null,
-            })
-          }}
-        ></SampleDownloader>
-      )
-    }
-  }
-
   render() {
     return (
       <div className={`StudioPanel ${this.state.customClass}`}>
@@ -375,8 +361,8 @@ class StudioPanel extends React.Component {
           setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}
         ></WorkstationPanel>
         <SynthesizerManager {...this.state.currentSynthesizerInfo}></SynthesizerManager>
-        {this.renderSampleDownloader()}
         <BeatDownloadPromptWrapper promptInfo={this.state.currentBeatDownloadInfo}></BeatDownloadPromptWrapper>
+        <SampleDownloadPromptWrapper promptInfo={this.state.currentSampleDownloadInfo}></SampleDownloadPromptWrapper>
         <SaveBeatPromptWrapper
           userInfo={GetUserAuthInfo()}
           promptInfo={this.state.currentSavePromptInfo}

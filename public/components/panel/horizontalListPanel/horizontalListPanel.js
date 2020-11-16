@@ -8,6 +8,7 @@ const CardType = {
   PersonalBeat: 'personalBeat',
   PublicBeat: 'publicBeat',
   PublicSample: 'publicSample',
+  RecommendedBeat: 'recommendedBeat',
 }
 
 const ListTitle = {
@@ -56,6 +57,7 @@ const HorizontalListPanel = props => {
       case CardType.PersonalBeat:
       case CardType.PublicSample:
       case CardType.PublicBeat:
+      case CardType.RecommendedBeat:
         return item.displayTitle.toLowerCase().includes(query.toLowerCase())
       default:
         return false
@@ -100,6 +102,7 @@ const HorizontalListPanel = props => {
                 onClick={(clickItem, clickIndex) => handleItemClick(clickItem, clickIndex)}
               ></SampleCard>
             )
+          case CardType.RecommendedBeat:
           case CardType.PublicBeat:
             return (
               <PublicBeatCard
