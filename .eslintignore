@@ -10,6 +10,7 @@ package-lock.json
 /build
 /dist
 /production
+/production_modules
 
 # ignore non js || css || md
 *.html
