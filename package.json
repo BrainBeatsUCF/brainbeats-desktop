@@ -18,7 +18,12 @@
     "install_windows": "npm install && npm install -g electron && set ELECTRON_START_URL=http://localhost:3232",
     "start_windows": "concurrently \"webpack-dev-server --hot --port 3232\" \"timeout 6 && electron .\"",
     "format": "npx prettier --write .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build_react": "webpack --mode production",
+    "build_hardware": "cp -a hardware/. production/hardware",
+    "build_production": "cp -a production_modules/. production && cp shared_variables.json production && cp preload.js production",
+    "stage_production": "rm -rf production && mkdir production && npm run build_react && npm run build_hardware && npm run build_production",
+    "start_production": "electron production/main.js"
   },
   "author": "Lloyd Dapaah",
   "license": "MIT",

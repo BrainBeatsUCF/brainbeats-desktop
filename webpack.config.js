@@ -4,10 +4,12 @@ var HtmlWebpackPlugin =  require('html-webpack-plugin');
 module.exports = {
     entry : './public/index.js',
     output : {
-        path : path.resolve(__dirname , 'dist'),
+        path : path.resolve(__dirname , 'production'),
         filename: 'index_bundle.js'
     },
-    
+    devServer: {
+      contentBase: './production'
+    },
     module : {
         rules : [
             {test : /\.(js)$/, use:'babel-loader'},
