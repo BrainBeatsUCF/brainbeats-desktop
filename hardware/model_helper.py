@@ -11,9 +11,9 @@ try:
 except ImportError:
 	debugPrint("Unable to import Tensorflow! Is it installed?")
 
-def predict_emotion(data: deque) -> None:
+def predict_emotion(data: deque) -> str:
 	debugPrint("Loading model....")
-	model_path = f"{Path.cwd()}/model.h5"
+	model_path = f"{Path.cwd()}/checkpoints/model.h5"
 	cpu = False
 	model_path
 	if cpu:
