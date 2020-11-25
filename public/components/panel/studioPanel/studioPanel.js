@@ -9,10 +9,12 @@ import { RequestGetOwnedBeats, RequestGetOwnedSamples } from '../../requestServi
 import { HideSynthesizerInfo } from './synthesizerPanel/synthesizerPanel'
 import { SynthesizerManager } from './synthesizerPanel/synthesizerManagerPanel'
 import { BeatDownloadPromptWrapper, CloseBeatDownloadPrompt } from './beatDownloadPrompt'
+import LoadingAnimation from '../../../images/network_activity.gif'
 import {
   GridBeatObject,
   GridSampleObject,
   updateBeatSamples,
+  deleteBeatSample,
   appendSamplesToBeat,
   getEmptyBeat,
 } from '../workstationPanel/gridObjects'
@@ -39,6 +41,7 @@ class StudioPanel extends React.Component {
     super(props)
     this.state = {
       customClass: props.customClass ?? '',
+      shouldBlockInteraction: false,
       currentSavePromptInfo: ClosePromptInfo,
       currentItemContextPromptInfo: CloseContextPromptInfo,
       currentSynthesizerInfo: HideSynthesizerInfo,
@@ -47,9 +50,6 @@ class StudioPanel extends React.Component {
       loadedBeats: [],
       loadedSamples: [],
     }
-
-    // Hacky way of adding autocomplete to state through VSCode intellisense
-    this.state.loadedSamples = []
   }
 
   // MARK : Life Cycle
@@ -357,6 +357,27 @@ class StudioPanel extends React.Component {
             const { currentGridItem } = this.props
             this.props.setCurrentGridItem(updateBeatSamples(newGridSamples, currentGridItem))
           }}
+          onDeleteSampleFromList={sampleIndex => {
+            const { currentGridItem } = this.props
+            const timeToRefresh = 500 // 0.5 seconds
+            /// We need to set a buffer between switching out the grid item, otherwise
+            /// the renderer scheduler will bundle up our updates and cause undefined behavior
+            this.props.setCurrentGridItem(getEmptyBeat())
+            this.setState({ shouldBlockInteraction: true })
+            setTimeout(_ => {
+              let newGridBeatObject = deleteBeatSample(sampleIndex, currentGridItem)
+              /// if its a new grid without any samples, enable overwriting
+              if (
+                newGridBeatObject.sampleTitle === '' &&
+                newGridBeatObject.image === '' &&
+                newGridBeatObject.samples.length === 0
+              ) {
+                newGridBeatObject.isWorthSaving = false
+              }
+              this.props.setCurrentGridItem(newGridBeatObject)
+              this.setState({ shouldBlockInteraction: false })
+            }, timeToRefresh)
+          }}
           onSaveCurrentGridBeat={this.handleSaveBeatToDatabase}
           setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}
         ></WorkstationPanel>
@@ -375,6 +396,12 @@ class StudioPanel extends React.Component {
           promptInfo={this.state.currentItemContextPromptInfo}
           setIsMakingNetworkActivity={this.props.setIsMakingNetworkActivity}
         ></ItemContextPromptWrapper>
+        <div
+          className="StudioInteractionBlockOverlay"
+          style={{ display: this.state.shouldBlockInteraction ? 'flex' : 'none' }}
+        >
+          <img src={LoadingAnimation} height={30} width={30}></img>
+        </div>
       </div>
     )
   }
