@@ -36,8 +36,8 @@ const getAllBeatRoute = '/v2/beats'
 const getLikedBeats = '/v2/users/'
 const getOwnedBeatRoute = '/v2/users/'
 const getRecommendedBeatsRoute = '/v2/users/'
-const likeBeatRoute = '/user/like_vertex'
-const unlikeBeatRoute = '/user/unlike_vertex'
+const unlikeBeatRouteV2 = '/v2/users/delete_edge/'
+const likeBeatRouteV2 = '/v2/users/add_edge/'
 const createSampleRoute = '/v2/samples/create/'
 const deleteSampleRoute = '/v2/samples/delete/'
 const getAllSampleRoute = '/v2/samples'
@@ -263,36 +263,21 @@ const RequestGetLikedBeats = (userInfo, onComplete, limit) => {
  * @param {Boolean?} limit
  */
 const RequestLikeUnlikeBeat = (userInfo, beatId, shouldLike, onComplete, limit) => {
-  const url = window.process.env[azureRouteKey] + (shouldLike ? likeBeatRoute : unlikeBeatRoute)
-  const requestBody = {
-    email: userInfo.email,
-    vertexId: beatId,
+  const url = urlBaseRoute + `${shouldLike ? likeBeatRouteV2 : unlikeBeatRouteV2}${userInfo.email}/${beatId}`
+  const config = { headers: { Authorization: `Bearer ${userInfo.authToken}` } }
+  if (shouldLike) {
+    axios
+      .put(url, {}, config)
+      .then(response => response.data)
+      .then(_ => onComplete())
+      .catch(error => console.error(error, error.response != undefined ? error.response : ''))
+  } else {
+    axios
+      .delete(url, config)
+      .then(response => response.data)
+      .then(_ => onComplete())
+      .catch(error => console.error(error, error.response != undefined ? error.response : ''))
   }
-  axios
-    .post(url, requestBody, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
-    .then(response => {
-      if (response.status === 200) {
-        return response.data
-      }
-    })
-    .then(_ => {
-      onComplete()
-    })
-    .catch(error => {
-      if (
-        error.response != undefined &&
-        error.response.data.includes(expiredAuthorizationToken) &&
-        (limit == undefined || limit == false)
-      ) {
-        RequestUserRefreshAuthentication(
-          userInfo,
-          _ => RequestLikeUnlikeBeat(GetUserAuthInfo(), beatId, shouldLike, onComplete, true),
-          _ => {} // error callback
-        )
-      } else {
-        console.error(error.response)
-      }
-    })
 }
 
 /**

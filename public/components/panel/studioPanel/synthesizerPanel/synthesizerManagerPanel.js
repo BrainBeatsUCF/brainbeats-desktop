@@ -25,6 +25,13 @@ const SynthPanelCollection = props => {
   const [predictedEmotion, setPredictedEmotion] = useState(defaultEmotionValue)
   const [generatedSamples, setGeneratedSamples] = useState([])
 
+  useEffect(() => {
+    window.process.env['generation_key'] = `${new Date()}`
+    return function cleanup() {
+      window.process.env['generation_key'] = ''
+    }
+  }, [])
+
   /**
    * @param {String} emotion
    */

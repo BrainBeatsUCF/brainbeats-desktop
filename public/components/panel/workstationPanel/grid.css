@@ -1,7 +1,8 @@
 .GridActivator {
   box-sizing: border-box;
   display: flex;
-  justify-content: center;
+  flex-direction: row;
+  justify-content: space-around;
   align-items: center;
 }
 

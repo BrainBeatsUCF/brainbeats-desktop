@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { DEFAULT_GRID_COLUMN_COUNT, PIXELS_PER_SECOND, CELL_WIDTH_IN_PIXELS } from './constants'
+import { DEFAULT_GRID_COLUMN_COUNT, PIXELS_PER_SECOND, CELL_WIDTH_IN_PIXELS, CELL_HEIGHT_IN_PIXELS } from './constants'
 import { GridSampleObject, GridSampleMatrix, GridActivator, GridTimeRuler } from './gridComponents'
 import { MenuButton, MenuButtonColor, MenuButtonSelectionState } from '../../input/input'
 import { GridBeatObject, fixResizeOverCorrections } from './gridObjects'
@@ -23,6 +23,7 @@ class WorkstationPanel extends React.Component {
    * title: String,
    * currentGridBeat: GridBeatObject,
    * setLoadedSampleList: (loadedSampleList: [GridSampleObject]) => void,
+   * onDeleteSampleFromList: (sampleIndex: Number) => void,
    * onSaveCurrentGridBeat: (beatObject: GridBeatObject) => void,
    * setIsMakingNetworkActivity: (Boolean) => void
    * }} props
@@ -240,10 +241,11 @@ class WorkstationPanel extends React.Component {
             unit={CELL_WIDTH_IN_PIXELS / PIXELS_PER_SECOND}
           ></GridTimeRuler>
           <div className="GridComponentsContainer">
-            <div className="GridActivators">
+            <div className="GridActivators" style={{ width: CELL_HEIGHT_IN_PIXELS * 2 }}>
               <GridActivator
                 activatorStates={this.props.currentGridBeat.samples}
                 onActivatorClick={this.handleActivatorToggle}
+                onDeleteSampleClick={this.props.onDeleteSampleFromList}
               ></GridActivator>
             </div>
             <GridSampleMatrix

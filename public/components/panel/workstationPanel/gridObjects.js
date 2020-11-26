@@ -132,6 +132,19 @@ const updateBeatSamples = (samples, beat) => {
 }
 
 /**
+ * @param {Number} index
+ * @param {GridBeatObject} beat
+ * @return {GridBeatObject}
+ */
+const deleteBeatSample = (index, beat) => {
+  let copyBeat = { ...beat }
+  copyBeat.samples = beat.samples.filter((_, sampleIndex) => {
+    return sampleIndex != index
+  })
+  return copyBeat
+}
+
+/**
  * @param {GridSampleObject} sample
  */
 const fixResizeOverCorrections = sample => {
@@ -357,6 +370,7 @@ export {
   commitBeatIfNecessary,
   createNewBeat,
   updateBeatSamples,
+  deleteBeatSample,
   appendSamplesToBeat,
   fixResizeOverCorrections,
   encodeBeatObject,

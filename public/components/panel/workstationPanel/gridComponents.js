@@ -4,6 +4,7 @@ import { GridSampleObject } from './gridObjects'
 import * as Constants from './constants.js'
 import GreenCheckmark from '../../../images/checkGreen.png'
 import RedCheckmark from '../../../images/checkRed.png'
+import TrashIcon from '../../../images/deleteButton.png'
 import './grid.css'
 
 /// Provides the CSS styling for horizontal lines for the grid matrix
@@ -27,7 +28,8 @@ const backgroundCellWidth = `
 /**
  * @param {{
  * activatorStates: [GridSampleObject],
- * onActivatorClick: (index) => void
+ * onActivatorClick: (index) => void,
+ * onDeleteSampleClick: (index) => void,
  * }} props
  */
 const GridActivator = props => {
@@ -38,9 +40,16 @@ const GridActivator = props => {
         className="GridActivator"
         style={{
           minHeight: Constants.CELL_HEIGHT_IN_PIXELS,
-          minWidth: Constants.CELL_HEIGHT_IN_PIXELS,
+          minWidth: Constants.CELL_HEIGHT_IN_PIXELS * 2,
         }}
       >
+        <img
+          className="GridActivatorImage"
+          src={TrashIcon}
+          height={Constants.ACTIVATOR_IMAGE_LENGTH_IN_PIXELS}
+          width={Constants.ACTIVATOR_IMAGE_LENGTH_IN_PIXELS + 1}
+          onClick={() => props.onDeleteSampleClick(index)}
+        ></img>
         <img
           className="GridActivatorImage"
           src={value.sampleIsActive == true ? GreenCheckmark : RedCheckmark}
