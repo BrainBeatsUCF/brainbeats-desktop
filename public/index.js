@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import { Authentication } from './components/authentication/authentication'
 import { AppDelegate } from './components/appDelegate/appDelegate'
 import NetworkActivityAnimation from './images/network_activity.gif'
+import { RequestGetOwnedBeats } from './components/requestService/itemRequestService'
 import {
   ClearUserAuthInfo,
   GetUserAuthInfo,
@@ -12,7 +13,10 @@ import {
 import './index.css'
 import './scrollbar.css'
 
+let shouldRefreshOnReload = true
+
 const TokenRefreshInterval = 40 * 60 * 1000 // 40 minutes
+const WakeServerTime = 2 * 1000 // 2 seconds
 
 const PreloadUserInfo = _ => {
   const userInfo = GetUserAuthInfo()
@@ -34,12 +38,12 @@ class App extends React.Component {
     super(props)
     this.state = {
       userInfo: PreloadUserInfo(),
-      shouldShowOverlay: false,
+      shouldShowOverlay: shouldRefreshOnReload,
     }
   }
 
   componentDidMount() {
-    if (this.state.userInfo != null) {
+    if (this.state.userInfo != null && shouldRefreshOnReload) {
       RequestUserTokenRefresh(this.handleRefreshTokenSuccess, this.hideMainOverlay)
     }
   }
@@ -49,10 +53,21 @@ class App extends React.Component {
   }
 
   handleRefreshTokenSuccess = _ => {
-    this.hideMainOverlay()
-    setInterval(_ => {
-      RequestUserTokenRefresh()
-    }, TokenRefreshInterval)
+    RequestGetOwnedBeats(
+      GetUserAuthInfo(),
+      _ => {
+        shouldRefreshOnReload = false
+        this.hideMainOverlay()
+        setInterval(_ => {
+          RequestUserTokenRefresh()
+        }, TokenRefreshInterval)
+      },
+      _ => {
+        setTimeout(_ => {
+          this.handleRefreshTokenSuccess()
+        }, WakeServerTime)
+      }
+    )
   }
 
   onLoginSuccess = userInfo => {
