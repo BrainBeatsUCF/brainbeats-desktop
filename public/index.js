@@ -75,7 +75,7 @@ class App extends React.Component {
 
   render() {
     return this.isUserDefined() ? (
-      this.state.shouldShowOverlay ? (
+      shouldRefreshOnReload ? (
         <div className="MainLoadingOverlay">
           <img src={NetworkActivityAnimation} height="40px" width="40px"></img>
         </div>
