@@ -73,6 +73,7 @@ Building the application transcribes all the components and plugins down to simp
 
 #### Windows
 
-- N/A
+- First run this command in Powershell, for some reason npm doesnt play nicely with Powershell commands: `Remove-Item -Recurse -Force -Path production/; mkdir production/; npm run build_prod_windows; Copy-Item -Recurse -Force -Path hardware/ -Destination production/; Copy-Item -Path production_modules/main.js -Destination production/; Copy-Item -Path shared_variables.json -Destination production/; Copy-Item -Path preload.js -Destination production/`
+- Then run: `electron production/main.js`
 
 ### Known Issues
