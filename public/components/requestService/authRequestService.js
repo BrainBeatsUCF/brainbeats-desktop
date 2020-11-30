@@ -68,6 +68,7 @@ const ClearUserAuthInfo = _ => {
   for (let userInfoKey in VerifiedUserInfo) {
     window.localStorage.removeItem(userInfoKey)
   }
+  window.localStorage.clear()
 }
 
 /**

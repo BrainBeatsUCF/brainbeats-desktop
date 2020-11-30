@@ -12,6 +12,8 @@ import {
 import './index.css'
 import './scrollbar.css'
 
+let shouldRefreshOnReload = true
+
 const TokenRefreshInterval = 40 * 60 * 1000 // 40 minutes
 
 const PreloadUserInfo = _ => {
@@ -34,25 +36,15 @@ class App extends React.Component {
     super(props)
     this.state = {
       userInfo: PreloadUserInfo(),
-      shouldShowOverlay: false,
     }
   }
 
   componentDidMount() {
-    if (this.state.userInfo != null) {
-      RequestUserTokenRefresh(this.handleRefreshTokenSuccess, this.hideMainOverlay)
+    if (this.state.userInfo != null && shouldRefreshOnReload) {
+      RequestUserTokenRefresh(_ => {
+        this.onLoginSuccess(GetUserAuthInfo())
+      }, this.onLoginError)
     }
-  }
-
-  hideMainOverlay = _ => {
-    this.setState({ shouldShowOverlay: false })
-  }
-
-  handleRefreshTokenSuccess = _ => {
-    this.hideMainOverlay()
-    setInterval(_ => {
-      RequestUserTokenRefresh()
-    }, TokenRefreshInterval)
   }
 
   onLoginSuccess = userInfo => {
@@ -68,12 +60,13 @@ class App extends React.Component {
   }
 
   setUserInfo = userInfo => {
-    this.setState({ userInfo: userInfo })
+    shouldRefreshOnReload = false
     if (userInfo == null || userInfo == undefined) {
       ClearUserAuthInfo()
     } else {
       SaveUserAuthInfo(userInfo)
     }
+    this.setState({ userInfo: userInfo })
   }
 
   isUserDefined = () => {
@@ -82,7 +75,7 @@ class App extends React.Component {
 
   render() {
     return this.isUserDefined() ? (
-      this.state.shouldShowOverlay ? (
+      shouldRefreshOnReload ? (
         <div className="MainLoadingOverlay">
           <img src={NetworkActivityAnimation} height="40px" width="40px"></img>
         </div>

@@ -185,7 +185,7 @@ const GridSampleMatrix = props => {
 const GridTimeRuler = props => {
   const gridTimeRulerItemKey = 'gridTimeRulerItem'
   const rulerHeightInPixels = 30
-  const spaceBeforeStartInPixels = 40
+  const spaceBeforeStartInPixels = 80
   const { isHidden, numberOfCols, columnWidth, unit } = props
 
   /// Don't render if hidden
