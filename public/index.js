@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom'
 import { Authentication } from './components/authentication/authentication'
 import { AppDelegate } from './components/appDelegate/appDelegate'
 import NetworkActivityAnimation from './images/network_activity.gif'
-import { RequestGetOwnedBeats } from './components/requestService/itemRequestService'
 import {
   ClearUserAuthInfo,
   GetUserAuthInfo,
@@ -42,7 +41,9 @@ class App extends React.Component {
 
   componentDidMount() {
     if (this.state.userInfo != null && shouldRefreshOnReload) {
-      RequestUserTokenRefresh(_ => this.onLoginSuccess(GetUserAuthInfo()), this.onLoginError)
+      RequestUserTokenRefresh(_ => {
+        this.onLoginSuccess(GetUserAuthInfo())
+      }, this.onLoginError)
     }
   }
 

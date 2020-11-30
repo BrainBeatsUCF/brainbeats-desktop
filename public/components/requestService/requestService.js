@@ -43,7 +43,7 @@ const AvailableColorSpace = [
 
 /// Request APIs and Routes
 const azureRoute = window.process.env['BRAINBEATS_AZURE_API_URL']
-const readUserRoute = '/user/read_user'
+const readUserRouteV2 = '/v2/users/'
 
 /// Request Error Messages
 const expiredAuthorizationToken = 'The token is expired'
@@ -74,12 +74,9 @@ const RequestUserProfileImage = userInfo => {
  */
 const RequestUserIdentificationInfo = (onUserIdentityRecieved, limit) => {
   const userInfo = GetUserAuthInfo()
-  const url = azureRoute + readUserRoute
-  const requestBody = {
-    email: userInfo.email,
-  }
+  const url = azureRoute + readUserRouteV2 + userInfo.email
   axios
-    .post(url, requestBody, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
+    .get(url, { headers: { Authorization: `Bearer ${userInfo.authToken}` } })
     .then(response => response.data)
     .then(responseData => {
       const firstVertex = responseData[0]
