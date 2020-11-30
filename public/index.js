@@ -19,7 +19,6 @@ const TokenRefreshInterval = 40 * 60 * 1000 // 40 minutes
 
 const PreloadUserInfo = _ => {
   const userInfo = GetUserAuthInfo()
-  console.log(userInfo)
   if (
     userInfo != null &&
     userInfo != undefined &&
