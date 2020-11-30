@@ -16,10 +16,10 @@ import './scrollbar.css'
 let shouldRefreshOnReload = true
 
 const TokenRefreshInterval = 40 * 60 * 1000 // 40 minutes
-const WakeServerTime = 2 * 1000 // 2 seconds
 
 const PreloadUserInfo = _ => {
   const userInfo = GetUserAuthInfo()
+  console.log(userInfo)
   if (
     userInfo != null &&
     userInfo != undefined &&
@@ -38,36 +38,13 @@ class App extends React.Component {
     super(props)
     this.state = {
       userInfo: PreloadUserInfo(),
-      shouldShowOverlay: shouldRefreshOnReload,
     }
   }
 
   componentDidMount() {
     if (this.state.userInfo != null && shouldRefreshOnReload) {
-      RequestUserTokenRefresh(this.handleRefreshTokenSuccess, this.hideMainOverlay)
+      RequestUserTokenRefresh(_ => this.onLoginSuccess(GetUserAuthInfo()), this.onLoginError)
     }
-  }
-
-  hideMainOverlay = _ => {
-    this.setState({ shouldShowOverlay: false })
-  }
-
-  handleRefreshTokenSuccess = _ => {
-    RequestGetOwnedBeats(
-      GetUserAuthInfo(),
-      _ => {
-        shouldRefreshOnReload = false
-        this.hideMainOverlay()
-        setInterval(_ => {
-          RequestUserTokenRefresh()
-        }, TokenRefreshInterval)
-      },
-      _ => {
-        setTimeout(_ => {
-          this.handleRefreshTokenSuccess()
-        }, WakeServerTime)
-      }
-    )
   }
 
   onLoginSuccess = userInfo => {
@@ -83,12 +60,13 @@ class App extends React.Component {
   }
 
   setUserInfo = userInfo => {
-    this.setState({ userInfo: userInfo })
+    shouldRefreshOnReload = false
     if (userInfo == null || userInfo == undefined) {
       ClearUserAuthInfo()
     } else {
       SaveUserAuthInfo(userInfo)
     }
+    this.setState({ userInfo: userInfo })
   }
 
   isUserDefined = () => {
