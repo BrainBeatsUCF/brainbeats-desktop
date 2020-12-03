@@ -43,16 +43,16 @@ class App extends React.Component {
     if (this.state.userInfo != null && shouldRefreshOnReload) {
       RequestUserTokenRefresh(_ => {
         this.onLoginSuccess(GetUserAuthInfo())
-        setInterval(_ => {
-          RequestUserTokenRefresh()
-          console.log('Token Refreshed')
-        }, TokenRefreshInterval)
       }, this.onLoginError)
     }
   }
 
   onLoginSuccess = userInfo => {
     this.setUserInfo(userInfo)
+    setInterval(_ => {
+      RequestUserTokenRefresh()
+      console.log('Token Refreshed')
+    }, TokenRefreshInterval)
   }
 
   onLoginError = message => {
