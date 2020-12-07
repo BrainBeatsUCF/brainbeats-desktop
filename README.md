@@ -1,7 +1,7 @@
 # BrainBeats Desktop
 This repository contains the desktop client for brainbeats suite. At it's core, it's an electron application for creating audio samples out of brain waves.
 
-<img src="https://github.com/BrainBeatsUCF/brainbeats-desktop/blob/master/doc-images/studio-preview.png" height=600px width=100%></img>
+<img src="https://github.com/BrainBeatsUCF/brainbeats-desktop/blob/master/doc-images/studio-preview.png" width=100% object-fit="contain"></img>
 
 ## Development
 
