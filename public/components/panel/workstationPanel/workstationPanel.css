@@ -1,5 +1,6 @@
 :root {
   --workstation-button-space: 80px;
+  --workstation-wide-button-space: 110px;
   --workstation-menu-height: 38px;
   --section-combined-width: 450px;
   --header-combined-height: 98px;
@@ -20,8 +21,10 @@
   height: var(--workstation-menu-height);
   display: grid;
   grid-template-rows: 100%;
-  grid-template-columns: auto var(--workstation-button-space) 5px var(--workstation-button-space);
-  grid-template-areas: 'leftSpot middleSpot . rightSpot';
+  grid-template-columns: auto var(--workstation-wide-button-space) 5px var(--workstation-button-space) 5px var(
+      --workstation-button-space
+    );
+  grid-template-areas: 'leftSpot leftMiddleSpot . middleSpot . rightSpot';
 }
 
 .WorkstationPanelMenuTitle {

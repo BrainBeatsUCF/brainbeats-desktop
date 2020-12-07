@@ -17,8 +17,14 @@
   margin: 0px;
   padding: 5px;
   display: flex;
+  position: relative;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
+}
+
+.WaveFormContainer {
+  position: absolute;
 }
 
 .SampleGridItemTitle {

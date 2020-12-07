@@ -36,6 +36,7 @@ class WorkstationPanel extends React.Component {
       isPlayingAudio: false,
       renderedAudioNode: null,
       trackLinePosition: -1,
+      isShowingWaveform: false,
     }
   }
 
@@ -192,7 +193,7 @@ class WorkstationPanel extends React.Component {
   }
 
   render() {
-    const { customClass, isPlayingAudio, numberOfRows, trackLinePosition } = this.state
+    const { customClass, isPlayingAudio, numberOfRows, trackLinePosition, isShowingWaveform } = this.state
     const { currentGridBeat } = this.props
     const loadedTitle =
       numberOfRows > 0 && currentGridBeat.sampleTitle !== '' ? ' - ' + currentGridBeat.sampleTitle : ''
@@ -203,6 +204,21 @@ class WorkstationPanel extends React.Component {
             {this.props.title}
             {loadedTitle}
           </h4>
+          <MenuButton
+            props={{
+              color: MenuButtonColor.Blue,
+              selectionState: MenuButtonSelectionState.Active,
+              customClass: 'WorkstationPanelMenuButton leftMiddleSpot CenterSelf',
+              title: `${isShowingWaveform ? 'Hide' : 'Show'} Wave`,
+              imageCustomClass: 'WorkstationPanelNoImageMenuButton',
+              imageSource: PlayButton,
+              imageHeight: '20px',
+              imageWidth: '20px',
+              onMenuButtonClick: () => {
+                this.setState({ isShowingWaveform: !isShowingWaveform })
+              },
+            }}
+          ></MenuButton>
           <MenuButton
             props={{
               color: MenuButtonColor.Blue,
@@ -249,6 +265,7 @@ class WorkstationPanel extends React.Component {
               ></GridActivator>
             </div>
             <GridSampleMatrix
+              isShowingWaveform={isShowingWaveform}
               loadedGridSampleItems={this.props.currentGridBeat.samples}
               trackLinePosition={trackLinePosition}
               numberOfCols={DEFAULT_GRID_COLUMN_COUNT}

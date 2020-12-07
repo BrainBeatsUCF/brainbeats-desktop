@@ -1,6 +1,7 @@
 import React from 'react'
 import { Rnd } from 'react-rnd'
 import { GridSampleObject } from './gridObjects'
+import { WaveForm } from './waveform'
 import * as Constants from './constants.js'
 import GreenCheckmark from '../../../images/checkGreen.png'
 import RedCheckmark from '../../../images/checkRed.png'
@@ -64,6 +65,7 @@ const GridActivator = props => {
 
 /**
  * @param {{
+ * isShowingWaveform: Boolean,
  * trackLinePosition: Number,
  * loadedGridSampleItems: [GridSampleObject]
  * numberOfRows: Number,
@@ -111,6 +113,25 @@ const GridSampleMatrix = props => {
       const maxAudioLength = gridSampleItem.sampleAudioBuffer.duration * Constants.PIXELS_PER_SECOND
       const currentAudioLength = gridSampleItem.sampleAudioLength * Constants.PIXELS_PER_SECOND
       const rndMaximumLength = maxAudioLength < maxGridLength ? maxAudioLength : maxGridLength
+      const innerComponent = props.isShowingWaveform ? (
+        <div
+          className="WaveFormContainer"
+          style={{
+            height: Constants.CELL_HEIGHT_IN_PIXELS,
+            minWidth: rndMaximumLength,
+            width: rndMaximumLength,
+            left: -1 * gridSampleItem.sampleAudioStart * Constants.PIXELS_PER_SECOND,
+          }}
+        >
+          <WaveForm
+            audioData={gridSampleItem.sampleAudioBuffer}
+            height={Constants.CELL_HEIGHT_IN_PIXELS}
+            width={rndMaximumLength}
+          ></WaveForm>
+        </div>
+      ) : (
+        <h5 className="SampleGridItemTitle">{gridSampleItem.sampleTitle}</h5>
+      )
       return (
         <Rnd
           key={Constants.SAMPLE_GRID_ITEM_KEY_PREFIX + index}
@@ -148,7 +169,7 @@ const GridSampleMatrix = props => {
           onResizeStop={(event, dir, ref, delta, position) => handleResize(index, delta, dir)}
           onDragStop={(event, handler) => handleDrag(index, handler.lastX)}
         >
-          <h5 className="SampleGridItemTitle">{gridSampleItem.sampleTitle}</h5>
+          {innerComponent}
         </Rnd>
       )
     })
