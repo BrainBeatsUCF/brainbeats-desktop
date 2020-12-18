@@ -40,4 +40,4 @@ def build_model():
 
 def train_model(model, train_X, train_Y, batch_size, epochs):
 	model.fit(train_X, train_y, batch_size=batch_size, epochs=epochs)
-	model.save("./model.h5")
+	model.save("./checkpoints/model.h5")
